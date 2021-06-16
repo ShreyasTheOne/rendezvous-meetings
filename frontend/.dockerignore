@@ -1,0 +1,12 @@
+node_modules
+build
+
+# pycharm
+.idea
+
+# vscode
+.vscode
+
+# git
+.git
+.gitignore
