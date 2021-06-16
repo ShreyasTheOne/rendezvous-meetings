@@ -1,0 +1,15 @@
+# virtual environment
+.env
+
+# pycharm
+.idea
+
+# vscode
+.vscode
+
+# configuration
+configuration/config.env
+
+# git
+.git
+.gitignore
