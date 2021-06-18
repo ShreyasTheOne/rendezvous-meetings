@@ -1,0 +1,1 @@
+from rendezvous_authentication.views.auth import AuthViewSet
