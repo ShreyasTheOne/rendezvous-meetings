@@ -1,0 +1,30 @@
+#nav-container {
+    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 2fr 8fr 1fr;
+}
+
+#back-button {
+    grid-column: 1 / 1;
+}
+
+#app-header {
+    grid-column: 2 / 2;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+#menu-container {
+    grid-column: 3 / 3;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+#user-avatar {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
