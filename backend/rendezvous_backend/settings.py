@@ -15,7 +15,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG')
 
-ALLOWED_HOSTS = ['0.0.0.0','localhost',]
+ALLOWED_HOSTS = []
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 CSRF_COOKIE_NAME = 'rendezvous_csrftoken'
@@ -23,21 +23,28 @@ SESSION_COOKIE_NAME = 'rendezvous_sessionid'
 
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_WHITELIST = ['backend', '0.0.0.0', 'localhost']
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:51000',
+    'http://0.0.0.0:3000'
+)
 
 # Application definition
-
 INSTALLED_APPS = [
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'rendezvous',
+    'rendezvous_authentication',
 ]
 
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -47,7 +54,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'rendezvous_backend.urls'
+ROOT_URLCONF = 'rendezvous_backend.http_urls'
 
 TEMPLATES = [
     {
@@ -111,7 +118,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# AUTH_USER_MODEL = 'TheSphinx.User'
+ADMIN_SITE_URL = 'admin/'
+AUTH_USER_MODEL = 'rendezvous_authentication.User'
 
 LANGUAGE_CODE = 'en-us'
 
@@ -122,6 +130,7 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
 
 
 # Static files
