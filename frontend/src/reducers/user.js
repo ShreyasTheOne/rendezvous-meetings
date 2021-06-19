@@ -6,7 +6,7 @@ import {
 const defaultState = {
     loginState: false,
     loaded: false,
-    data: {},
+    user: {},
     error: false,
 }
 
@@ -25,4 +25,3 @@ const userInformation = (state = defaultState, action) => {
 }
 
 export default userInformation
-

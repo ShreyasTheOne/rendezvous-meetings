@@ -11,9 +11,11 @@ import axios from 'axios'
 
 import reducers from './reducers'
 import App from './components/App'
+import './index.css'
 
 axios.defaults.xsrfCookieName = 'rendezvous_csrftoken'
 axios.defaults.xsrfHeaderName = 'X-CSRFToken'
+
 axios.defaults.withCredentials = true
 
 const store = createStore(reducers, applyMiddleware(thunk))
@@ -28,4 +30,4 @@ ReactDOM.render(
   </Provider>
   ,
   document.getElementById('root')
-);
+)

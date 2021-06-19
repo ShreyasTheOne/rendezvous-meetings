@@ -11,6 +11,18 @@ export const routeHome = () => {
     return `${routeBase()}`
 }
 
+export const routeOrganisations = () => {
+    return `${routeBase()}organisations/`
+}
+
+export const routeCollaborations = () => {
+    return `${routeBase()}collaborations/`
+}
+
+export const routeMeeting = code => {
+    return `${routeBase()}meeting/${code}`
+}
+
 // Backend URLs
 
 const backendUrl = () => {
@@ -35,6 +47,10 @@ export const authLoginUrl = () => {
 
 export const authLogoutUrl = () => {
     return `${authBase()}logout/`
+}
+
+export const apiCreateInstantMeetingUrl = () => {
+    return `${apiBase()}meeting/instant/`
 }
 
 // OAuth Redirection URLs

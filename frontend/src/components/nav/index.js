@@ -1,77 +1,87 @@
-import Raact, { Component } from 'react'
-import { Button, Tabs, Tab, Avatar, Typography } from "@material-ui/core"
-import { ArrowBack } from "@material-ui/icons"
-
+import React, { Component } from 'react'
+import {
+    Avatar,
+    List,
+    ListItem,
+    Fab
+} from "@material-ui/core"
+import {
+    Home,
+    ArrowBack,
+    Business
+} from "@material-ui/icons"
+import {
+    red,
+    grey
+} from "@material-ui/core/colors"
+import {
+    routeHome,
+    routeOrganisations,
+} from "../../urls"
 import './css/index.css'
-import {routeBase} from "../../urls";
+import { connect } from 'react-redux'
 
-const menu_items = {
-    'home': {
-        'route': `${routeBase()}`,
-        'value': 0
+const menu_items = [
+    {
+        'icon': <Home/>,
+        'route': `${routeHome()}`,
+        'value': 'home'
     },
-    // 'organisations': {
-    //     'route': `${routeBase()}organisations/`,
-    //     'value': 1
-    // },
-    // 'collaborations': {
-    //     'route': `${routeBase()}collaborations/`,
-    //     'value': 2
-    // },
-}
+    {
+        'icon': <Business/>,
+        'route': `${routeOrganisations()}`,
+        'value': 'organisations'
+    },
+]
 
 class NavBar extends Component {
 
-    handleMenuItemChange = (event, value) => {
-        for (var key in menu_items) {
-            if (menu_items[key]['value'] === value) {
-                window.location = menu_items[key]['route']
-            }
-        }
+    handleMenuItemChange = route => {
+        window.location = route
     }
 
     render () {
+        // Props from parent component
         const { menu_item, showBackButton } = this.props
+
+        // Props from redux
+        const { UserInformation } = this.props
+        const { user } = UserInformation
+
         return (
-            <div
-                id='nav-container'
-            >
+            <div id='nav-container'>
                 {
                     showBackButton &&
-                    <Button
-                        id='back-button'
-                        startIcon={<ArrowBack/>}
-                    >
-                        Back
-                    </Button>
+                    <ArrowBack
+                        id={'back-button'}
+                        style={{ color: grey[50] }}
+                    />
                 }
-                <div
-                    id={'app-header'}
-                >
-                    <Typography>
-                        Rendezvous
-                    </Typography>
+                <div id='menu-items'>
+                    <List>
+                        {
+                            menu_items.map( item => {
+                                return (
+                                    <ListItem>
+                                        <Fab
+                                            variant="extended"
+                                            // style={{color: item['value'] === menu_item ? red[500] : ''}}
+                                            color={item['value'] === menu_item ? 'secondary' : ''}
+                                            onClick={() => this.handleMenuItemChange(item['route'])}
+                                        >
+                                            {item['icon']}
+                                        </Fab>
+                                    </ListItem>
+                                )
+                            })
+                        }
+                    </List>
                 </div>
                 <div
-                    id='menu-container'
-                >
-                    <Tabs
-                        value={menu_items[menu_item]['value']}
-                        onChange={this.handleMenuItemChange}
-                        indicatorColor="primary"
-                        textColor="primary"
-                    >
-                        <Tab label="Home" />
-                        {/*<Tab label="Organisations" />*/}
-                        {/*<Tab label="Collaborations" />*/}
-                    </Tabs>
-                </div>
-
-                <div
-                    id={'user-avatar'}
+                    id='nav-footer'
                 >
                     <Avatar
-                        src={'https://images.unsplash.com/photo-1488654715439-fbf461f0eb8d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'}
+                        src={user['profile_picture']}
                     />
                 </div>
             </div>
@@ -79,4 +89,10 @@ class NavBar extends Component {
     }
 }
 
-export default NavBar
+const mapStateToProps = state => {
+    return {
+        UserInformation: state.userInformation
+    }
+}
+
+export default connect(mapStateToProps, null)(NavBar)

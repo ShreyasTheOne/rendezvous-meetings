@@ -1,10 +1,15 @@
 import axios from 'axios'
-import { authLoginUrl, authLogoutUrl, authVerifyUrl, routeHome } from '../urls'
+import { authLoginUrl, authLogoutUrl, authVerifyUrl } from '../urls'
 import {
     CHANGE_USER_LOGIN_LOADED_ERROR,
     INITIALISE_USER,
 } from './types'
 
+
+/**
+ * Send a request to the backend to cHeck if the user is logged in or not
+ * Saves result in redux store.
+ */
 export const verifyUser = () => {
     return dispatch => {
         axios.get(
@@ -18,7 +23,7 @@ export const verifyUser = () => {
                         loginState: true,
                         loaded: true,
                         error: false,
-                        data: res.data['user']
+                        user: res.data['user']
                     }
                 })
             } else {
@@ -44,6 +49,15 @@ export const verifyUser = () => {
     }
 }
 
+
+/**
+ * Send request to backend to log the user in
+ * @param  {String} oauth_service The service that the user used to authenticate ('Google')
+ * @param  {String} code          The authentication code sent by the OAuth Service
+ *
+ * If login successful, stores the user data in the redux store.
+ * Else stores error state: true in redux store.
+ */
 export const loginUser = (oauth_service, code) => {
     return dispatch => {
         axios({
@@ -57,9 +71,10 @@ export const loginUser = (oauth_service, code) => {
                     loginState: true,
                     loaded: true,
                     error: false,
-                    data: res.data['user']
+                    user: res.data['user']
                 }
             })
+
         }).catch(e => {
             dispatch({
                 type: CHANGE_USER_LOGIN_LOADED_ERROR,
@@ -73,6 +88,10 @@ export const loginUser = (oauth_service, code) => {
     }
 }
 
+/**
+ * Send request to backend to log the user out
+ * Saves result in redux store.
+ */
 export const logoutUser = () => {
     return dispatch => {
         axios({
