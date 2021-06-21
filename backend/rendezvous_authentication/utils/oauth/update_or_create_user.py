@@ -1,5 +1,6 @@
 from rendezvous_authentication.models.user import User
 
+
 def update_or_create_user(user_email, user_name, user_picture):
     """Gets user with matching data.
     If user exists, it updates name and profile picture.
@@ -22,7 +23,6 @@ def update_or_create_user(user_email, user_name, user_picture):
         Object of User class that matches the given data
     """
 
-
     try:
         # Check to see if user exists in database already
         user = User.objects.get(email=user_email)
@@ -38,6 +38,7 @@ def update_or_create_user(user_email, user_name, user_picture):
 
         # If new user, create new user
         user = User(
+            username=user_email,
             email=user_email,
             full_name=user_name,
             profile_picture=user_picture,

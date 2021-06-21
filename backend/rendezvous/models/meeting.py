@@ -81,3 +81,14 @@ class Meeting(Base):
         If meeting is going on, only start time exists, not end time
         """
         return self.start_time is not None and self.end_time is None
+
+    def get_scheduled_time_str(self):
+        """
+        Convert scheduled start datetime object to string
+        """
+        if not self.scheduled_start_time:
+            return ''
+        return str(self.scheduled_start_time)
+
+    def __str__(self):
+        return f'{self.title} : {self.code}'
