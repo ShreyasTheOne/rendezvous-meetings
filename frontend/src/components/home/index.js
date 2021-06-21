@@ -1,24 +1,20 @@
 import React, { Component } from 'react'
-import axios from "axios"
 import NavBar from "../nav"
 import {
-    Typography,
     Button,
     ButtonGroup,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    TextField,
+    Typography,
 } from "@material-ui/core"
 import {
     Add
 } from "@material-ui/icons"
+import CreateCustomMeeting from "../meeting/create/custom"
 import './css/index.css'
-import {apiCreateInstantMeetingUrl, routeMeeting} from "../../urls";
+import CreateInstantMeeting from "../meeting/create/instant";
+
 
 const INSTANT = 'instant'
-const SCHEDULE = 'schedule'
+const CUSTOM = 'custom'
 
 class Home extends Component {
 
@@ -27,25 +23,9 @@ class Home extends Component {
         this.state = {
             dialogBoxOpen: {
                 [INSTANT]: false,
-                [SCHEDULE]: false,
-            }
+                [CUSTOM]: false,
+            },
         }
-    }
-
-    handleInstantMeetingCreate = () => {
-        let post_data = {}
-        if (this.state.instant_meeting_title)
-            post_data['title'] = this.state.instant_meeting_title
-
-        axios({
-            method: 'POST',
-            url: apiCreateInstantMeetingUrl(),
-            data: post_data
-        }).then(res => {
-            window.location = routeMeeting(res['data']['meeting_code'])
-        }).catch(e => {
-
-        })
     }
 
     setDialogBoxOpenClose = (which_box, new_state) => {
@@ -72,7 +52,7 @@ class Home extends Component {
                             <div id='home-heading-right'>
                                 <ButtonGroup>
                                     <Button
-                                        style={{textTransform: 'none'}}
+                                        color={'primary'}
                                         startIcon={<Add/>}
                                         variant={'contained'}
                                         onClick={() => this.setDialogBoxOpenClose(INSTANT, true)}
@@ -80,48 +60,37 @@ class Home extends Component {
                                         Instant Meeting
                                     </Button>
                                     <Button
-                                        style={{textTransform: 'none'}}
+                                        color={'secondary'}
                                         startIcon={<Add/>}
                                         variant={'contained'}
-                                        onClick={() => this.setDialogBoxOpenClose(SCHEDULE, true)}
+                                        onClick={() => this.setDialogBoxOpenClose(CUSTOM, true)}
                                     >
-                                        Schedule Meeting
+                                        Custom Meeting
                                     </Button>
                                 </ButtonGroup>
                             </div>
                         </div>
                     </div>
                 </div>
-                <Dialog
+
+
+
+                {/* DIALOG BOXES */}
+
+                {/* INSTANT MEETING CREATION */}
+                <CreateInstantMeeting
                     open={this.state.dialogBoxOpen[INSTANT]}
-                    onClose={() => this.setDialogBoxOpenClose(INSTANT, false)}
-                >
-                    <DialogTitle>
-                        Create Instant Meeting
-                    </DialogTitle>
-                    <DialogContent>
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            label="Optional meeting title."
-                            fullWidth
-                            onChange={(e, d) => this.setState({instant_meeting_title: d.value})}
-                        />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button
-                            onClick={() => this.setDialogBoxOpenClose(INSTANT, false)}
-                            color="primary"
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={() => this.handleInstantMeetingCreate()}
-                            color="primary">
-                            Create
-                        </Button>
-                    </DialogActions>
-                </Dialog>
+                    INSTANT={INSTANT}
+                    setDialogBoxOpenClose={this.setDialogBoxOpenClose.bind(this)}
+                />
+
+                {/* CUSTOM MEETING CREATION */}
+                <CreateCustomMeeting
+                    open={this.state.dialogBoxOpen[CUSTOM]}
+                    CUSTOM={CUSTOM}
+                    setDialogBoxOpenClose={this.setDialogBoxOpenClose.bind(this)}
+                />
+
             </div>
         )
     }

@@ -3,7 +3,8 @@ import {
     Avatar,
     List,
     ListItem,
-    Fab
+    Fab,
+    Tooltip
 } from "@material-ui/core"
 import {
     Home,
@@ -25,12 +26,14 @@ const menu_items = [
     {
         'icon': <Home/>,
         'route': `${routeHome()}`,
-        'value': 'home'
+        'value': 'home',
+        'tooltip': 'Home'
     },
     {
         'icon': <Business/>,
         'route': `${routeOrganisations()}`,
-        'value': 'organisations'
+        'value': 'organisations',
+        'tooltip': 'Organisations'
     },
 ]
 
@@ -63,14 +66,16 @@ class NavBar extends Component {
                             menu_items.map( item => {
                                 return (
                                     <ListItem>
-                                        <Fab
-                                            variant="extended"
-                                            // style={{color: item['value'] === menu_item ? red[500] : ''}}
-                                            color={item['value'] === menu_item ? 'secondary' : ''}
-                                            onClick={() => this.handleMenuItemChange(item['route'])}
-                                        >
-                                            {item['icon']}
-                                        </Fab>
+                                        <Tooltip title={item['tooltip']} arrow={false} placement={'right'}>
+                                            <Fab
+                                                variant="extended"
+                                                // style={{color: item['value'] === menu_item ? red[500] : ''}}
+                                                color={item['value'] === menu_item ? 'secondary' : ''}
+                                                onClick={() => this.handleMenuItemChange(item['route'])}
+                                            >
+                                                {item['icon']}
+                                            </Fab>
+                                        </Tooltip>
                                     </ListItem>
                                 )
                             })

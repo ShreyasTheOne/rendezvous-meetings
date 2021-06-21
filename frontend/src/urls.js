@@ -53,6 +53,14 @@ export const apiCreateInstantMeetingUrl = () => {
     return `${apiBase()}meeting/instant/`
 }
 
+export const apiCreateCustomMeetingUrl = () => {
+    return `${apiBase()}meeting/custom/`
+}
+
+export const apiUserSearchUrl = query => {
+    return `${apiBase()}search_users/?search=${query}`
+}
+
 // OAuth Redirection URLs
 
 export const googleOAuthRedirect = (state = 'google') => {
