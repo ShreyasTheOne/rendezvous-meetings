@@ -4,12 +4,22 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from rendezvous_authentication.models import User
-from rendezvous_authentication.serializers.user import UserSerializer
+from rendezvous_authentication.serializers.user import UserSerializer, UserDropdownSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
-    serializer_class = UserSerializer
+
+    def get_serializer_class(self):
+        """
+        Returns the serializer used to send back data
+        """
+
+        use = self.request.query_params.get('for', None)
+        if use == 'dropdown':
+            return UserDropdownSerializer
+        else:
+            return UserSerializer
 
     def get_queryset(self):
         """
@@ -22,6 +32,9 @@ class UserViewSet(viewsets.ModelViewSet):
         """
 
         search = self.request.query_params.get('search', None)
+
+        if not search:
+            return User.objects.none()
 
         try:
             results = User.objects.filter(

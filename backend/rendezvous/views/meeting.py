@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from rendezvous.models.meeting import Meeting
-from rendezvous.serializers.meeting import MeetingShallowSerializer
+from rendezvous.serializers.meeting import MeetingCreatedSerializer
 
 from rendezvous_authentication.models import User
 
@@ -37,6 +37,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
         """
 
         response_data = {
+            'success': 'Meeting created',
             'meeting_code': meeting.code
         }
         return Response(
@@ -52,7 +53,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
         # Destructure request data
         title = request.data.get('title', None)
         description = request.data.get('description', None)
-        invitees = request.data.get('invitees', None)
+        invitees = request.data.get('invitees_selected', None)
         scheduled_start_time = request.data.get('scheduled_start_time', None)
         start_now = request.data.get('start_now', None)
 
@@ -62,8 +63,12 @@ class MeetingViewSet(viewsets.ModelViewSet):
         if start_now is True:
             scheduled_datetime_obj = now
         elif scheduled_start_time is not None:
-            scheduled_datetime_obj = datetime.strptime(scheduled_start_time, "%Y-%m-%dT%H:%M")
-            if scheduled_datetime_obj < now:
+
+            try:
+                scheduled_datetime_obj = datetime.strptime(scheduled_start_time, "%d-%m-%Y %H:%M")
+                if scheduled_datetime_obj < now:
+                    raise
+            except Exception:
                 response_data = {
                     'error': "Invalid start time.",
                 }
@@ -92,14 +97,15 @@ class MeetingViewSet(viewsets.ModelViewSet):
 
         # Add invitees
         for inv in invitees:
-            uuid = inv.get('uuid')
+            # invitees is a list of emails of those invited
+            email = inv
 
             # Validate invitee
-            if not uuid or uuid is request.user.uuid:
+            if not email or email is request.user.email:
                 continue
 
             try:
-                user = User.objects.get(uuid=uuid)
+                user = User.objects.get(email=email)
                 meeting.invitees.add(user)
             except User.DoesNotExist:
                 pass
@@ -113,8 +119,8 @@ class MeetingViewSet(viewsets.ModelViewSet):
         """
 
         response_data = {
-            'success': 'Meeting object created',
-            'meeting': MeetingShallowSerializer(meeting).data
+            'success': 'Meeting created',
+            'meeting': MeetingCreatedSerializer(meeting).data
         }
         return Response(
             response_data,
