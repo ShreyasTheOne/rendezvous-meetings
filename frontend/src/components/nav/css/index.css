@@ -1,30 +1,43 @@
-#nav-container {
-    align-items: center;
-    display: grid;
-    grid-template-columns: 1fr 2fr 8fr 1fr;
-}
 
 #back-button {
-    grid-column: 1 / 1;
+    grid-row: 1 / 1;
+    align-self: center;
+    justify-self: center;
+    margin-top: 1rem;
 }
 
-#app-header {
-    grid-column: 2 / 2;
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
+#nav-container {
+    background-color: #1b1a17;
+    display: grid;
+    grid-template-rows: 1fr 10fr 2fr;
+
+    width: 88px !important;
+    max-width: 88px !important;
+    height: 100vh;
     justify-content: center;
-}
-
-#menu-container {
-    grid-column: 3 / 3;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
 }
 
 #user-avatar {
     display: flex;
     flex-direction: row;
+    justify-content: center;
+}
+
+#menu-items {
+    grid-row: 2 / 2;
+    justify-self: flex-start;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin-top: 2rem;
+}
+
+#nav-footer {
+    grid-row: 3 / 3;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
 }

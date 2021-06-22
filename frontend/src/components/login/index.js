@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {Button} from "@material-ui/core"
+import {Button} from "semantic-ui-react"
 import {styleFullPage} from "../../styles"
 import {googleOAuthRedirect} from '../../urls'
 
@@ -13,10 +13,8 @@ class Login extends Component {
     render () {
         return (
             <div style={styleFullPage}>
-
                 <Button
-                    variant={'contained'}
-                    color={'primary'}
+                    color={'blue'}
                     onClick={this.login}
                 >
                     Login with Google

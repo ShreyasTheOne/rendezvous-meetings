@@ -1,77 +1,89 @@
-import Raact, { Component } from 'react'
-import { Button, Tabs, Tab, Avatar, Typography } from "@material-ui/core"
-import { ArrowBack } from "@material-ui/icons"
-
+import React, { Component } from 'react'
+import {
+    Icon,
+    Button,
+    Popup,
+    Image
+} from "semantic-ui-react"
+import {
+    routeHome,
+    routeOrganisations,
+} from "../../urls"
 import './css/index.css'
-import {routeBase} from "../../urls";
+import { connect } from 'react-redux'
 
-const menu_items = {
-    'home': {
-        'route': `${routeBase()}`,
-        'value': 0
+const menu_items = [
+    {
+        'icon': 'home',
+        'route': `${routeHome()}`,
+        'value': 'home',
+        'popup': 'Home'
     },
-    // 'organisations': {
-    //     'route': `${routeBase()}organisations/`,
-    //     'value': 1
-    // },
-    // 'collaborations': {
-    //     'route': `${routeBase()}collaborations/`,
-    //     'value': 2
-    // },
-}
+    {
+        'icon': 'building',
+        'route': `${routeOrganisations()}`,
+        'value': 'organisations',
+        'popup': 'Organisations'
+    },
+]
 
 class NavBar extends Component {
 
-    handleMenuItemChange = (event, value) => {
-        for (var key in menu_items) {
-            if (menu_items[key]['value'] === value) {
-                window.location = menu_items[key]['route']
-            }
-        }
+    handleMenuItemChange = route => {
+        window.location = route
     }
 
     render () {
+        // Props from parent component
         const { menu_item, showBackButton } = this.props
+
+        // Props from redux
+        const { UserInformation } = this.props
+        const { user } = UserInformation
+
         return (
-            <div
-                id='nav-container'
-            >
+            <div id='nav-container'>
                 {
                     showBackButton &&
-                    <Button
-                        id='back-button'
-                        startIcon={<ArrowBack/>}
-                    >
-                        Back
-                    </Button>
+                    <Icon
+                        id={'back-button'}
+                        name={'arrow left'}
+                        size={'big'}
+                        inverted
+                    />
                 }
-                <div
-                    id={'app-header'}
-                >
-                    <Typography>
-                        Rendezvous
-                    </Typography>
+                <div id='menu-items'>
+                    {
+                        menu_items.map( item => {
+                            return (
+                                <Popup
+                                    content={item['popup']}
+                                    inverted
+                                    basic
+                                    position={'right center'}
+                                    trigger={
+                                        <Button
+                                            style={{marginTop: '1rem'}}
+                                            size={'large'}
+                                            icon={item['icon']}
+                                            inverted={item['value'] !== menu_item}
+                                            color={item['value'] === menu_item ? 'red' : 'white'}
+                                            onClick={() => this.handleMenuItemChange(item['route'])}
+                                        />
+                                    }
+                                />
+                            )
+                        })
+                    }
                 </div>
                 <div
-                    id='menu-container'
+                    id='nav-footer'
                 >
-                    <Tabs
-                        value={menu_items[menu_item]['value']}
-                        onChange={this.handleMenuItemChange}
-                        indicatorColor="primary"
-                        textColor="primary"
-                    >
-                        <Tab label="Home" />
-                        {/*<Tab label="Organisations" />*/}
-                        {/*<Tab label="Collaborations" />*/}
-                    </Tabs>
-                </div>
-
-                <div
-                    id={'user-avatar'}
-                >
-                    <Avatar
-                        src={'https://images.unsplash.com/photo-1488654715439-fbf461f0eb8d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'}
+                    <Image
+                        avatar
+                        size={'mini'}
+                        style={{ cursor: 'pointer' }}
+                        src={user['profile_picture']}
                     />
                 </div>
             </div>
@@ -79,4 +91,10 @@ class NavBar extends Component {
     }
 }
 
-export default NavBar
+const mapStateToProps = state => {
+    return {
+        UserInformation: state.userInformation
+    }
+}
+
+export default connect(mapStateToProps, null)(NavBar)

@@ -6,14 +6,13 @@ import {
     BrowserRouter as Router,
     Redirect
 } from 'react-router-dom'
-import { CircularProgress } from "@material-ui/core"
 
 import { verifyUser, loginUser } from "../actions/user"
 import { styleFullPage } from "../styles"
 import Login from "./login"
-import './App.css'
-import {routeBase} from "../urls"
-import Home from "./home";
+import Home from "./home"
+import Meeting from "./meeting"
+import {Loader} from "semantic-ui-react";
 
 class App extends Component {
 
@@ -22,14 +21,12 @@ class App extends Component {
         if (!loaded) {
             const pathArray = window.location.pathname.split('/')
             if (pathArray[1] === 'redirect') {
-                console.log("Reached redirect")
                 const params = new URLSearchParams(window.location.search)
                 this.props.LoginUser(
                     params.get('state'),
                     params.get('code')
                 )
             } else {
-                console.log("verifying user")
                 this.props.VerifyUser()
             }
         }
@@ -40,17 +37,16 @@ class App extends Component {
         const { loginState, loaded } = UserInformation
 
         if (loaded === false) {
-            console.log("Not loaded")
             return (
                 <div style={styleFullPage}>
-                    <CircularProgress/>
+                    <Loader active/>
                 </div>
             )
         }
 
         if (loginState === false) {
             return (
-                <Redirect to={routeBase()} />
+                <Login/>
             )
         }
 
@@ -60,9 +56,27 @@ class App extends Component {
                     <Switch>
                         <Route
                             exact
-                            path={`${match.path}/`}
+                            path={`${match.path}`}
                             component={Home}
                         />
+                        <Route
+                            exact
+                            path={`${match.path}meeting/:code/`}
+                            component={Meeting}
+                        />
+                        <Route
+                            path={`${match.path}redirect/`}
+                            render={() => {
+                                return (<Redirect to='/' />)
+                            }}
+                        />
+                        {/* 404
+                        <Route
+                            render={() => {
+                                return
+                            }}
+                        />
+                        */}
                     </Switch>
                 </Router>
             )

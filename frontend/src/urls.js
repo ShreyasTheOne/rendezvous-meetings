@@ -11,6 +11,18 @@ export const routeHome = () => {
     return `${routeBase()}`
 }
 
+export const routeOrganisations = () => {
+    return `${routeBase()}organisations/`
+}
+
+export const routeCollaborations = () => {
+    return `${routeBase()}collaborations/`
+}
+
+export const routeMeeting = code => {
+    return `${routeBase()}meeting/${code}`
+}
+
 // Backend URLs
 
 const backendUrl = () => {
@@ -35,6 +47,22 @@ export const authLoginUrl = () => {
 
 export const authLogoutUrl = () => {
     return `${authBase()}logout/`
+}
+
+export const apiCreateInstantMeetingUrl = () => {
+    return `${apiBase()}meeting/instant/`
+}
+
+export const apiCreateCustomMeetingUrl = () => {
+    return `${apiBase()}meeting/custom/`
+}
+
+export const apiUserSearchUrl = (query, dropdown=false, get_all=false) => {
+    let url = `${apiBase()}search_users/?search=${query}`
+    if (dropdown) url += `&for=dropdown`
+    if (get_all) url += `&get_all=true`
+
+    return url
 }
 
 // OAuth Redirection URLs
