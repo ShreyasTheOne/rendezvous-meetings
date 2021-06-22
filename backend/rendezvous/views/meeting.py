@@ -90,7 +90,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
         meeting = Meeting(
             title=title,
             description=description,
-            start_time=scheduled_datetime_obj,
+            scheduled_start_time=scheduled_datetime_obj,
             host=request.user,
         )
         meeting.save()

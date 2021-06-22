@@ -31,16 +31,23 @@ class UserViewSet(viewsets.ModelViewSet):
             Top 20 results that match the search query
         """
 
-        search = self.request.query_params.get('search', None)
+        get_all = self.request.query_params.get('get_all', None)
 
+        if get_all:
+            return User.objects.filter(
+                Q(is_superuser=False) &
+                ~Q(uuid=self.request.user.uuid)
+            )
+
+        search = self.request.query_params.get('search', None)
         if not search:
             return User.objects.none()
 
         try:
             results = User.objects.filter(
                 (
-                    Q(full_name__icontains=search) |
-                    Q(email__icontains=search)
+                        Q(full_name__icontains=search) |
+                        Q(email__icontains=search)
                 )
                 & Q(is_superuser=False)
                 & ~Q(uuid=self.request.user.uuid)
