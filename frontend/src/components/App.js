@@ -6,13 +6,13 @@ import {
     BrowserRouter as Router,
     Redirect
 } from 'react-router-dom'
-import { CircularProgress } from "@material-ui/core"
 
 import { verifyUser, loginUser } from "../actions/user"
 import { styleFullPage } from "../styles"
 import Login from "./login"
 import Home from "./home"
 import Meeting from "./meeting"
+import {Loader} from "semantic-ui-react";
 
 class App extends Component {
 
@@ -39,7 +39,7 @@ class App extends Component {
         if (loaded === false) {
             return (
                 <div style={styleFullPage}>
-                    <CircularProgress/>
+                    <Loader active/>
                 </div>
             )
         }

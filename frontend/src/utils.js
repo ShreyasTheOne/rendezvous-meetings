@@ -5,18 +5,21 @@
  * @return {Array.<User>}                  List of matching search results that haven't been already selected
  */
 export const get_new_results = (all_matching, already_selected=[]) => {
+    already_selected.sort()
+
     let all_i=0, curr_i=0
     const n=all_matching.length, m=already_selected.length
 
     let new_results = []
     while (all_i < n) {
+        const new_entry = all_matching[all_i]
         if (curr_i === m) {
-            new_results.push(all_matching[all_i])
+            new_results.push(new_entry)
         } else {
-            if (all_matching[all_i]['email'] === already_selected[curr_i]['email']) {
+            if (new_entry['key'] === already_selected[curr_i]) {
                 curr_i++;
             } else {
-                new_results.push(all_matching[all_i])
+                new_results.push(new_entry)
             }
         }
         all_i++

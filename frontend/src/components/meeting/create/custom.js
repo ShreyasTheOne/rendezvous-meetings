@@ -1,29 +1,18 @@
 import axios from "axios"
 import React, { Component } from 'react'
-import {Autocomplete} from "@material-ui/lab"
 import {apiCreateCustomMeetingUrl, apiUserSearchUrl} from "../../../urls"
+
+import { DateTimeInput } from "semantic-ui-calendar-react"
 import {
+    Form,
     Button,
-    LoadingButton,
     Checkbox,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    TextField,
-    FormControlLabel
-} from "@material-ui/core"
+    Modal,
+    Message
+} from "semantic-ui-react"
 import { get_new_results } from "../../../utils"
 
-const startTimeStyle = {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '70%',
-}
-
-const moment = require('moment');
+const moment = require('moment')
 
 class CreateCustomMeeting extends Component {
 
@@ -33,75 +22,67 @@ class CreateCustomMeeting extends Component {
             'inputs': {
                 'title': '',
                 'description': '',
-                'invitees': [],
+                'invitees_selected': [],
                 'scheduled_start_time': '',
                 'start_now': false,
             },
             'errors': {
                 'title': false,
                 'description': false,
-                'invitees': false,
+                'invitees_selected': false,
                 'scheduled_start_time': false,
                 'start_now': false,
             },
             'invitee_options': [],
             'loading': false,
+            'meeting_created': false,
+            'meeting_details': {}
         }
     }
 
-    handleCustomMeetingInputChange = event => {
-        if (event.target.name === 'start_now') {
-            this.setState({
-                'inputs': {
-                    ...this.state.inputs,
-                    [event.target.name]: event.target.checked,
-                },
-                'errors': {
-                    ...this.state.inputs,
-                    [event.target.name]: false,
-                }
-            })
-        } else {
-            this.setState({
-                'inputs': {
-                    ...this.state.inputs,
-                    [event.target.name]: event.target.value,
-                },
-                'errors': {
-                    ...this.state.inputs,
-                    [event.target.name]: false,
-                }
-            })
-        }
-    }
-
-    handleInviteeInputChange = (event, value, reason) => {
+    handleCustomMeetingInputChange = (event, {name, value}) => {
+        console.log(value)
         this.setState({
             'inputs': {
                 ...this.state.inputs,
-                'invitees': value,
+                [name]: value,
+            },
+            'errors': {
+                ...this.state.errors,
+                [name]: false,
             }
         })
     }
 
-    handleInviteeSearch = event => {
-        const search = event.target.value
-        if (!search) {
-            this.setState({
-                'invitee_options': []
-            })
-            return
-        }
+    handleStartNowCheckboxChange = (event, {checked}) => {
+        this.setState({
+            'inputs': {
+                ...this.state.inputs,
+                'start_now': checked,
+            },
+            'errors': {
+                ...this.state.inputs,
+                'start_now': false,
+            }
+        })
+    }
+
+    handleInviteeSearch = (event, {searchQuery} ) => {
+        this.setState({
+            inviteeSearching: true
+        })
 
         axios({
-            url: apiUserSearchUrl(event.target.value)
+            url: apiUserSearchUrl(searchQuery, true)
         }).then(res => {
             this.setState({
-                'invitee_options': get_new_results(res.data, this.state.inputs.invitees)
+                'invitee_options': get_new_results(res.data, this.state.inputs.invitees_selected),
+                inviteeSearching: false
             })
         }).catch(e => {
             this.setState({
-                'invitee_options': []
+                'invitee_options': [],
+                inviteeSearching: false,
             })
         })
     }
@@ -127,7 +108,11 @@ class CreateCustomMeeting extends Component {
             url: apiCreateCustomMeetingUrl(),
             data: inputs,
         }).then(res => {
-
+            this.setState({
+                loading: false,
+                meeting_created: true,
+                meeting_details: res.data.meeting
+            })
         }).catch(e => {
 
         })
@@ -135,100 +120,123 @@ class CreateCustomMeeting extends Component {
 
     render () {
         const { setDialogBoxOpenClose, open, CUSTOM } = this.props
+        const { meeting_created, meeting_details, inputs } = this.state
+
         return (
-            <Dialog
-                fullWidth
-                maxWidth={'sm'}
+            <Modal
+                closeOnEscape={false}
                 open={open}
                 onClose={() => setDialogBoxOpenClose(CUSTOM, false)}
             >
-                <DialogTitle>
+                <Modal.Header>
                     Custom Meeting
-                </DialogTitle>
-                <DialogContent>
-                    <TextField
-                        autoFocus
-                        name={'title'}
-                        label={'Title'}
-                        margin={'dense'}
-                        placeholder="Optional meeting title."
-                        fullWidth
-                        onChange={this.handleCustomMeetingInputChange.bind(this)}
-                    />
-                    <TextField
-                        name={'description'}
-                        label={'Description'}
-                        margin={'dense'}
-                        placeholder="Optional meeting description."
-                        fullWidth
-                        multiline
-                        onChange={this.handleCustomMeetingInputChange.bind(this)}
-                    />
-                    <Autocomplete
-                        multiple
-                        filterSelectedOptions
-                        options={this.state.invitee_options}
-                        getOptionLabel={user => `${user.full_name} - ${user.email}`}
-                        onChange={this.handleInviteeInputChange.bind(this)}
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                label="Invite Users"
-                                helperText="To invite teams from your organisation, go to your organisation's page."
-                                placeholder="Search by name or email"
-                                onChange={this.handleInviteeSearch.bind(this)}
-                            />
-                        )}
-                    />
-                    <div
-                        style={startTimeStyle}
-                    >
-                        <TextField
-                            name={'scheduled_start_time'}
-                            label="Scheduled start time"
-                            type="datetime-local"
-                            error={this.state.errors.scheduled_start_time}
-                            disabled={this.state.inputs.start_now}
-                            styles={{marginTop: '2rem'}}
-                            fullWidth={false}
+                </Modal.Header>
+                <Modal.Content>
+                    <Form success={meeting_created}>
+                        {
+                            meeting_created &&
+                            (
+                                <>
+                                <Message
+                                    success
+                                    header='Meeting Created!'
+                                    content="Here are the meeting details"
+                                />
+                                <Form.Input
+                                    name={'code'}
+                                    label={'Meeting Code'}
+                                    value={meeting_details.code}
+                                    transparent
+                                    readOnly
+                                />
+                                </>
+                            )
+                        }
+                        <Form.Input
+                            name={'title'}
+                            label={'Title'}
+                            value = {meeting_created ? meeting_details.title : inputs.title}
+                            readOnly={meeting_created}
+                            fluid
+                            placeholder="Optional meeting title."
                             onChange={this.handleCustomMeetingInputChange.bind(this)}
-                            inputProps={{ min: moment().format('YYYY-MM-DDTHH:MM') }}
                         />
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    name='start_now'
-                                    error={this.state.errors.start_now}
-                                    checked={this.state.inputs.start_now}
+                        <Form.TextArea
+                            name={'description'}
+                            label={'Description'}
+                            value = {meeting_created ? meeting_details.description : inputs.description}
+                            readOnly={meeting_created}
+                            placeholder="Optional meeting description."
+                            fluid
+                            onChange={this.handleCustomMeetingInputChange.bind(this)}
+                        />
+                        <Form.Dropdown
+                            fluid selection multiple search
+                            name={'invitees_selected'}
+                            label={'Invite Users'}
+                            value={inputs.invitees_selected}
+                            readOnly={meeting_created}
+                            loading={this.state.inviteeSearching}
+                            options={this.state.invitee_options}
+                            placeholder='Invite users to your meeting'
+                            onChange={this.handleCustomMeetingInputChange.bind(this)}
+                            onSearchChange={this.handleInviteeSearch.bind(this)}
+                            renderLabel={label =>
+                                ({
+                                    basic: true,
+                                    color: "black",
+                                    content: `${label.text} - ${label.value}`,
+                                    image: {
+                                        src: label.img,
+                                        size: 'tiny',
+                                        avatar: true,
+                                        spaced: 'right'
+                                    }
+                                })
+                            }
+                        />
+                        <Form.Group inline>
+                            {
+                                (!inputs.start_now || meeting_created) &&
+                                <DateTimeInput
+                                    name="scheduled_start_time"
+                                    placeholder="Scheduled start time"
+                                    value={meeting_created ? meeting_details.scheduled_start_time : inputs.scheduled_start_time}
+                                    minDate = {moment().format('DD-MM-YYYY HH:MM')}
+                                    iconPosition="left"
                                     onChange={this.handleCustomMeetingInputChange.bind(this)}
                                 />
                             }
-                            label="Start now"
-                            labelPlacement="end"
-                        />
-                    </div>
-                </DialogContent>
-                <DialogActions>
+                            {   !meeting_created &&
+                                <Checkbox
+                                    name='start_now'
+                                    label={'Start now'}
+                                    error={this.state.errors.start_now.toString()}
+                                    checked={this.state.inputs.start_now}
+                                    onChange={this.handleStartNowCheckboxChange.bind(this)}
+                                />
+                            }
+                        </Form.Group>
+                    </Form>
+                </Modal.Content>
+                <Modal.Actions>
                     <Button
                         disabled={this.state.loading}
                         onClick={() => setDialogBoxOpenClose(CUSTOM, false)}
-                        color="primary"
+                        secondary
+                        basic
                     >
                         Cancel
                     </Button>
-                    {
-                        this.state.loading ?
-                            <LoadingButton/>
-                            :
-                            <Button
-                                onClick={() => this.handleCustomMeetingCreate()}
-                                color="primary"
-                            >
-                                Create
-                            </Button>
-                    }
-                </DialogActions>
-            </Dialog>
+                    <Button
+                        loading={this.state.loading}
+                        onClick={() => this.handleCustomMeetingCreate()}
+                        color="red"
+                    >
+                        Create
+                    </Button>
+                </Modal.Actions>
+            </Modal>
         )
     }
 }

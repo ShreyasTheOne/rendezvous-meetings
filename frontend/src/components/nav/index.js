@@ -1,20 +1,10 @@
 import React, { Component } from 'react'
 import {
-    Avatar,
-    List,
-    ListItem,
-    Fab,
-    Tooltip
-} from "@material-ui/core"
-import {
-    Home,
-    ArrowBack,
-    Business
-} from "@material-ui/icons"
-import {
-    red,
-    grey
-} from "@material-ui/core/colors"
+    Icon,
+    Button,
+    Popup,
+    Image
+} from "semantic-ui-react"
 import {
     routeHome,
     routeOrganisations,
@@ -24,16 +14,16 @@ import { connect } from 'react-redux'
 
 const menu_items = [
     {
-        'icon': <Home/>,
+        'icon': 'home',
         'route': `${routeHome()}`,
         'value': 'home',
-        'tooltip': 'Home'
+        'popup': 'Home'
     },
     {
-        'icon': <Business/>,
+        'icon': 'building',
         'route': `${routeOrganisations()}`,
         'value': 'organisations',
-        'tooltip': 'Organisations'
+        'popup': 'Organisations'
     },
 ]
 
@@ -55,37 +45,44 @@ class NavBar extends Component {
             <div id='nav-container'>
                 {
                     showBackButton &&
-                    <ArrowBack
+                    <Icon
                         id={'back-button'}
-                        style={{ color: grey[50] }}
+                        name={'arrow left'}
+                        size={'big'}
+                        inverted
                     />
                 }
                 <div id='menu-items'>
-                    <List>
-                        {
-                            menu_items.map( item => {
-                                return (
-                                    <ListItem>
-                                        <Tooltip title={item['tooltip']} arrow={false} placement={'right'}>
-                                            <Fab
-                                                variant="extended"
-                                                // style={{color: item['value'] === menu_item ? red[500] : ''}}
-                                                color={item['value'] === menu_item ? 'secondary' : ''}
-                                                onClick={() => this.handleMenuItemChange(item['route'])}
-                                            >
-                                                {item['icon']}
-                                            </Fab>
-                                        </Tooltip>
-                                    </ListItem>
-                                )
-                            })
-                        }
-                    </List>
+                    {
+                        menu_items.map( item => {
+                            return (
+                                <Popup
+                                    content={item['popup']}
+                                    inverted
+                                    basic
+                                    position={'right center'}
+                                    trigger={
+                                        <Button
+                                            style={{marginTop: '1rem'}}
+                                            size={'large'}
+                                            icon={item['icon']}
+                                            inverted={item['value'] !== menu_item}
+                                            color={item['value'] === menu_item ? 'red' : 'white'}
+                                            onClick={() => this.handleMenuItemChange(item['route'])}
+                                        />
+                                    }
+                                />
+                            )
+                        })
+                    }
                 </div>
                 <div
                     id='nav-footer'
                 >
-                    <Avatar
+                    <Image
+                        avatar
+                        size={'mini'}
+                        style={{ cursor: 'pointer' }}
                         src={user['profile_picture']}
                     />
                 </div>

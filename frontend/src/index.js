@@ -7,8 +7,7 @@ import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
 import thunk from 'redux-thunk'
 
-import { ThemeProvider } from "@material-ui/core/styles"
-import theme from "./themes/theme"
+import 'semantic-ui-css/semantic.min.css'
 
 import axios from 'axios'
 
@@ -25,13 +24,11 @@ const store = createStore(reducers, applyMiddleware(thunk))
 
 ReactDOM.render(
   <Provider store={store}>
-      <ThemeProvider theme={theme}>
           <React.StrictMode>
               <Router>
                   <Route path='/' component={App} />
               </Router>
           </React.StrictMode>
-      </ThemeProvider>
   </Provider>
   ,
   document.getElementById('root')

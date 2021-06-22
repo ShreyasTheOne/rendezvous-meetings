@@ -27,6 +27,7 @@
     height: 10%;
     width: 100%;
 
+    /*border-bottom: 1px solid black;*/
     display: grid;
     grid-template-columns: 1fr 1fr;
 }

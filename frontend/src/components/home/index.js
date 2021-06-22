@@ -1,20 +1,18 @@
 import React, { Component } from 'react'
 import NavBar from "../nav"
 import {
-    Button,
-    ButtonGroup,
-    Typography,
-} from "@material-ui/core"
-import {
-    Add
-} from "@material-ui/icons"
-import CreateCustomMeeting from "../meeting/create/custom"
-import './css/index.css'
-import CreateInstantMeeting from "../meeting/create/instant";
+    Header,
+    Button
+} from 'semantic-ui-react'
 
+import CreateCustomMeeting from "../meeting/create/custom"
+import CreateInstantMeeting from "../meeting/create/instant"
+
+import './css/index.css'
 
 const INSTANT = 'instant'
 const CUSTOM = 'custom'
+
 
 class Home extends Component {
 
@@ -45,29 +43,29 @@ class Home extends Component {
                     <div id='home-content'>
                         <div id='home-heading'>
                             <div id='home-heading-left'>
-                                <Typography variant={'h3'}>
+                                <Header as={'h1'} style={{fontSize: '3rem'}}>
                                     Dashboard
-                                </Typography>
+                                </Header>
                             </div>
                             <div id='home-heading-right'>
-                                <ButtonGroup>
+                                <Button.Group
+                                    style={{marginBottom: '12px'}}
+                                >
                                     <Button
-                                        color={'primary'}
-                                        startIcon={<Add/>}
-                                        variant={'contained'}
+                                        color={'red'}
+                                        content={'Instant Meeting'}
+                                        icon={'add'}
+                                        labelPosition={'left'}
                                         onClick={() => this.setDialogBoxOpenClose(INSTANT, true)}
-                                    >
-                                        Instant Meeting
-                                    </Button>
+                                    />
                                     <Button
-                                        color={'secondary'}
-                                        startIcon={<Add/>}
-                                        variant={'contained'}
+                                        color={'black'}
+                                        content={'Custom Meeting'}
+                                        icon={'add'}
+                                        labelPosition={'left'}
                                         onClick={() => this.setDialogBoxOpenClose(CUSTOM, true)}
-                                    >
-                                        Custom Meeting
-                                    </Button>
-                                </ButtonGroup>
+                                    />
+                                </Button.Group>
                             </div>
                         </div>
                     </div>
