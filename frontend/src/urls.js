@@ -57,11 +57,12 @@ export const apiCreateCustomMeetingUrl = () => {
     return `${apiBase()}meeting/custom/`
 }
 
-export const apiUserSearchUrl = (query, dropdown=false) => {
-    if (dropdown)
-        return `${apiBase()}search_users/?search=${query}&for=dropdown`
-    else
-        return `${apiBase()}search_users/?search=${query}`
+export const apiUserSearchUrl = (query, dropdown=false, get_all=false) => {
+    let url = `${apiBase()}search_users/?search=${query}`
+    if (dropdown) url += `&for=dropdown`
+    if (get_all) url += `&get_all=true`
+
+    return url
 }
 
 // OAuth Redirection URLs

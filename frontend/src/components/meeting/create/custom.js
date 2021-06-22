@@ -1,6 +1,6 @@
 import axios from "axios"
 import React, { Component } from 'react'
-import {apiCreateCustomMeetingUrl, apiUserSearchUrl} from "../../../urls"
+import {apiCreateCustomMeetingUrl, apiUserSearchUrl, routeMeeting} from "../../../urls"
 
 import { DateTimeInput } from "semantic-ui-calendar-react"
 import {
@@ -8,17 +8,14 @@ import {
     Button,
     Checkbox,
     Modal,
-    Message
+    Popup,
+    Message,
+    Icon
 } from "semantic-ui-react"
-import { get_new_results } from "../../../utils"
 
 const moment = require('moment')
 
-class CreateCustomMeeting extends Component {
-
-    constructor(props) {
-        super(props)
-        this.state = {
+const initialState = {
             'inputs': {
                 'title': '',
                 'description': '',
@@ -36,12 +33,39 @@ class CreateCustomMeeting extends Component {
             'invitee_options': [],
             'loading': false,
             'meeting_created': false,
-            'meeting_details': {}
+            'meeting_details': {},
+            'form_loading': true,
+            'copyPopupOpen': false
         }
+
+class CreateCustomMeeting extends Component {
+
+    constructor(props) {
+        super(props)
+        this.state = initialState
+    }
+
+    componentDidMount() {
+        this.setState({
+            inviteeSearching: true
+        })
+
+        axios({
+            url: apiUserSearchUrl('', true, true)
+        }).then(res => {
+            this.setState({
+                'invitee_options': res.data,
+                inviteeSearching: false
+            })
+        }).catch(e => {
+            this.setState({
+                'invitee_options': [],
+                inviteeSearching: false,
+            })
+        })
     }
 
     handleCustomMeetingInputChange = (event, {name, value}) => {
-        console.log(value)
         this.setState({
             'inputs': {
                 ...this.state.inputs,
@@ -64,26 +88,6 @@ class CreateCustomMeeting extends Component {
                 ...this.state.inputs,
                 'start_now': false,
             }
-        })
-    }
-
-    handleInviteeSearch = (event, {searchQuery} ) => {
-        this.setState({
-            inviteeSearching: true
-        })
-
-        axios({
-            url: apiUserSearchUrl(searchQuery, true)
-        }).then(res => {
-            this.setState({
-                'invitee_options': get_new_results(res.data, this.state.inputs.invitees_selected),
-                inviteeSearching: false
-            })
-        }).catch(e => {
-            this.setState({
-                'invitee_options': [],
-                inviteeSearching: false,
-            })
         })
     }
 
@@ -114,25 +118,38 @@ class CreateCustomMeeting extends Component {
                 meeting_details: res.data.meeting
             })
         }).catch(e => {
-
+            this.setState({
+                loading: false,
+                meeting_error: true,
+                error_message: e.response.data.error
+            })
         })
     }
 
+    handleModalClose = () => {
+        this.state = initialState
+        const { setDialogBoxOpenClose, CUSTOM } = this.props
+        setDialogBoxOpenClose(CUSTOM, false)
+    }
+
     render () {
-        const { setDialogBoxOpenClose, open, CUSTOM } = this.props
-        const { meeting_created, meeting_details, inputs } = this.state
+        const { open } = this.props
+        const { meeting_created, meeting_error, meeting_details, inputs } = this.state
 
         return (
             <Modal
                 closeOnEscape={false}
                 open={open}
-                onClose={() => setDialogBoxOpenClose(CUSTOM, false)}
+                onClose={this.handleModalClose.bind(this)}
             >
                 <Modal.Header>
                     Custom Meeting
                 </Modal.Header>
                 <Modal.Content>
-                    <Form success={meeting_created}>
+                    <Form
+                        success={meeting_created}
+                        error={meeting_error}
+                    >
                         {
                             meeting_created &&
                             (
@@ -148,6 +165,14 @@ class CreateCustomMeeting extends Component {
                                     value={meeting_details.code}
                                     transparent
                                     readOnly
+                                    fluid={false}
+                                />
+                                <Form.Input
+                                    name={'start_time'}
+                                    label={'Scheduled start time'}
+                                    value={moment(meeting_details.scheduled_start_time).calendar()}
+                                    transparent
+                                    readOnly
                                 />
                                 </>
                             )
@@ -155,7 +180,7 @@ class CreateCustomMeeting extends Component {
                         <Form.Input
                             name={'title'}
                             label={'Title'}
-                            value = {meeting_created ? meeting_details.title : inputs.title}
+                            value = {meeting_created ? (meeting_details.title || 'Not provided') : inputs.title}
                             readOnly={meeting_created}
                             fluid
                             placeholder="Optional meeting title."
@@ -164,7 +189,7 @@ class CreateCustomMeeting extends Component {
                         <Form.TextArea
                             name={'description'}
                             label={'Description'}
-                            value = {meeting_created ? meeting_details.description : inputs.description}
+                            value = {meeting_created ? (meeting_details.description || 'Not provided') : inputs.description}
                             readOnly={meeting_created}
                             placeholder="Optional meeting description."
                             fluid
@@ -173,21 +198,19 @@ class CreateCustomMeeting extends Component {
                         <Form.Dropdown
                             fluid selection multiple search
                             name={'invitees_selected'}
-                            label={'Invite Users'}
+                            label={'Invited Users'}
                             value={inputs.invitees_selected}
-                            readOnly={meeting_created}
                             loading={this.state.inviteeSearching}
                             options={this.state.invitee_options}
                             placeholder='Invite users to your meeting'
                             onChange={this.handleCustomMeetingInputChange.bind(this)}
-                            onSearchChange={this.handleInviteeSearch.bind(this)}
                             renderLabel={label =>
                                 ({
                                     basic: true,
                                     color: "black",
                                     content: `${label.text} - ${label.value}`,
                                     image: {
-                                        src: label.img,
+                                        src: label.image.src,
                                         size: 'tiny',
                                         avatar: true,
                                         spaced: 'right'
@@ -195,45 +218,105 @@ class CreateCustomMeeting extends Component {
                                 })
                             }
                         />
-                        <Form.Group inline>
-                            {
-                                (!inputs.start_now || meeting_created) &&
+                        {
+                            (!inputs.start_now && !meeting_created) &&
+                            <>
+                                <label>Scheduled Start time:</label>
                                 <DateTimeInput
                                     name="scheduled_start_time"
                                     placeholder="Scheduled start time"
-                                    value={meeting_created ? meeting_details.scheduled_start_time : inputs.scheduled_start_time}
                                     minDate = {moment().format('DD-MM-YYYY HH:MM')}
-                                    iconPosition="left"
+                                    value={inputs.scheduled_start_time}
                                     onChange={this.handleCustomMeetingInputChange.bind(this)}
+
+                                    hideMobileKeyboard
+                                    animation={'scale'}
+                                    iconPosition="left"
+
                                 />
-                            }
-                            {   !meeting_created &&
-                                <Checkbox
-                                    name='start_now'
-                                    label={'Start now'}
-                                    error={this.state.errors.start_now.toString()}
-                                    checked={this.state.inputs.start_now}
-                                    onChange={this.handleStartNowCheckboxChange.bind(this)}
+                            </>
+                        }
+                        {   !meeting_created &&
+                            <Checkbox
+                                name='start_now'
+                                label={'Start now'}
+                                error={this.state.errors.start_now.toString()}
+                                checked={this.state.inputs.start_now}
+                                onChange={this.handleStartNowCheckboxChange.bind(this)}
+                            />
+                        }
+                        {
+                            meeting_error &&
+                                <Message
+                                    error
+                                    header='Error'
+                                    content={this.state.error_message}
                                 />
-                            }
-                        </Form.Group>
+                        }
                     </Form>
                 </Modal.Content>
                 <Modal.Actions>
+                    {!meeting_created &&
                     <Button
                         disabled={this.state.loading}
-                        onClick={() => setDialogBoxOpenClose(CUSTOM, false)}
+                        onClick={this.handleModalClose.bind(this)}
                         secondary
                         basic
                     >
                         Cancel
-                    </Button>
+                    </Button>}
+                    {meeting_created &&
+                        <Popup
+                            trigger={
+                              <Button
+                                  icon
+                                  primary
+                                  labelPosition={'right'}
+                                  onClick={
+                                      () => {
+                                          navigator.clipboard.writeText(
+                                              routeMeeting(meeting_details.code)
+                                          )
+                                          this.setState({
+                                              copyPopupOpen: true
+                                          })
+                                      }
+                                  }
+                              >
+                                <Icon link name={'copy'} />
+                                Copy Joining Link
+                            </Button>
+                            }
+                            onOpen = {() => {
+                                this.timeout = setTimeout(() => {
+                                this.setState({ copyPopupOpen: false })
+                                }, 1000)
+                            }}
+                            onClose={() => {
+                                this.setState({ copyPopupOpen: false })
+                                clearTimeout(this.timeout)
+                            }}
+                            open={this.state.copyPopupOpen}
+
+                            size={'small'}
+                            content='Copied!'
+                            on='click'
+                            basic
+                            inverted
+                            position='top right'
+                        />
+                    }
                     <Button
                         loading={this.state.loading}
-                        onClick={() => this.handleCustomMeetingCreate()}
+                        onClick={() => {
+                            if (!meeting_created)
+                                this.handleCustomMeetingCreate()
+                            else
+                                this.handleModalClose()
+                        }}
                         color="red"
                     >
-                        Create
+                        { meeting_created ? 'Close' : 'Create' }
                     </Button>
                 </Modal.Actions>
             </Modal>
