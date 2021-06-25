@@ -26,3 +26,13 @@ export const get_new_results = (all_matching, already_selected=[]) => {
     }
     return new_results
 }
+
+
+export const fitText = text => {
+    const limit = 15
+    if (text.length > limit) {
+        return `${text.slice(0, limit)}...`
+    } else {
+        return text
+    }
+}

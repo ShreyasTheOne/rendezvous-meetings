@@ -48,3 +48,18 @@ class UserDropdownSerializer(serializers.ModelSerializer):
             'text',
             'value'
         ]
+
+
+class UserVolumeSerializer(serializers.ModelSerializer):
+    volume = serializers.IntegerField(default=1)
+
+    class Meta:
+        model = User
+        fields = [
+            'uuid',
+            'full_name',
+            'profile_picture',
+            'email',
+            'volume'
+        ]
+        read_only_fields = ['uuid', ]

@@ -127,7 +127,7 @@ class CreateCustomMeeting extends Component {
     }
 
     handleModalClose = () => {
-        this.state = initialState
+        this.setState(initialState)
         const { setDialogBoxOpenClose, CUSTOM } = this.props
         setDialogBoxOpenClose(CUSTOM, false)
     }
