@@ -127,7 +127,7 @@ class CreateCustomMeeting extends Component {
     }
 
     handleModalClose = () => {
-        this.state = initialState
+        this.setState(initialState)
         const { setDialogBoxOpenClose, CUSTOM } = this.props
         setDialogBoxOpenClose(CUSTOM, false)
     }
@@ -138,7 +138,6 @@ class CreateCustomMeeting extends Component {
 
         return (
             <Modal
-                closeOnEscape={false}
                 open={open}
                 onClose={this.handleModalClose.bind(this)}
             >
@@ -182,6 +181,7 @@ class CreateCustomMeeting extends Component {
                             label={'Title'}
                             value = {meeting_created ? (meeting_details.title || 'Not provided') : inputs.title}
                             readOnly={meeting_created}
+                            transparent={meeting_created}
                             fluid
                             placeholder="Optional meeting title."
                             onChange={this.handleCustomMeetingInputChange.bind(this)}
@@ -191,6 +191,7 @@ class CreateCustomMeeting extends Component {
                             label={'Description'}
                             value = {meeting_created ? (meeting_details.description || 'Not provided') : inputs.description}
                             readOnly={meeting_created}
+                            transparent={meeting_created}
                             placeholder="Optional meeting description."
                             fluid
                             onChange={this.handleCustomMeetingInputChange.bind(this)}

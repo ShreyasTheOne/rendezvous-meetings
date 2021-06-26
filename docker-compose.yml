@@ -29,6 +29,23 @@ services:
         target: /var/lib/postgresql/data
         read_only: false
 
+  redis: # Messaging
+
+      image: redis
+
+      # No matter what, if the container stops, start it again
+      restart: always
+
+      container_name: rendezvous_redis
+
+      # Expose the port 8000 used by Django to other containers (only inside our network)
+      expose:
+        - 6379
+
+      # Connect to the custom network
+      networks:
+        - rendezvous_network
+
   backend: # Django
 
     # Location of dockerfile to build image from
@@ -67,13 +84,14 @@ services:
 
     # Depends on the postgres container
     depends_on:
+      - redis
       - database
 
     # Connect to the custom network
     networks:
       - rendezvous_network
 
-  frontend:
+  frontend: # React
     # Location of dockerfile to build image from
     build: ./frontend/
 

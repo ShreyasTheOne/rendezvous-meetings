@@ -4,17 +4,8 @@ import random
 def generate_random_code():
     """
     Generates random unique code for a new meeting
-
-    ...
-
-    Parameters
-    ----------
-    NONE
-
-    Returns
-    -------
-    code: str
-        randomly generate string of the form 'xxx-xxx-xxx'
+    @rtype:    string
+    @returns:  randomly generate string of the form 'xxx-xxx-xxx'
     """
 
     # Code contains 3 parts

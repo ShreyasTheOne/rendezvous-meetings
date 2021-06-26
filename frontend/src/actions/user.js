@@ -3,7 +3,7 @@ import { authLoginUrl, authLogoutUrl, authVerifyUrl } from '../urls'
 import {
     CHANGE_USER_LOGIN_LOADED_ERROR,
     INITIALISE_USER,
-} from './types'
+} from '../constants/actionTypes'
 
 
 /**

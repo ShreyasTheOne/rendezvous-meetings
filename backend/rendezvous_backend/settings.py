@@ -31,6 +31,7 @@ CORS_ORIGIN_WHITELIST = (
 # Application definition
 INSTALLED_APPS = [
     'corsheaders',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -75,16 +76,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'rendezvous_backend.wsgi.application'
 ASGI_APPLICATION = 'rendezvous_backend.asgi.application'
 
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             "hosts": [
-#                 (CONFIG_VARS['CHANNEL_LAYER']['HOST'], CONFIG_VARS['CHANNEL_LAYER']['PORT'])
-#             ],
-#         }
-#     }
-# }
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [
+                (os.environ.get('CHANNEL_LAYER_HOST'), os.environ.get('CHANNEL_LAYER_PORT'))
+            ],
+        }
+    }
+}
 
 
 # Database
