@@ -23,7 +23,11 @@ export const routeMeeting = code => {
     return `${routeBase()}meeting/${code}`
 }
 
-// Backend URLs
+export const route404 = () => {
+    return `${routeBase()}404/`
+}
+
+// Backend HTTP URLs
 
 const backendUrl = () => {
     return isDev ? `http://localhost:50000/` : ''
@@ -63,6 +67,15 @@ export const apiUserSearchUrl = (query, dropdown=false, get_all=false) => {
     if (get_all) url += `&get_all=true`
 
     return url
+}
+
+// Backend WS URLs
+export const apiWSBase = () => {
+    return `ws://localhost:50000/ws/`
+}
+
+export const apiWSRoom = code => {
+    return `${apiWSBase()}meeting/${code}/room/`
 }
 
 // OAuth Redirection URLs

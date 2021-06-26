@@ -8,11 +8,12 @@ import {
 } from 'react-router-dom'
 
 import { verifyUser, loginUser } from "../actions/user"
-import { styleFullPage } from "../styles"
+import { centerFullPage } from "../styles"
 import Login from "./login"
 import Home from "./home"
-import Meeting from "./meeting"
+import Meeting from "./meeting/parent"
 import {Loader} from "semantic-ui-react";
+import _404 from "./404";
 
 class App extends Component {
 
@@ -38,7 +39,7 @@ class App extends Component {
 
         if (loaded === false) {
             return (
-                <div style={styleFullPage}>
+                <div style={centerFullPage}>
                     <Loader active/>
                 </div>
             )
@@ -70,13 +71,13 @@ class App extends Component {
                                 return (<Redirect to='/' />)
                             }}
                         />
-                        {/* 404
                         <Route
-                            render={() => {
-                                return
-                            }}
+                            path={`${match.path}404/`}
+                            component={_404}
                         />
-                        */}
+                        <Route
+                            component={_404}
+                        />
                     </Switch>
                 </Router>
             )

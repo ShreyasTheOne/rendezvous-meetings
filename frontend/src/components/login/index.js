@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {Button} from "semantic-ui-react"
-import {styleFullPage} from "../../styles"
+import {centerFullPage} from "../../styles"
 import {googleOAuthRedirect} from '../../urls'
 
 
@@ -12,7 +12,7 @@ class Login extends Component {
 
     render () {
         return (
-            <div style={styleFullPage}>
+            <div style={centerFullPage}>
                 <Button
                     color={'blue'}
                     onClick={this.login}

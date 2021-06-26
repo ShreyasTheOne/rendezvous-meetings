@@ -1,7 +1,7 @@
 import {
     CHANGE_USER_LOGIN_LOADED_ERROR,
     INITIALISE_USER
-} from "../actions/types"
+} from "../constants/actionTypes"
 
 const defaultState = {
     loginState: false,

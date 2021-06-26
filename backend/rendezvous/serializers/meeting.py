@@ -4,8 +4,7 @@ from rendezvous.models import Meeting
 
 
 class MeetingShallowSerializer(ModelSerializer):
-    invitees = UserSerializer(many=True)
-    scheduled_start_time = CharField(source='get_scheduled_time_str')
+    host = UserSerializer()
 
     class Meta:
         model = Meeting
@@ -14,8 +13,7 @@ class MeetingShallowSerializer(ModelSerializer):
             'code',
             'title',
             'description',
-            'invitees',
-            'scheduled_start_time',
+            'host'
         ]
         read_only_fields = ['id', ]
 

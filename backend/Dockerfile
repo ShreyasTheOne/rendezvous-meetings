@@ -6,8 +6,8 @@ ENV PYTHONUNBUFFERED 1
 
 RUN addgroup --system batcave && adduser --system -G batcave batman
 
-RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev
-#RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev libffi-dev openssl-dev jpeg-dev zlib-dev libjpeg cargo
+#RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev
+RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev libffi-dev openssl-dev jpeg-dev zlib-dev libjpeg cargo
 
 RUN pip install --upgrade pip \
     && pip install --upgrade setuptools \
