@@ -3,6 +3,8 @@ from rendezvous_authentication.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
+    uuid = serializers.CharField(source='get_uuid_str')
+
     class Meta:
         model = User
         fields = [
@@ -52,6 +54,7 @@ class UserDropdownSerializer(serializers.ModelSerializer):
 
 class UserVolumeSerializer(serializers.ModelSerializer):
     volume = serializers.IntegerField(default=1)
+    uuid = serializers.CharField(source='get_uuid_str')
 
     class Meta:
         model = User
