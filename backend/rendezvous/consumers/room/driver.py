@@ -6,7 +6,9 @@ from rendezvous.serializers.meeting import MeetingShallowSerializer
 from rendezvous.utils.get_users_from_participants import get_users_from_participants
 from rendezvous.constants import participant_status, websocket_message_types
 
-from rendezvous_authentication.serializers.user import UserSerializer
+from rendezvous_authentication.models import User
+from rendezvous_authentication.serializers.user import UserSerializer, UserVolumeSerializer
+
 
 class DriverMixin():
     """
@@ -74,19 +76,20 @@ class DriverMixin():
             text_data=json.dumps(message)
         )
 
-    def blast_user_joined_driver(self):
+    def blast_user_joined_driver(self, user_uuid):
         """
         Inform everyone in the meeting that a new user (self) has joined
         """
 
         message = {
             'type': websocket_message_types.USER_JOINED,
-            'message': 'A user has joined the meeting'
+            'message': UserVolumeSerializer(User.objects.get(uuid=user_uuid)).data,
+            'uuid': user_uuid
         }
         async_to_sync(self.channel_layer.group_send)(
             self.room_name,
             {
-                'type': "send_info_to_all",
+                'type': "send_info_to_all_but_user",
                 'message': message,
             }
         )

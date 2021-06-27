@@ -16,16 +16,18 @@ import {
     MEETING_INFORMATION,
     PENDING_HOST_JOIN,
     PENDING_HOST_PERMISSION,
-    REJECT_USER,
+    REJECT_USER, USER_JOINED,
 } from "../../../constants/websocketMessageTypes"
 import {
     changeMeetingLoaded,
     changeMeetingAdmitted,
-    setMeetingInformation
+    setMeetingInformation, addParticipant
 } from "../../../actions/meeting"
 
 import {apiWSRoom, route404} from "../../../urls"
 import './index.css'
+import VideoCall from "../video_call";
+import JoinRequestPortal from "./joinRequestPortal";
 
 class Meeting extends Component {
 
@@ -58,7 +60,7 @@ class Meeting extends Component {
         const type = message.type
         const data = message.message
 
-        console.log("receiving", type, "message", message)
+        console.log("receiving", type, "message", data)
 
         switch (type) {
             case MEETING_INFORMATION:
@@ -72,6 +74,9 @@ class Meeting extends Component {
                 break
             case PENDING_HOST_PERMISSION:
                 this.handlePermissionRequest(data)
+                break
+            case USER_JOINED:
+                this.props.AddParticipant(data)
                 break
             default:
                 break
@@ -108,6 +113,7 @@ class Meeting extends Component {
             type: action,
             message: userID
         })
+
         // Remove request
         let updated_requests = this.state.join_requests.filter(
             user => { return user['uuid'] !== userID }
@@ -140,64 +146,15 @@ class Meeting extends Component {
 
         return (
             <div id='meeting-container'>
-                <Header inverted> You are in! </Header>
+                <div id='meeting-content'>
+                    <VideoCall code={this.props.match.params.code}/>
+                </div>
 
-                <TransitionablePortal
+                <JoinRequestPortal
                     open={this.state.join_requests.length > 0}
-                >
-                    <Card
-                        style={{
-                            left: '30%',
-                            top: '40%',
-                            width: '40%',
-                            position: 'fixed',
-                            zIndex: 1000
-                        }}
-                    >
-                        <Card.Content header={'The following users request permission to be admitted to the meeting'}/>
-                        <Card.Content>
-                            {
-                                this.state.join_requests.map(user => {
-                                    return (
-                                        <List
-                                            key={user.uuid}
-                                            animated
-                                            divided
-                                            verticalAlign='middle'
-                                        >
-                                            <List.Item>
-                                                <List.Content floated='right'>
-                                                    <Button
-                                                        onClick={
-                                                            () => {
-                                                                this.handleJoinRequest(user['uuid'], ADMIT_USER)
-                                                            }
-                                                        }
-                                                        positive
-                                                    >
-                                                        Accept
-                                                    </Button>
-                                                    <Button
-                                                        onClick={
-                                                            () => {
-                                                                this.handleJoinRequest(user['uuid'], REJECT_USER)
-                                                            }
-                                                        }
-                                                        negative
-                                                    >
-                                                        Reject
-                                                    </Button>
-                                                </List.Content>
-                                                <Image avatar src={user['profile_picture']}/>
-                                                <List.Content>{user['full_name']} - {user['email']}</List.Content>
-                                            </List.Item>
-                                        </List>
-                                    )
-                                })
-                            }
-                        </Card.Content>
-                    </Card>
-                </TransitionablePortal>
+                    requests={this.state.join_requests}
+                    handleAction={this.handleJoinRequest.bind(this)}
+                />
             </div>
         )
     }
@@ -221,6 +178,10 @@ const mapDispatchToProps = dispatch => {
         ChangeMeetingAdmitted: newState => {
             dispatch(changeMeetingAdmitted(newState))
         },
+        AddParticipant: participant => {
+            dispatch(addParticipant(participant))
+        },
+
     }
 }
 

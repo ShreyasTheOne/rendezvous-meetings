@@ -1,1 +1,2 @@
 from rendezvous.consumers.room.room_consumer import RoomConsumer
+from rendezvous.consumers.video_call.video_call_consumer import VideoCallConsumer

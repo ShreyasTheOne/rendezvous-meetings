@@ -2,14 +2,13 @@ import {
     UPDATE_MEETING_TITLE_DESCRIPTION_HOST,
     CHANGE_MEETING_LOADED,
     CHANGE_MEETING_ADMITTED,
+    ADD_PARTICIPANT, SET_PARTICIPANTS_LIST
 } from "../constants/actionTypes"
 
 const defaultState = {
     loaded: false,
     meeting: {},
     participants: {},
-    streams: {},
-    peer_connections: {},
     error: false,
     admitted: false,
 }
@@ -32,6 +31,19 @@ const meetingInformation = (state = defaultState, action) => {
                 meeting: {
                     ...state.meeting,
                     ...action.payload
+                }
+            }
+        case SET_PARTICIPANTS_LIST:
+            return {
+                ...state,
+                participants: action.payload
+            }
+        case ADD_PARTICIPANT:
+            return {
+                ...state,
+                participants: {
+                    ...state.participants,
+                    [action.payload.uuid]: action.payload.participant
                 }
             }
         default:
