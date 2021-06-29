@@ -1,0 +1,24 @@
+#media-controls {
+    grid-column: 1 / 1;
+    width: 70%;
+    justify-self: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#end-meeting {
+    grid-column: 2 / 2;
+}
+
+#meta-buttons {
+    grid-column: 3 / 3;
+    width: 80%;
+    align-self: center;
+    justify-self: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}

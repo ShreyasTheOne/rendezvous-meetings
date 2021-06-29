@@ -10,22 +10,61 @@ import {
     ICE_CANDIDATE, PEER_CONNECTION_ANSWER
 } from "../../../constants/websocketMessageTypes"
 
-const iceServers = [
-    {
-        urls: 'stun:stun.l.google.com:19302'
-    },
-]
+import './index.css'
+import MediaControls from "./media_controls";
+import VideoGrid from "./video_grid";
+
+import {
+    createPeerObject,
+    createTrackEventHandler,
+    createRemoveTrackEventHandler,
+    createIceCandidateEventHandler,
+    createNegotiationNeededEventHandler
+} from "./RTCConnectionFuctions"
+import {
+    callUsers,
+    handleOffer,
+    handleAnswer,
+    handleIceCandidateMessage
+} from "./signalingFunctions"
+import {
+    toggleAudio,
+    toggleVideo
+} from "./mediaControlFunctions"
+
 
 class VideoCall extends Component {
 
     constructor(props) {
         super(props)
+
+        this.callUsers = callUsers.bind(this)
+        this.createPeerObject = createPeerObject.bind(this)
+        this.createTrackEventHandler = createTrackEventHandler.bind(this)
+        this.createRemoveTrackEventHandler = createRemoveTrackEventHandler.bind(this)
+        this.createIceCandidateEventHandler = createIceCandidateEventHandler.bind(this)
+        this.createNegotiationNeededEventHandler = createNegotiationNeededEventHandler.bind(this)
+
+        this.handleOffer = handleOffer.bind(this)
+        this.handleAnswer = handleAnswer.bind(this)
+        this.handleIceCandidateMessage = handleIceCandidateMessage.bind(this)
+
+        this.toggleVideo = toggleVideo.bind(this)
+        this.toggleAudio = toggleAudio.bind(this)
+
         const { UserInformation, code } = this.props
         this.state = {
-            me: UserInformation.user
+            me: UserInformation.user,
+            loaded: false,
+            audioInput: false,
+            videoInput: false,
+            screenShare: false,
+            streams: {}
         }
 
         this.peer_connections = {}
+        this.videoSenders = {}
+        this.audioSenders = {}
 
         this.videoCallWebSocket = new WebSocket(apiWSVideoCall(code))
 
@@ -43,12 +82,13 @@ class VideoCall extends Component {
         const type = message.type
         message = message.message
 
-        console.log("receiving", type, "data", message)
+        // console.log("receiving", type, "data", message)
 
         switch (type) {
             case PARTICIPANT_LIST:
                 this.handleParticipantsList(message)
                 this.callUsers(message)
+                this.setState({loaded: true})
                 break
             case ICE_CANDIDATE:
                 this.handleIceCandidateMessage(message)
@@ -65,7 +105,7 @@ class VideoCall extends Component {
     }
 
     emitThroughSocket = message => {
-        console.log("emitting", message.type, message.message)
+        // console.log("emitting", message.type, message.message)
         this.videoCallWebSocket.send(JSON.stringify(message))
     }
 
@@ -77,151 +117,9 @@ class VideoCall extends Component {
         this.props.SetParticipantsList(participants_dict)
     }
 
-    callUsers = users => {
-        const { me } = this.state
-        users.forEach(user => {
-            if (user.uuid === me.uuid) return
-            console.log("calling user")
-
-            this.peer_connections[user.uuid] = new RTCPeerConnection({iceServers})
-
-            this.peer_connections[user.uuid].onicecandidate = this.createIceCandidateEventHandler(user.uuid, me.uuid).bind(this)
-            this.peer_connections[user.uuid].onnegotiationneeded = e => {console.log("negotiation needed")}
-            this.peer_connections[user.uuid]
-                .createOffer()
-                .then(offer => {
-                    console.log("Setting the offer as the local description")
-                    return this.peer_connections[user.uuid].setLocalDescription(offer)
-                }).then(() => {
-                    console.log("About to send offer")
-                    this.emitThroughSocket({
-                        type: PEER_CONNECTION_OFFER,
-                        message: {
-                            targetID: user.uuid,
-                            senderID: me.uuid,
-                            sdp: this.peer_connections[user.uuid].localDescription
-                        }
-                    })
-            console.log(`Offer sent to ${user.uuid}`)
-            }).catch(e => {})
-            console.log("Created pc with user", user.uuid)
-        })
-    }
-
-    createPeerConnection = targetID => {
-        const { me } = this.state
-
-        let pc = new RTCPeerConnection({iceServers})
-        // pc.onnegotiationneeded = this.createNegotiationNeededEventHandler(pc, targetID, me.uuid).bind(this)
-    }
-
-    createNegotiationNeededEventHandler = (pc, targetID, senderID) => {
-        // console.log("createNegotiationNeededEventHandler")
-        return event => {
-            // console.log("About to create the offer")
-            // pc.createOffer()
-            //     .then(offer => {
-            //         console.log("Setting the offer as the local description")
-            //         return pc.setLocalDescription(offer)
-            //     }).then(() => {
-            //         this.props.SetOrCreatePeerConnection(targetID, pc)
-            //         this.emitThroughSocket({
-            //             type: PEER_CONNECTION_OFFER,
-            //             message: {
-            //                 targetID,
-            //                 senderID,
-            //                 sdp: pc.localDescription
-            //             }
-            //         })
-            //     console.log(`Offer sent to ${targetID}`)
-            //     }).catch(e => {})
-        }
-    }
-
-    createIceCandidateEventHandler = (targetID, senderID) => {
-        console.log("createIceCandidateEventHandler")
-        return event => {
-            if (event.candidate) {
-                this.emitThroughSocket({
-                    type: ICE_CANDIDATE,
-                    message: {
-                        targetID,
-                        senderID,
-                        candidate: event.candidate,
-                    }
-                })
-                console.log(`Sending ice-candidate message to ${targetID}`)
-            }
-        }
-    }
-
-    handleIceCandidateMessage = message => {
-        // Already checked at backend for security, but also
-        // check at frontend for security
-
-        if (message.targetID !== this.state.me.uuid) return
-
-        console.log(`Received ice-candidate message from ${message.senderID}`)
-
-        const candidate = new RTCIceCandidate(message.candidate)
-        this.peer_connections[message.senderID]
-            .addIceCandidate(candidate)
-            .then(() => {
-                console.log(`Received ice-candidate mentioned by ${message.senderID}`)
-            })
-    }
-
-    handleOffer = message => {
-        // Already checked at backend, but still check at frontend
-        const { me } = this.state
-        const {targetID, senderID, sdp} = message
-        if (targetID !== me.uuid) return
-
-        console.log(`Offer received from ${senderID}`)
-
-        const desc = new RTCSessionDescription(sdp)
-        this.peer_connections[senderID] = new RTCPeerConnection({iceServers})
-        this.peer_connections[senderID]
-            .setRemoteDescription(desc)
-            .then(() => {
-                return this.peer_connections[senderID].createAnswer()
-            })
-            .then(answer => {
-                return this.peer_connections[senderID].setLocalDescription(answer)
-            }).then(() => {
-                this.emitThroughSocket({
-                    type: PEER_CONNECTION_ANSWER,
-                    message: {
-                        senderID: targetID,
-                        targetID: senderID,
-                        sdp: this.peer_connections[senderID].localDescription
-                    }
-                })
-            console.log(`Answer sent to ${senderID}`)
-            })
-    }
-
-    handleAnswer = message => {
-        const { me } = this.state
-        const { targetID, senderID, sdp } = message
-
-        // Already checked at backend, but still check at frontend
-        if (targetID !== me.uuid) return
-
-        console.log(`Answer received from ${senderID}`)
-
-        const desc = new RTCSessionDescription(sdp)
-        this.peer_connections[senderID]
-            .setRemoteDescription(desc)
-            .then(() => {
-                console.log(`Answer remoteDesc set for ${senderID}`)
-            })
-    }
-
 
     render () {
-        const { VideoCallInformation } = this.props
-        const { loaded } = VideoCallInformation
+        const { loaded } = this.state
 
         if (!loaded) {
             return (
@@ -231,8 +129,29 @@ class VideoCall extends Component {
             )
         }
 
+        const mediaControlFunctions = {
+            'toggleAudio': this.toggleAudio.bind(this),
+            'toggleVideo': this.toggleVideo.bind(this)
+        }
+
+        const { streams } = this.state
+
         return (
-            <div/>
+            <div id='video-call-container'>
+                <div id='video-call-content'>
+                    <VideoGrid
+                        streams={streams}
+                    />
+                </div>
+                <div id='video-call-controls'>
+                    <MediaControls
+                        mediaControlFunctions={mediaControlFunctions}
+                        audioInput={this.state.audioInput}
+                        videoInput={this.state.videoInput}
+                        screenShare={this.state.screenShare}
+                    />
+                </div>
+            </div>
         )
     }
 }

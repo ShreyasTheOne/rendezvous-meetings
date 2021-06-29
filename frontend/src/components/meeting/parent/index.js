@@ -123,6 +123,7 @@ class Meeting extends Component {
         })
     }
 
+
     render () {
         const { MeetingInformation } = this.props
         const { loaded } = MeetingInformation

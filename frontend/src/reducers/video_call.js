@@ -7,8 +7,6 @@ import {
 
 const defaultState = {
     loaded: false,
-    peer_connections: {},
-    streams: {}
 }
 
 const videoCallInformation = (state = defaultState, action) => {
