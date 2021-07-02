@@ -5,6 +5,10 @@ from rendezvous.models import Participant
 from rendezvous.constants import participant_status, websocket_message_types
 from rendezvous.utils.get_users_from_participants import get_users_from_participants
 
+from rendezvous_authentication.models import User
+from rendezvous_authentication.serializers.user import UserVolumeSerializer
+
+
 class DriverMixin():
     """
     This mixin houses the driver methods used by the VideoCallConsumer
@@ -41,7 +45,7 @@ class DriverMixin():
 
     def send_generic_video_call_signal_driver(self, type, message):
         # Get the target user
-        target_uuid = message.get('targetID', None)
+        target_uuid = message.get('target_userID', None)
         if not target_uuid: return
 
         message = {
@@ -54,6 +58,24 @@ class DriverMixin():
             self.video_call_group_name,
             {
                 'type': "send_info_to_user",
+                'message': message,
+            }
+        )
+
+    def blast_user_left_driver(self, user_uuid):
+        """
+        Inform everyone in the meeting that a user (self) has left
+        """
+
+        message = {
+            'type': websocket_message_types.USER_LEFT,
+            'message': UserVolumeSerializer(User.objects.get(uuid=user_uuid)).data,
+            'uuid': user_uuid
+        }
+        async_to_sync(self.channel_layer.group_send)(
+            self.video_call_group_name,
+            {
+                'type': "send_info_to_all_but_user",
                 'message': message,
             }
         )

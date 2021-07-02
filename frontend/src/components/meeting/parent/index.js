@@ -16,7 +16,7 @@ import {
     MEETING_INFORMATION,
     PENDING_HOST_JOIN,
     PENDING_HOST_PERMISSION,
-    REJECT_USER, USER_JOINED,
+    REJECT_USER, USER_JOINED, USER_LEFT,
 } from "../../../constants/websocketMessageTypes"
 import {
     changeMeetingLoaded,
@@ -86,7 +86,6 @@ class Meeting extends Component {
     emitThroughSocket = message => {
         this.roomWebSocket.send(JSON.stringify(message))
     }
-
     handlePermissionRequest = data => {
         const {
             UserInformation,

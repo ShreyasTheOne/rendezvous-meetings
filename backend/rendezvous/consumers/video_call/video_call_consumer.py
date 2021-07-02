@@ -1,4 +1,6 @@
 import json
+from urllib.parse import quote, unquote
+
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
@@ -88,9 +90,12 @@ class VideoCallConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
             participant.save()
         except Participant.DoesNotExist:
             pass
+
+        self.blast_user_left_driver(self.user.get_uuid_str())
         self.close()
 
     def receive(self, text_data=None, bytes_data=None):
+        text_data = unquote(text_data)
         payload = json.loads(text_data)
         type = payload.get('type', None)
         message = payload.get('message', None)
@@ -116,7 +121,7 @@ class VideoCallConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
         Sends a broadcast message to all users in the group
         """
         self.send(
-            text_data=json.dumps(event['message'])
+            text_data=quote(json.dumps(event['message']))
         )
 
     def send_info_to_user(self, event):
@@ -125,5 +130,18 @@ class VideoCallConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
         """
         if str(self.user.uuid) == str(event['message']['uuid']):
             self.send(
-                text_data=json.dumps(event['message'])
+                text_data=quote(json.dumps(event['message']))
             )
+
+    def send_info_to_all_but_user(self, event):
+        """
+        Sends a message to a everyone but a specific user, whose ID is specified in the message
+        """
+        # print("send_info_to_all_but_user", self.user.get_uuid_str(), event['message']['uuid'], event['message']['uuid'] == self.user.get_uuid_str())
+        if self.user.get_uuid_str() != event['message']['uuid']:
+            print("sending to", event['message']['uuid'] )
+            self.send(
+                text_data=quote(json.dumps(event['message']))
+            )
+        else:
+            print("saved from", event['message']['uuid'] )
