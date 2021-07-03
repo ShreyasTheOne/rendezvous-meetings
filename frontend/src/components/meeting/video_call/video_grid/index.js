@@ -109,7 +109,8 @@ class VideoGrid extends Component {
             >
                 {Object.keys(participants).map(uuid => {
                     const user = participants[uuid]
-                    const fadeExists = 'fade'
+                    const streamExists = streams[uuid] && streams[uuid].getVideoTracks().length > 0
+                    const fadeExists = streamExists ? 'fade' : ''
 
                     return (
                         <Card
@@ -119,8 +120,9 @@ class VideoGrid extends Component {
                         >
                             <video
                                 id={`user-video-${uuid}`}
-                                // ref={this.videoRefs[uuid]}
-                                muted={uuid === me.uuid}
+                                // muted={uuid === me.uuid}
+                                muted
+                                hidden={!streamExists}
                                 autoPlay
                                 playsInline
                                 className={`user-video`}

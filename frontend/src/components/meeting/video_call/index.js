@@ -13,18 +13,26 @@ import VideoGrid from "./video_grid"
 import MediaControls from "./media_controls"
 import './index.css'
 
+// const pcConfig = {
+//     'iceServers': [
+//         {
+//             'urls': 'turn:turn.bistri.com:80',
+//             'credential': 'homeo',
+//             'username': 'homeo'
+//         },
+//         {
+//             'url': 'turn:turn.anyfirewall.com:443?transport=tcp',
+//             'credential': 'webrtc',
+//             'username': 'webrtc'
+//         }
+//     ]
+// }
+
 const pcConfig = {
     'iceServers': [
         {
-            'urls': 'turn:turn.bistri.com:80',
-            'credential': 'homeo',
-            'username': 'homeo'
+            'urls': 'stun:stun.l.google.com:19302',
         },
-        {
-            'url': 'turn:turn.anyfirewall.com:443?transport=tcp',
-            'credential': 'webrtc',
-            'username': 'webrtc'
-        }
     ]
 }
 
@@ -37,7 +45,9 @@ class VideoCall extends Component {
 
     constructor(props) {
         super(props)
+        // window.location.reload()
         const { UserInformation, code } = this.props
+
         this.state = {
             loaded: false,
             me: UserInformation.user,
@@ -130,49 +140,28 @@ class VideoCall extends Component {
         users.forEach(user => {
             if (me.uuid === user.uuid) return
 
-            const sender_userID = me.uuid
-            const target_userID = user.uuid
+            if (!this.peer_connections[user.uuid])
+                this.peer_connections[user.uuid] = this.createPeerConnection(me.uuid, user.uuid)
 
-            this.peer_connections[user.uuid] = this.createPeerConnection(me.uuid, user.uuid)
-            this.peer_connections[user.uuid]
-                .createOffer(offerOptions)
-                .then(offer => {
-                    return this.peer_connections[user.uuid].setLocalDescription(offer)
-                })
-                .then(() => {
-                    this.emitThroughSocket({
-                        type: PEER_CONNECTION_OFFER,
-                        message: {
-                            sender_userID: sender_userID,
-                            target_userID: target_userID,
-                            sdp: this.peer_connections[user.uuid].localDescription
-                        }
-                    })
-                })
-                .catch(() => {
-                    console.log("Error sending offer")
-                })
+            this.peer_connections[user.uuid].onnegotiationneeded()
         })
     }
 
     createPeerConnection (sender_userID, target_userID) {
-        // let pc = new RTCPeerConnection({iceServers})
         let pc = new RTCPeerConnection(pcConfig)
 
         pc.onicecandidate = this.createIceCandidateHandler(sender_userID, target_userID).bind(this)
-        pc.oniceconnectionstatechange = e => {
-            console.log("new iceState", pc.iceConnectionState, e)
-        }
+
         pc.onnegotiationneeded = this.createNegotiationNeededHandler(pc, sender_userID, target_userID).bind(this)
         pc.ontrack = this.createOnTrackHandler(target_userID).bind(this)
 
         pc.onremovestream = e => {
             this.setState({
-            streams: {
-                ...this.state.streams,
-                [target_userID]: e.stream
-            }
-        })
+                streams: {
+                    ...this.state.streams,
+                    [target_userID]: null
+                }
+            })
         }
 
         return pc
@@ -195,7 +184,6 @@ class VideoCall extends Component {
 
     createNegotiationNeededHandler (pc, sender_userID, target_userID) {
         return event => {
-            console.log("negotiating")
             pc.createOffer(offerOptions)
                 .then(offer => {
                     return pc.setLocalDescription(offer)
@@ -223,8 +211,12 @@ class VideoCall extends Component {
             if (!stream) stream = new MediaStream()
             stream.addTrack(event.track)
 
-            console.log(event.track)
-            console.log("Received track and setting stream aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", stream)
+            stream.onremovetrack = ({track}) => {
+                if (!stream.getTracks().length) {
+                    stream = null
+                }
+            }
+
             this.setState({
                 streams: {
                     ...this.state.streams,
@@ -237,14 +229,14 @@ class VideoCall extends Component {
     handleOffer (message) {
         const { me } = this.state
         const { target_userID, sender_userID } = message
-        console.log("Offer received")
         if (target_userID !== me.uuid) return
 
-        console.log("Offer verified")
         const { sdp } = message
         const desc = new RTCSessionDescription(sdp)
 
-        this.peer_connections[sender_userID] = this.createPeerConnection(me.uuid, sender_userID)
+        if (!this.peer_connections[sender_userID])
+            this.peer_connections[sender_userID] = this.createPeerConnection(me.uuid, sender_userID)
+
         this.peer_connections[sender_userID]
             .setRemoteDescription(desc)
             .then(() => {
@@ -279,7 +271,7 @@ class VideoCall extends Component {
 
         this.peer_connections[sender_userID]
             .setRemoteDescription(desc)
-            .then(() => {console.log("Remote desc set")})
+            .then(() => {})
             .catch(() => {})
     }
 
@@ -294,16 +286,14 @@ class VideoCall extends Component {
             this.IceCandidates[sender_userID].push(message.candidate)
         }
 
-        if (this.peer_connections[sender_userID].currentRemoteDescription) {
+        if (this.peer_connections[sender_userID] && this.peer_connections[sender_userID].currentRemoteDescription) {
             this.IceCandidates[sender_userID].forEach(c => {
                 const candidate = new RTCIceCandidate(c)
                 this.peer_connections[sender_userID]
                     .addIceCandidate(candidate)
-                    .then(() => {console.log("Added Ice Candidate")})
+                    .then(() => {})
             })
             this.IceCandidates[sender_userID] = []
-        } else {
-            console.log("No remote description set")
         }
     }
 
@@ -318,18 +308,17 @@ class VideoCall extends Component {
             if (stream) {
                 Object.keys(this.peer_connections).forEach( uuid => {
                     if (uuid === me.uuid) return
-                    console.log(this.videoSenders[uuid])
-                    this.peer_connections[uuid].removeTrack(this.videoSenders[uuid])
+                    if (this.videoSenders[uuid])
+                        this.peer_connections[uuid].removeTrack(this.videoSenders[uuid])
                     delete this.videoSenders[uuid]
-                    console.log("removed track from " + participants[uuid].full_name)
                 })
-                let videoTracks = stream.getVideoTracks()
-                videoTracks.forEach(track => {
+
+                stream.getVideoTracks().forEach(track => {
                     track.stop()
                     stream.removeTrack(track)
                 })
             }
-            console.log("setting state stream", stream)
+
             this.setState({
                 streams: {
                     ...this.state.streams,
@@ -351,8 +340,7 @@ class VideoCall extends Component {
                     videoTracks = stream.getVideoTracks()
 
                     Object.keys(this.peer_connections).forEach(uuid => {
-                        if (!!this.peer_connections[uuid]) {
-                            console.log("Sending track to", this.props.MeetingInformation.participants[uuid].full_name)
+                        if (this.peer_connections[uuid]) {
                             if (!this.videoSenders[uuid]) {
                                 this.videoSenders[uuid] = this.peer_connections[uuid].addTrack(videoTracks[0], stream)
                             }
@@ -369,7 +357,7 @@ class VideoCall extends Component {
                         }
                     })
                 })
-                .catch(e => {console.log("Error getting stream")})
+                .catch(e => {})
         }
     }
     toggleScreenShare () {}

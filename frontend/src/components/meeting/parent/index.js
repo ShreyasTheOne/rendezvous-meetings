@@ -86,6 +86,7 @@ class Meeting extends Component {
     emitThroughSocket = message => {
         this.roomWebSocket.send(JSON.stringify(message))
     }
+
     handlePermissionRequest = data => {
         const {
             UserInformation,
