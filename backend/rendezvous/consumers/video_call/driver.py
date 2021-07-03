@@ -29,6 +29,10 @@ class DriverMixin():
     """
 
     def send_participants_info_driver(self):
+        """
+        Sends list of participants in the meeting to self
+        """
+
         # Get all active participants in our meeting
         participants = Participant.objects.filter(
             meeting=self.meeting,
@@ -44,6 +48,10 @@ class DriverMixin():
         )
 
     def send_generic_video_call_signal_driver(self, type, message):
+        """
+        Sends the signal to the intended target user while the peer connection is being created
+        """
+
         # Get the target user
         target_uuid = message.get('target_userID', None)
         if not target_uuid: return

@@ -13,65 +13,32 @@ import './index.css'
 
 class VideoGrid extends Component {
 
-    constructor(props) {
-        super(props)
-        this.videoRefs = {}
-
-    }
-
     componentDidMount() {
-        // const { participants } = this.props.MeetingInformation
-        // console.log("participants", participants)
-        // Object.keys(participants).forEach(uuid => {
-        //     if (!this.videoRefs.hasOwnProperty(uuid))
-        //         this.videoRefs[uuid] = React.createRef()
-        // })
         this.setStreams()
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        // const { participants } = this.props.MeetingInformation
-        // console.log("participants", participants)
-        // Object.keys(participants).forEach(uuid => {
-        //     if (!this.videoRefs.hasOwnProperty(uuid))
-        //         this.videoRefs[uuid] = React.createRef()
-        // })
         this.setStreams()
     }
 
     setStreams () {
-        const { streams, MeetingInformation } = this.props
-        const {participants} = MeetingInformation
-        console.log("participants", participants)
+        const { streams } = this.props
         Object.keys(streams).forEach(uuid => {
             if (streams[uuid]) {
                 const audioTracks = streams[uuid].getAudioTracks()
                 const videoTracks = streams[uuid].getVideoTracks()
 
                 if (audioTracks.length>0 || videoTracks.length>0) {
-                    console.log("Got a track from the stream", participants[uuid].full_name)
                     let videoElement = document.getElementById(`user-video-${uuid}`)
-                    // let videoElement = this.videoRefs[uuid].current
                     if (videoElement) {
                         videoElement.onloadedmetadata = function(e) {
                             videoElement.play()
                         }
-                        console.log(streams[uuid] instanceof MediaStream)
-                        if ('srcObject' in videoElement) {
-                            // videoElement.srcObject = streams[uuid];
-                            try {
-                                videoElement.srcObject = streams[uuid]
-                                console.log("Stream set as source object to video element", participants[uuid].full_name, videoElement.id)
-                            } catch (err) {
-                                console.log("Error in setting video Source", err);
-                            }
-                        } else {
-                            // Avoid using this in new browsers, as it is going away.
-                            videoElement.src = URL.createObjectURL(streams[uuid]);
-                            console.log("Stream set as url object to video element", participants[uuid].full_name)
+                        try {
+                            videoElement.srcObject = streams[uuid]
+                        } catch (err) {
+                            console.log("Error in setting video Source", err);
                         }
-
-                        console.log("src-object", videoElement.srcObject, videoElement.srcObject.getVideoTracks())
                     }
                 }
             }
@@ -79,9 +46,8 @@ class VideoGrid extends Component {
     }
 
     render () {
-        const { MeetingInformation, UserInformation, streams } = this.props
+        const { MeetingInformation, streams } = this.props
         const { participants } = MeetingInformation
-        const me = UserInformation.user
 
         const dimensions = getVideoGridDimensions(Object.keys(participants).length)
         const rows = dimensions[0]
