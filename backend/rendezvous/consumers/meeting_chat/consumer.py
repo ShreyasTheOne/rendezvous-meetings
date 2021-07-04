@@ -7,15 +7,14 @@ from channels.generic.websocket import WebsocketConsumer
 from rendezvous.models import *
 from rendezvous.constants import participant_status, websocket_close_codes, websocket_message_types
 
-from rendezvous.consumers.video_call.helper import HelperMixin
-from rendezvous.consumers.video_call.driver import DriverMixin
+from rendezvous.consumers.meeting_chat.helper import HelperMixin
+from rendezvous.consumers.meeting_chat.driver import DriverMixin
 
 
-class VideoCallConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
+class MeetingChatConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
     """
-    This consumer handles all the websocket connections and requests that take care
-    of the signalling done when users form RTCPeerConnections with other participants
-    in their video call.
+    This consumer handles all the websocket connections and requests that are needed to
+    send and receive meeting chat messages in real time
 
     If a user forms a connection here, it means that it has already passed authentication
     in RoomConsumer. Hence, there must exist a participant object for this user in this
@@ -37,8 +36,8 @@ class VideoCallConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
         self.user = self.scope['user']
         self.meeting_code = self.scope['url_route']['kwargs'].get('meeting_code', None)
 
-        # The video call group includes only those people who are allowed into the meeting
-        self.video_call_group_name = f'video_call_group-{self.meeting_code}'
+        # The meeting_chat group includes only those people who are allowed into the meeting
+        self.chat_group_name = f'chat_group-{self.meeting_code}'
 
         meeting_code = self.meeting_code
         try:
@@ -70,28 +69,23 @@ class VideoCallConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
 
         # If the subsequent code is executed, it means that a participant object has been found
         async_to_sync(self.channel_layer.group_add)(
-            self.video_call_group_name,
+            self.chat_group_name,
             self.channel_name
         )
 
         # Send participants information to self
-        self.send_participants_info_driver()
+        self.send_hitherto_messages_driver()
 
         return
 
     def disconnect(self, close_code):
-        try:
-            participant = Participant.objects.get(
-                meeting=self.meeting,
-                user=self.user,
-                status=participant_status.ATTENDING
-            )
-            participant.status = participant_status.LEFT
-            participant.save()
-        except Participant.DoesNotExist:
-            pass
-
-        self.blast_user_left_driver(self.user.get_uuid_str())
+        """
+        Last method from this consumer when the user disconnects from the meeting
+        """
+        async_to_sync(self.channel_layer.group_discard)(
+            self.chat_group_name,
+            self.channel_name
+        )
         self.close()
 
     def receive(self, text_data=None, bytes_data=None):
@@ -100,14 +94,8 @@ class VideoCallConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
         type = payload.get('type', None)
         message = payload.get('message', None)
 
-        if not type or not message:
-            return
-
-        print("type", type)
-
-        if type in websocket_message_types.generic_message_types:
-            self.send_generic_video_call_signal_driver(type, message)
-            return
+        if type == websocket_message_types.SEND_MESSAGE:
+            self.send_message_helper(message)
 
         return
 
@@ -132,16 +120,3 @@ class VideoCallConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
             self.send(
                 text_data=quote(json.dumps(event['message']))
             )
-
-    def send_info_to_all_but_user(self, event):
-        """
-        Sends a message to a everyone but a specific user, whose ID is specified in the message
-        """
-        # print("send_info_to_all_but_user", self.user.get_uuid_str(), event['message']['uuid'], event['message']['uuid'] == self.user.get_uuid_str())
-        if self.user.get_uuid_str() != event['message']['uuid']:
-            print("sending to", event['message']['uuid'] )
-            self.send(
-                text_data=quote(json.dumps(event['message']))
-            )
-        else:
-            print("saved from", event['message']['uuid'] )

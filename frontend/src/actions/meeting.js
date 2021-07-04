@@ -3,7 +3,8 @@ import {
     CHANGE_MEETING_LOADED,
     CHANGE_MEETING_ADMITTED,
     ADD_PARTICIPANT,
-    SET_PARTICIPANTS_LIST
+    SET_PARTICIPANTS_LIST,
+    CHANGE_USER_VOLUME
 } from '../constants/actionTypes'
 
 /**
@@ -72,6 +73,25 @@ export const addParticipant = participant => {
             payload: {
                 uuid: participant.uuid,
                 participant
+            }
+        })
+    }
+}
+
+
+
+/**
+ * Updates the value of the user volume in the meeting state
+ * @param participant
+ * @returns {function(...[*]=)}
+ */
+export const changeUserVolume = (volume, participant_uuid) => {
+    return dispatch => {
+        dispatch({
+            type: CHANGE_USER_VOLUME,
+            payload: {
+                volume,
+                participant_uuid
             }
         })
     }

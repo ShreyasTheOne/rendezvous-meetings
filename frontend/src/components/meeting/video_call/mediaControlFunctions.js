@@ -14,6 +14,8 @@ export function toggleVideo () {
 
             stream.getVideoTracks().forEach(track => {
                 track.stop()
+                // track.enabled = false
+                // track.dispatchEvent(new Event("ended"))
                 stream.removeTrack(track)
             })
         }
@@ -37,6 +39,7 @@ export function toggleVideo () {
                 let stream = this.state.streams[me.uuid]
                 if (!stream) stream = new MediaStream()
                 stream.addTrack(videoTracks[0])
+
                 videoTracks = stream.getVideoTracks()
 
                 Object.keys(this.peer_connections).forEach(uuid => {
@@ -59,5 +62,65 @@ export function toggleVideo () {
     }
 }
 
-export function toggleAudio () {}
+export function toggleAudio () {
+    const audio_currently_on = this.state.inputs['audio']
+    const {me} = this.state
+
+    if (audio_currently_on) {
+        let stream = this.state.streams[me.uuid]
+        if (stream) {
+            Object.keys(this.peer_connections).forEach( uuid => {
+                if (uuid === me.uuid) return
+                if (this.audioSenders[uuid])
+                    this.peer_connections[uuid].removeTrack(this.audioSenders[uuid])
+                delete this.audioSenders[uuid]
+            })
+
+            stream.getAudioTracks().forEach(track => {
+                track.stop()
+                stream.removeTrack(track)
+            })
+        }
+
+        this.setState({
+            streams: {
+                ...this.state.streams,
+                [me.uuid]: stream
+            },
+            inputs: {
+                ...this.state.inputs,
+                'audio': false
+            }
+        })
+    } else {
+        navigator.mediaDevices
+            .getUserMedia({audio: true})
+            .then( new_stream => {
+                let audioTracks = new_stream.getAudioTracks()
+
+                let stream = this.state.streams[me.uuid]
+                if (!stream) stream = new MediaStream()
+                stream.addTrack(audioTracks[0])
+
+                audioTracks = stream.getAudioTracks()
+
+                Object.keys(this.peer_connections).forEach(uuid => {
+                    if (this.peer_connections[uuid] && !this.audioSenders[uuid]) {
+                        this.audioSenders[uuid] = this.peer_connections[uuid].addTrack(audioTracks[0], stream)
+                    }
+                })
+                this.setState({
+                    streams: {
+                        ...this.state.streams,
+                        [me.uuid]: stream
+                    },
+                    inputs: {
+                        ...this.state.inputs,
+                        'audio': true
+                    }
+                })
+            })
+            .catch(e => {})
+    }
+}
 export function toggleScreenShare () {}

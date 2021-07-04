@@ -27,6 +27,21 @@
     align-items: center;
 }
 
+.user-mic {
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 100%;
+    height: 15%;
+    z-index: 3;
+
+    padding-right: 1rem;
+
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+    align-items: center;
+}
+
 .user-picture {
     position: absolute;
     left: 0; top: 0;

@@ -74,6 +74,7 @@ class VideoCall extends Component {
 
         this.peer_connections = {}
         this.videoSenders = {}
+        this.audioSenders = {}
 
         this.videoCallWebSocket = new WebSocket(apiWSVideoCall(code))
     }

@@ -101,15 +101,37 @@ export function createNegotiationNeededHandler (pc, sender_userID, target_userID
  */
 export function createOnTrackHandler (target_userID) {
     return event => {
+        // let stream = this.state.streams[target_userID]
+        // if (!stream) stream = new MediaStream()
+        // stream.addTrack(event.track)
+        //
+        // stream.onremovetrack = ({track}) => {
+        //     if (!stream.getTracks().length) {
+        //         stream = null
+        //     }
+        // }
+        //
+        // this.setState({
+        //     streams: {
+        //         ...this.state.streams,
+        //         [target_userID]: stream
+        //     }
+        // })
+
         let stream = this.state.streams[target_userID]
         if (!stream) stream = new MediaStream()
         stream.addTrack(event.track)
 
-        stream.onremovetrack = ({track}) => {
-            if (!stream.getTracks().length) {
-                stream = null
-            }
-        }
+        // stream.getVideoTracks().forEach(track => {
+        //     track.onended = e => {
+        //         alert("Track ended")
+        //     }
+        // })
+        // stream.onremovetrack = ({track}) => {
+        //     if (!stream.getTracks().length) {
+        //         stream = null
+        //     }
+        // }
 
         this.setState({
             streams: {

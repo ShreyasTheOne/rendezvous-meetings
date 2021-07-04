@@ -128,6 +128,12 @@ class RoomConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
             participant.save()
         except Participant.DoesNotExist:
             pass
+
+        async_to_sync(self.channel_layer.group_discard)(
+            self.room_name,
+            self.channel_name
+        )
+
         self.close()
 
     def receive(self, text_data=None, bytes_data=None):

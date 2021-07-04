@@ -18,7 +18,6 @@ class MediaControls extends Component {
         const{
             inputs,
             mediaControlFunctions,
-
             MeetingInformation
         } = this.props
 
@@ -90,17 +89,10 @@ class MediaControls extends Component {
                                 { meeting.title || meeting.code }
                             </Card.Header>
                             <Card.Meta>
-                                {
-                                    meeting.title ?
-                                        '' :
-                                        meeting.code
-                                }
+                                { meeting.title ? meeting.code : '' }
                             </Card.Meta>
                             <Card.Description>
-                                {
-                                    meeting.description ||
-                                        'No Description provided'
-                                }
+                                { meeting.description || 'No Description provided' }
                             </Card.Description>
                         </Card.Content>
                     </Card>

@@ -83,6 +83,10 @@ export const apiWSVideoCall = code => {
     return `${apiWSBase()}meeting/${code}/video_call/`
 }
 
+export const apiWSChat = code => {
+    return `${apiWSBase()}meeting/${code}/chat/`
+}
+
 
 // OAuth Redirection URLs
 export const googleOAuthRedirect = (state = 'google') => {

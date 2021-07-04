@@ -3,7 +3,7 @@ import {connect} from "react-redux"
 import {
     Card,
     Image,
-    Header
+    Header, Icon
 } from 'semantic-ui-react'
 
 import {setParticipantsList} from "../../../../actions/meeting"
@@ -28,9 +28,9 @@ class VideoGrid extends Component {
                 const audioTracks = streams[uuid].getAudioTracks()
                 const videoTracks = streams[uuid].getVideoTracks()
 
-                if (audioTracks.length>0 || videoTracks.length>0) {
-                    let videoElement = document.getElementById(`user-video-${uuid}`)
-                    if (videoElement) {
+                let videoElement = document.getElementById(`user-video-${uuid}`)
+                if (videoElement) {
+                    if (audioTracks.length>0 || videoTracks.length>0) {
                         videoElement.onloadedmetadata = function(e) {
                             videoElement.play()
                         }
@@ -46,7 +46,8 @@ class VideoGrid extends Component {
     }
 
     render () {
-        const { MeetingInformation, streams } = this.props
+        const { MeetingInformation, streams, UserInformation } = this.props
+        const me = UserInformation.user
         const { participants } = MeetingInformation
 
         const dimensions = getVideoGridDimensions(Object.keys(participants).length)
@@ -75,8 +76,13 @@ class VideoGrid extends Component {
             >
                 {Object.keys(participants).map(uuid => {
                     const user = participants[uuid]
-                    const streamExists = streams[uuid] && streams[uuid].getVideoTracks().length > 0
-                    const fadeExists = streamExists ? 'fade' : ''
+                    const videoExists = (
+                        streams[uuid]
+                        && streams[uuid].getVideoTracks().length > 0
+                        && streams[uuid].getVideoTracks()[0].enabled
+                    )
+                    const audioExists = streams[uuid] && streams[uuid].getAudioTracks().length > 0
+                    const fadeExists = videoExists ? 'fade' : ''
 
                     return (
                         <Card
@@ -86,9 +92,8 @@ class VideoGrid extends Component {
                         >
                             <video
                                 id={`user-video-${uuid}`}
-                                // muted={uuid === me.uuid}
-                                muted
-                                hidden={!streamExists}
+                                muted={me.uuid === uuid}
+                                hidden={!videoExists}
                                 autoPlay
                                 playsInline
                                 className={`user-video`}
@@ -107,6 +112,18 @@ class VideoGrid extends Component {
                                     </Header>
                                 </span>
                             </div>
+                            {!audioExists &&
+                            <div
+                                // hidden={audioExists}
+                                className={`user-mic`}
+                            >
+                                <Icon
+                                    name='microphone slash'
+                                    circular
+                                    inverted
+                                    color='grey'
+                                />
+                            </div>}
                         </Card>
                     )
                 })}

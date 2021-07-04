@@ -28,6 +28,7 @@ import {apiWSRoom, route404} from "../../../urls"
 import './index.css'
 import VideoCall from "../video_call";
 import JoinRequestPortal from "./joinRequestPortal";
+import MeetingSidePanel from "../sidePanel";
 
 class Meeting extends Component {
 
@@ -148,6 +149,7 @@ class Meeting extends Component {
             <div id='meeting-container'>
                 <div id='meeting-content'>
                     <VideoCall code={this.props.match.params.code}/>
+                    <MeetingSidePanel code={this.props.match.params.code}/>
                 </div>
 
                 <JoinRequestPortal
