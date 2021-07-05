@@ -1,0 +1,16 @@
+#message-input-box {
+    color: white !important;
+}
+
+.message-header {
+    font-size: 1.1rem !important;
+}
+
+.message-content {
+    font-size: 0.9rem !important;
+}
+
+.message-send-time {
+    font-size: 0.9rem !important;
+    color: white !important;
+}

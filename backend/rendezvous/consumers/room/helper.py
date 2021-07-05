@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from asgiref.sync import async_to_sync
 
 from rendezvous.constants import participant_status
@@ -42,6 +44,7 @@ class HelperMixin():
         """
         self.__update_participant_status(user_uuid, participant_status.ATTENDING)
         self.send_meeting_info_driver(user_uuid)
+        self.blast_user_joined_driver(user_uuid)
 
     def reject_user(self, user_uuid):
         """
@@ -78,14 +81,16 @@ class HelperMixin():
         # Update participant status of self
         self.__update_participant_status(self.user.uuid, participant_status.ATTENDING)
 
+        # Set meeting start time
+        if self.meeting.start_time is None:
+            self.meeting.start_time = datetime.now()
+            self.meeting.save()
+
         # Tell everyone else that a new user joined
-        self.blast_user_joined_driver()
+        self.blast_user_joined_driver(self.user.get_uuid_str())
 
         # Send meeting information to self
         self.send_meeting_info_driver()
-
-        # Send participants information to self
-        self.send_participants_info_driver()
 
         return
 

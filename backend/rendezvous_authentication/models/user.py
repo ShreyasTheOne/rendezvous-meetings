@@ -37,6 +37,9 @@ class User(AbstractUser):
     def get_full_name(self):
         return self.full_name
 
+    def get_uuid_str(self):
+        return str(self.uuid)
+
     def get_dropdown_text(self):
         """
         Returns the text to be displayed in list of dropdown

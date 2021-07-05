@@ -69,6 +69,7 @@ export const apiUserSearchUrl = (query, dropdown=false, get_all=false) => {
     return url
 }
 
+
 // Backend WS URLs
 export const apiWSBase = () => {
     return `ws://localhost:50000/ws/`
@@ -78,8 +79,16 @@ export const apiWSRoom = code => {
     return `${apiWSBase()}meeting/${code}/room/`
 }
 
-// OAuth Redirection URLs
+export const apiWSVideoCall = code => {
+    return `${apiWSBase()}meeting/${code}/video_call/`
+}
 
+export const apiWSChat = code => {
+    return `${apiWSBase()}meeting/${code}/chat/`
+}
+
+
+// OAuth Redirection URLs
 export const googleOAuthRedirect = (state = 'google') => {
     return (`https://accounts.google.com/o/oauth2/v2/auth?` +
     `response_type=code&` +

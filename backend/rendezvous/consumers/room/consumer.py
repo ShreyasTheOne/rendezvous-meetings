@@ -1,4 +1,6 @@
 import json
+
+
 from django.db.models import Q
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
@@ -32,8 +34,6 @@ class RoomConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
 
         # The room includes people waiting in the lobby as well
         self.room_name = f'room-{self.meeting_code}'
-        # The video call group includes only those people who are allowed into the meeting
-        self.video_call_group_name = f'video_call_group-{self.meeting_code}'
 
         meeting_code = self.meeting_code
         try:
@@ -128,6 +128,12 @@ class RoomConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
             participant.save()
         except Participant.DoesNotExist:
             pass
+
+        async_to_sync(self.channel_layer.group_discard)(
+            self.room_name,
+            self.channel_name
+        )
+
         self.close()
 
     def receive(self, text_data=None, bytes_data=None):
@@ -193,6 +199,19 @@ class RoomConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
             self.send(
                 text_data=json.dumps(event['message'])
             )
+
+    def send_info_to_all_but_user(self, event):
+        """
+        Sends a message to a everyone but a specific user, whose ID is specified in the message
+        """
+        print("send_info_to_all_but_user", self.user.get_uuid_str(), event['message']['uuid'], event['message']['uuid'] == self.user.get_uuid_str())
+        if self.user.get_uuid_str() != event['message']['uuid']:
+            print("sending to", event['message']['uuid'] )
+            self.send(
+                text_data=json.dumps(event['message'])
+            )
+        else:
+            print("saved from", event['message']['uuid'] )
 
     def send_rejected_message(self, event):
         """

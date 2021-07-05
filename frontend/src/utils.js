@@ -1,4 +1,49 @@
 /**
+ * If the length of the string exceeds the limit, it truncates it to the limit and adds three dots at the end
+ * @param  {string} text    The string to be fitted
+ * @param  {number} limit   The maximum length allowed
+ * @return {string}         The fitted string
+ */
+export const fitText = (text, limit = 40) => {
+    if (text.length > limit) {
+        return `${text.slice(0, limit)}...`
+    } else {
+        return text
+    }
+}
+
+/**
+ * Based on the number of users in the meeting, this function returns the optimal values
+ * for the number of rows and columns to properly display everyone
+ * @param  {number} n   The number of users in the meeting
+ * @return {Array<number>} An array containing the rows and columns required
+ */
+export const getVideoGridDimensions = n => {
+    if (n === 1) return [1, 2]
+
+    let rows=1, columns=1
+    while (true) {
+        let low = rows*columns, high
+        if (rows === columns) {
+            high = rows*(columns+1)
+            if (low === n) return [rows, columns]
+
+            if (low < n && n <= high) {
+                return [rows, columns+1]
+            }
+            columns++
+        } else {
+            high = (rows + 1) * columns
+            if (low === n) return [rows, columns]
+            if (low < n && n <= high) {
+                return [rows+1, columns]
+            }
+            rows++
+        }
+    }
+}
+
+/**
  * From a list of all matching users, pick out the results that haven't already been selected
  * @param  {Array.<User>} all_matching     Queryset returned by the API endpoint with all search results
  * @param  {Array.<User>} already_selected List of elements in store that have already been selected
@@ -27,19 +72,4 @@ export const get_new_results = (all_matching, already_selected=[]) => {
         all_i++
     }
     return new_results
-}
-
-
-/**
- * If the length of the string exceeds the limit, it truncates it to the limit and adds three dots at the end
- * @param  {string} text    The string to be fitted
- * @param  {number} limit   The maximum length allowed
- * @return {string}         The fitted string
- */
-export const fitText = (text, limit= 15) => {
-    if (text.length > limit) {
-        return `${text.slice(0, limit)}...`
-    } else {
-        return text
-    }
 }

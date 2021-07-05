@@ -1,0 +1,33 @@
+#video-call-container {
+    height: 100%;
+    width: 100%;
+    grid-column: 1 / 1;
+    display: grid;
+    grid-template-rows: 9fr 1fr;
+
+}
+
+
+/* VIDEO CALL CONTENT */
+
+#video-call-content {
+    height: 100%;
+    width: 100%;
+
+    grid-row: 1 / 1;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/*  VIDEO CALL CONTROLS */
+
+#video-call-controls {
+    grid-row: 2 / 2;
+    display: grid;
+    grid-template-columns: 3fr 1fr 3fr;
+    align-items: center;
+}

@@ -1,9 +1,10 @@
 import {
     UPDATE_MEETING_TITLE_DESCRIPTION_HOST,
-    SET_PARTICIPANTS_LIST,
-    ADD_STREAM,
     CHANGE_MEETING_LOADED,
-    CHANGE_MEETING_ADMITTED
+    CHANGE_MEETING_ADMITTED,
+    ADD_PARTICIPANT,
+    SET_PARTICIPANTS_LIST,
+    CHANGE_USER_VOLUME
 } from '../constants/actionTypes'
 
 /**
@@ -44,6 +45,54 @@ export const changeMeetingLoaded = newState => {
         dispatch({
             type: CHANGE_MEETING_LOADED,
             payload: newState
+        })
+    }
+}
+
+/*
+    Action to create peer connections with all other participants
+*/
+export const setParticipantsList = participants => {
+    return dispatch => {
+        dispatch({
+            type: SET_PARTICIPANTS_LIST,
+            payload: participants
+        })
+    }
+}
+
+/**
+ * Adds another participant to the state, or overrides the existing
+ * entry with matching uuid
+ * @param {Object.<Participant>} participant   participant object
+ */
+export const addParticipant = participant => {
+    return dispatch => {
+        dispatch({
+            type: ADD_PARTICIPANT,
+            payload: {
+                uuid: participant.uuid,
+                participant
+            }
+        })
+    }
+}
+
+
+
+/**
+ * Updates the value of the user volume in the meeting state
+ * @param participant
+ * @returns {function(...[*]=)}
+ */
+export const changeUserVolume = (volume, participant_uuid) => {
+    return dispatch => {
+        dispatch({
+            type: CHANGE_USER_VOLUME,
+            payload: {
+                volume,
+                participant_uuid
+            }
         })
     }
 }

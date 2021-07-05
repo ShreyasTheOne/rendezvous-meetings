@@ -13,7 +13,8 @@ class MeetingShallowSerializer(ModelSerializer):
             'code',
             'title',
             'description',
-            'host'
+            'host',
+            'start_time'
         ]
         read_only_fields = ['id', ]
 
