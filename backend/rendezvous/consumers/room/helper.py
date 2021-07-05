@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from asgiref.sync import async_to_sync
 
 from rendezvous.constants import participant_status
@@ -78,6 +80,11 @@ class HelperMixin():
 
         # Update participant status of self
         self.__update_participant_status(self.user.uuid, participant_status.ATTENDING)
+
+        # Set meeting start time
+        if self.meeting.start_time is None:
+            self.meeting.start_time = datetime.now()
+            self.meeting.save()
 
         # Tell everyone else that a new user joined
         self.blast_user_joined_driver(self.user.get_uuid_str())

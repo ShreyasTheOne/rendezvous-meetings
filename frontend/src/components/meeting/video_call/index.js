@@ -5,10 +5,10 @@ import {Loader} from "semantic-ui-react"
 import {
     PARTICIPANT_LIST,
     PEER_CONNECTION_OFFER,
-    ICE_CANDIDATE, PEER_CONNECTION_ANSWER, USER_LEFT
+    ICE_CANDIDATE, PEER_CONNECTION_ANSWER, USER_LEFT, VIDEO_TURNED_OFF, AUDIO_TURNED_OFF
 } from "../../../constants/websocketMessageTypes"
 
-import {apiWSVideoCall} from "../../../urls"
+import {apiWSVideoCall, routeHome} from "../../../urls"
 import {centerFullParent} from "../../../styles"
 
 import {setParticipantsList} from "../../../actions/meeting"
@@ -26,9 +26,9 @@ import {
     createPeerConnection
 } from "./RTCConnectionFuctions"
 import {
-    toggleAudio,
-    toggleScreenShare,
-    toggleVideo
+    handleUserAudioOff,
+    handleUserVideoOff,
+    toggleMedia,
 } from "./mediaControlFunctions"
 
 import VideoGrid from "./video_grid"
@@ -45,7 +45,6 @@ class VideoCall extends Component {
         this.callUsers = callUsers.bind(this)
         this.createPeerConnection = createPeerConnection.bind(this)
         this.createOnTrackHandler = createOnTrackHandler.bind(this)
-        // this.createRemoveTrackEventHandler = createRemoveTrackEventHandler.bind(this)
         this.createIceCandidateHandler = createIceCandidateHandler.bind(this)
         this.createNegotiationNeededHandler = createNegotiationNeededHandler.bind(this)
 
@@ -53,9 +52,9 @@ class VideoCall extends Component {
         this.handleAnswer = handleAnswer.bind(this)
         this.handleIceCandidateMessage = handleIceCandidateMessage.bind(this)
 
-        this.toggleVideo = toggleVideo.bind(this)
-        this.toggleAudio = toggleAudio.bind(this)
-        this.toggleScreenShare = toggleScreenShare.bind(this)
+        this.toggleMedia = toggleMedia.bind(this)
+        this.handleUserVideoOff = handleUserVideoOff.bind(this)
+        this.handleUserAudioOff = handleUserAudioOff.bind(this)
 
         const { UserInformation, code } = this.props
 
@@ -73,8 +72,11 @@ class VideoCall extends Component {
         this.IceCandidates = {}
 
         this.peer_connections = {}
-        this.videoSenders = {}
-        this.audioSenders = {}
+
+        this.mediaSenders = {
+            'video': {},
+            'audio': {}
+        }
 
         this.videoCallWebSocket = new WebSocket(apiWSVideoCall(code))
     }
@@ -107,6 +109,12 @@ class VideoCall extends Component {
             case USER_LEFT:
                 this.handleUserLeft(message)
                 break
+            case VIDEO_TURNED_OFF:
+                this.handleUserVideoOff(message)
+                break
+            case AUDIO_TURNED_OFF:
+                this.handleUserAudioOff(message)
+                break
             default:
                 break
         }
@@ -114,6 +122,24 @@ class VideoCall extends Component {
 
     emitThroughSocket = message => {
         this.videoCallWebSocket.send(encodeURIComponent(JSON.stringify(message)))
+    }
+
+    /**
+     * Closes all peer connections
+     * Deletes all media senders
+     * Redirects back to home page
+     */
+    leaveMeeting () {
+        Object.keys(this.peer_connections).forEach(uuid => {
+            this.peer_connections[uuid].close()
+            delete this.peer_connections[uuid]
+
+            Object.keys(this.mediaSenders).forEach(media => {
+                if (this.mediaSenders[media][uuid]) delete this.mediaSenders[media][uuid]
+            })
+        })
+
+        window.location = routeHome()
     }
 
     /**
@@ -137,6 +163,10 @@ class VideoCall extends Component {
             }
             delete this.peer_connections[uuid]
         }
+
+        Object.keys(this.mediaSenders).forEach(media => {
+            if (this.mediaSenders[media][uuid]) delete this.mediaSenders[media][uuid]
+        })
 
         let { participants } = this.props.MeetingInformation
         if (participants.hasOwnProperty(uuid)) {
@@ -169,12 +199,6 @@ class VideoCall extends Component {
             )
         }
 
-        const mediaControlFunctions = {
-            'toggleAudio': this.toggleAudio.bind(this),
-            'toggleVideo': this.toggleVideo.bind(this),
-            'toggleScreenShare': this.toggleScreenShare.bind(this),
-        }
-
         return (
             <div id='video-call-container'>
                 <div id='video-call-content'>
@@ -184,7 +208,8 @@ class VideoCall extends Component {
                 </div>
                 <div id='video-call-controls'>
                     <MediaControls
-                        mediaControlFunctions={mediaControlFunctions}
+                        leaveMeeting={this.leaveMeeting.bind(this)}
+                        toggleMedia={this.toggleMedia.bind(this)}
                         inputs={this.state.inputs}
                     />
                 </div>

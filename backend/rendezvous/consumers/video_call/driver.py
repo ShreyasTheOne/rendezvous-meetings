@@ -70,6 +70,19 @@ class DriverMixin():
             }
         )
 
+    def blast_generic_video_call_signal_driver(self, message):
+        """
+        Sends a message to everyone in the group call
+        """
+
+        async_to_sync(self.channel_layer.group_send)(
+            self.video_call_group_name,
+            {
+                'type': "send_info_to_all",
+                'message': message,
+            }
+        )
+
     def blast_user_left_driver(self, user_uuid):
         """
         Inform everyone in the meeting that a user (self) has left

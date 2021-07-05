@@ -107,7 +107,8 @@ class VideoCallConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
 
         if type in websocket_message_types.generic_message_types:
             self.send_generic_video_call_signal_driver(type, message)
-            return
+        elif type in websocket_message_types.media_control_types:
+            self.blast_generic_video_call_signal_driver(payload)
 
         return
 

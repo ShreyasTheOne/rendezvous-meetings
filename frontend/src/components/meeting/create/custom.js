@@ -46,10 +46,13 @@ class CreateCustomMeeting extends Component {
     }
 
     componentDidMount() {
+        this.setInviteeOptions()
+    }
+
+    setInviteeOptions = () => {
         this.setState({
             inviteeSearching: true
         })
-
         axios({
             url: apiUserSearchUrl('', true, true)
         }).then(res => {
@@ -128,6 +131,7 @@ class CreateCustomMeeting extends Component {
 
     handleModalClose = () => {
         this.setState(initialState)
+        this.setInviteeOptions()
         const { setDialogBoxOpenClose, CUSTOM } = this.props
         setDialogBoxOpenClose(CUSTOM, false)
     }

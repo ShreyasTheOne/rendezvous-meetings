@@ -39,11 +39,22 @@ export function handleOffer (message) {
     this.peer_connections[sender_userID]
         .setRemoteDescription(desc)
         .then(() => {
-            if (!this.videoSenders[sender_userID] && this.state.streams[me.uuid]) {
-                const stream = this.state.streams[me.uuid]
-                const videoTracks = stream.getVideoTracks()
-                if (videoTracks.length>0)
-                    this.videoSenders[sender_userID] = this.peer_connections[sender_userID].addTrack(videoTracks[0], stream)
+            const stream = this.state.streams[me.uuid]
+            if (stream) {
+                if (!this.mediaSenders['video'][sender_userID]) {
+                    const videoTracks = stream.getVideoTracks()
+                    if (videoTracks.length > 0) {
+                        this.mediaSenders['video'][sender_userID]
+                            = this.peer_connections[sender_userID].addTrack(videoTracks[0], stream)
+                    }
+                }
+                if (!this.mediaSenders['audio'][sender_userID]) {
+                    const audioTracks = stream.getAudioTracks()
+                    if (audioTracks.length > 0) {
+                        this.mediaSenders['audio'][sender_userID]
+                            = this.peer_connections[sender_userID].addTrack(audioTracks[0], stream)
+                    }
+                }
             }
         })
         .then(() => {

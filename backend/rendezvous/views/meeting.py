@@ -11,6 +11,7 @@ from rendezvous.serializers.meeting import MeetingCreatedSerializer
 
 from rendezvous_authentication.models import User
 
+
 class MeetingViewSet(viewsets.ModelViewSet):
     queryset = Meeting.objects.all()
     permission_classes = (IsAuthenticated,)

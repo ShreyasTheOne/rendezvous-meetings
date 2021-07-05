@@ -13,16 +13,105 @@ import './index.css'
 
 class VideoGrid extends Component {
 
+    constructor(props) {
+        super(props)
+
+        this.new_streams = []
+        this.new_participants = []
+    }
+
+
     componentDidMount() {
         this.setStreams()
     }
 
+    componentWillReceiveProps(nextProps, nextContext) {
+        this.new_streams = []
+        this.new_participants = []
+
+        const newStreams = nextProps.streams
+        const newParticipants = nextProps.MeetingInformation.participants
+
+        const {streams, MeetingInformation} = this.props
+        const {participants} = MeetingInformation
+
+        Object.keys(newStreams).forEach(uuid => {
+            const stream = streams[uuid]
+            const newStream = newStreams[uuid]
+
+            if (
+                (!newStream && stream) ||
+                (newStream && stream && newStream.getAudioTracks().length !== stream.getAudioTracks().length) ||
+                (newStream && stream && newStream.getVideoTracks().length !== stream.getVideoTracks().length)
+            )
+            {
+                this.setStream(newStream, uuid, participants[uuid].volume)
+            }
+
+            if (newStream && !stream) {
+                this.new_streams.push(uuid)
+            }
+        })
+
+        Object.keys(newParticipants).forEach(uuid => {
+            const newUser = newParticipants[uuid]
+            const user = participants[uuid]
+
+            if (newUser && user) {
+                if (newUser.volume !== user.volume) {
+                    let videoElement = document.getElementById(`user-video-${uuid}`)
+                    videoElement.volume = newUser.volume
+                }
+            }
+
+            if (newUser && !user) {
+                this.new_participants.push(uuid)
+            }
+        })
+    }
+
     componentDidUpdate(prevProps, prevState, snapshot) {
-        this.setStreams()
+        const { MeetingInformation, streams } = this.props
+        const { participants } = MeetingInformation
+
+        this.new_participants.forEach(uuid => {
+            const user = participants[uuid]
+
+            if (user) {
+                let videoElement = document.getElementById(`user-video-${uuid}`)
+                videoElement.volume = user.volume
+            }
+        })
+
+        this.new_streams.forEach(uuid => {
+            this.setStream(streams[uuid], uuid, participants[uuid].volume)
+        })
+
+    }
+
+    setStream (stream, uuid, volume) {
+        const audioTracks = stream.getAudioTracks()
+        const videoTracks = stream.getVideoTracks()
+
+        let videoElement = document.getElementById(`user-video-${uuid}`)
+        if (videoElement) {
+            if (audioTracks.length>0 || videoTracks.length>0) {
+                videoElement.onloadedmetadata = function(e) {
+                    videoElement.play()
+                }
+                try {
+                    videoElement.srcObject = stream
+                    videoElement.volume = volume
+                } catch (err) {
+                    console.log("Error in setting video Source", err);
+                }
+            }
+        }
     }
 
     setStreams () {
-        const { streams } = this.props
+        const { streams, MeetingInformation } = this.props
+        const { participants } = MeetingInformation
         Object.keys(streams).forEach(uuid => {
             if (streams[uuid]) {
                 const audioTracks = streams[uuid].getAudioTracks()
@@ -36,6 +125,7 @@ class VideoGrid extends Component {
                         }
                         try {
                             videoElement.srcObject = streams[uuid]
+                            videoElement.volume = participants[uuid]['volume']
                         } catch (err) {
                             console.log("Error in setting video Source", err);
                         }
@@ -98,6 +188,7 @@ class VideoGrid extends Component {
                                 playsInline
                                 className={`user-video`}
                             />
+
                             <div className={'user-picture'}>
                                 <Image
                                     avatar
@@ -105,6 +196,7 @@ class VideoGrid extends Component {
                                     src={user['profile_picture']}
                                 />
                             </div>
+
                             <div className={`user-name`}>
                                 <span className={fadeExists}>
                                     <Header inverted>
@@ -112,11 +204,9 @@ class VideoGrid extends Component {
                                     </Header>
                                 </span>
                             </div>
+
                             {!audioExists &&
-                            <div
-                                // hidden={audioExists}
-                                className={`user-mic`}
-                            >
+                            <div className={`user-mic`}>
                                 <Icon
                                     name='microphone slash'
                                     circular
@@ -124,6 +214,7 @@ class VideoGrid extends Component {
                                     color='grey'
                                 />
                             </div>}
+
                         </Card>
                     )
                 })}

@@ -13,12 +13,28 @@ import './index.css'
 
 class MediaControls extends Component {
 
+    constructor(props) {
+        super(props)
+        this.state = {
+            leavingMeeting: false,
+        }
+    }
+
+
+    handleMeetingLeave = () => {
+        this.setState({leavingMeeting: true})
+        const { leaveMeeting } = this.props
+        leaveMeeting()
+    }
+
     render () {
+
+        const { leavingMeeting } = this.state
 
         const{
             inputs,
-            mediaControlFunctions,
-            MeetingInformation
+            toggleMedia,
+            MeetingInformation,
         } = this.props
 
         const { meeting } = MeetingInformation
@@ -33,7 +49,7 @@ class MediaControls extends Component {
                         inverted
                         size={'big'}
                         name='microphone'
-                        onClick={mediaControlFunctions['toggleAudio']}
+                        onClick={() => toggleMedia('audio')}
                     />
                 </Icon.Group>
 
@@ -44,7 +60,7 @@ class MediaControls extends Component {
                         inverted
                         size={'big'}
                         name='camera'
-                        onClick={mediaControlFunctions['toggleVideo']}
+                        onClick={() => toggleMedia('video')}
                     />
                 </Icon.Group>
 
@@ -55,7 +71,7 @@ class MediaControls extends Component {
                         inverted
                         size={'big'}
                         name='desktop'
-                        onClick={mediaControlFunctions['toggleScreenShare']}
+                        onClick={toggleMedia('screen')}
                     />
                 </Icon.Group>
             </div>
@@ -63,6 +79,8 @@ class MediaControls extends Component {
                 <Button
                     size={'big'}
                     color='google plus'
+                    loading={leavingMeeting}
+                    onClick={this.handleMeetingLeave.bind(this)}
                 >
                     <Icon name='sign-out' />
                     Leave Meeting
@@ -70,9 +88,7 @@ class MediaControls extends Component {
             </div>
             <div id='meta-buttons'>
                 <Popup
-                    style={{
-                        padding: 0
-                    }}
+                    style={{ padding: 0 }}
                     on='click'
                     trigger={
                         <Icon
@@ -106,11 +122,7 @@ class MediaControls extends Component {
                         alignSelf: 'center'
                     }}
                 >
-                    {
-                        meeting.title ?
-                            fitText(meeting.title) :
-                            meeting.code
-                    }
+                    { meeting.title ? fitText(meeting.title) : meeting.code }
                 </Header>
             </div>
             </>

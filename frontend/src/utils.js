@@ -4,7 +4,7 @@
  * @param  {number} limit   The maximum length allowed
  * @return {string}         The fitted string
  */
-export const fitText = (text, limit= 15) => {
+export const fitText = (text, limit = 40) => {
     if (text.length > limit) {
         return `${text.slice(0, limit)}...`
     } else {

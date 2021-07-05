@@ -2,21 +2,16 @@ import {connect} from "react-redux"
 import React, { Component } from 'react'
 import {
     Loader,
-    Header,
-    Card,
-    TransitionablePortal,
-    List,
     Button,
-    Image
+    Container
 } from "semantic-ui-react"
 
 import Lobby from "../lobby"
 import {
-    ADMIT_USER,
     MEETING_INFORMATION,
     PENDING_HOST_JOIN,
     PENDING_HOST_PERMISSION,
-    REJECT_USER, USER_JOINED, USER_LEFT,
+    USER_JOINED,
 } from "../../../constants/websocketMessageTypes"
 import {
     changeMeetingLoaded,
@@ -37,6 +32,7 @@ class Meeting extends Component {
 
         this.state = {
             lobbyStatus: 'loading',
+            assertedInteraction: false,
             join_requests: [],
         }
     }
@@ -124,6 +120,12 @@ class Meeting extends Component {
         })
     }
 
+    assertInteraction = () => {
+        this.setState({
+            assertedInteraction: true
+        })
+    }
+
     render () {
         const { MeetingInformation } = this.props
         const { loaded } = MeetingInformation
@@ -141,6 +143,18 @@ class Meeting extends Component {
             return (
                 <div id='meeting-container'>
                     <Lobby status={this.state.lobbyStatus}/>
+                </div>
+            )
+        }
+
+        const { assertedInteraction } = this.state
+        if (!assertedInteraction) {
+            return (
+                <div id='meeting-container'>
+                    <Lobby
+                        status='assertingInteraction'
+                        callback={this.assertInteraction.bind(this)}
+                    />
                 </div>
             )
         }

@@ -28,15 +28,6 @@ export function createPeerConnection (sender_userID, target_userID) {
     pc.onnegotiationneeded = this.createNegotiationNeededHandler(pc, sender_userID, target_userID).bind(this)
     pc.ontrack = this.createOnTrackHandler(target_userID).bind(this)
 
-    pc.onremovestream = e => {
-        this.setState({
-            streams: {
-                ...this.state.streams,
-                [target_userID]: null
-            }
-        })
-    }
-
     return pc
 }
 
@@ -87,8 +78,8 @@ export function createNegotiationNeededHandler (pc, sender_userID, target_userID
                     }
                 })
             })
-            .catch(() => {
-                console.log("Error sending offer")
+            .catch(e => {
+                console.log("Error sending offer", e)
             })
     }
 }
@@ -101,37 +92,9 @@ export function createNegotiationNeededHandler (pc, sender_userID, target_userID
  */
 export function createOnTrackHandler (target_userID) {
     return event => {
-        // let stream = this.state.streams[target_userID]
-        // if (!stream) stream = new MediaStream()
-        // stream.addTrack(event.track)
-        //
-        // stream.onremovetrack = ({track}) => {
-        //     if (!stream.getTracks().length) {
-        //         stream = null
-        //     }
-        // }
-        //
-        // this.setState({
-        //     streams: {
-        //         ...this.state.streams,
-        //         [target_userID]: stream
-        //     }
-        // })
-
         let stream = this.state.streams[target_userID]
         if (!stream) stream = new MediaStream()
         stream.addTrack(event.track)
-
-        // stream.getVideoTracks().forEach(track => {
-        //     track.onended = e => {
-        //         alert("Track ended")
-        //     }
-        // })
-        // stream.onremovetrack = ({track}) => {
-        //     if (!stream.getTracks().length) {
-        //         stream = null
-        //     }
-        // }
 
         this.setState({
             streams: {
