@@ -19,6 +19,24 @@ class MeetingShallowSerializer(ModelSerializer):
         read_only_fields = ['id', ]
 
 
+class MeetingEmailSerializer(ModelSerializer):
+    host_name = CharField(source='get_host_name')
+    joining_link = CharField(source='get_joining_link')
+    # scheduled_start_time = CharField(source='get_scheduled_time_formatted')
+    scheduled_start_time = CharField(source='get_scheduled_time_str')
+
+    class Meta:
+        model = Meeting
+        fields = [
+            'joining_link',
+            'code',
+            'title',
+            'description',
+            'host_name',
+            'scheduled_start_time'
+        ]
+        read_only_fields = ['id', ]
+
 class MeetingCreatedSerializer(ModelSerializer):
     invitees = UserDropdownSerializer(many=True)
     scheduled_start_time = CharField(source='get_scheduled_time_str')

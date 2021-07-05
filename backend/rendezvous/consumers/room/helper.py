@@ -1,4 +1,5 @@
-from datetime import datetime
+# from datetime import datetime
+from django.utils import timezone
 
 from asgiref.sync import async_to_sync
 
@@ -83,7 +84,7 @@ class HelperMixin():
 
         # Set meeting start time
         if self.meeting.start_time is None:
-            self.meeting.start_time = datetime.now()
+            self.meeting.start_time = timezone.now()
             self.meeting.save()
 
         # Tell everyone else that a new user joined

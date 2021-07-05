@@ -6,8 +6,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+
 from rendezvous.models.meeting import Meeting
-from rendezvous.serializers.meeting import MeetingCreatedSerializer
+from rendezvous.serializers.meeting import MeetingCreatedSerializer, MeetingEmailSerializer
+from rendezvous.tasks.meeting_invite import send_meeting_invite_notifications
 
 from rendezvous_authentication.models import User
 
@@ -48,7 +50,8 @@ class MeetingViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def custom(self, request):
-        """API endpoint to handle custom meeting creation
+        """
+        API endpoint to handle custom meeting creation
         """
 
         # Destructure request data
@@ -59,7 +62,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
         start_now = request.data.get('start_now', None)
 
         # Validate start time
-        now = datetime.now()
+        now = timezone.now()
 
         if start_now is True:
             scheduled_datetime_obj = now
@@ -96,6 +99,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
         )
         meeting.save()
 
+        invitee_emails = []
         # Add invitees
         for inv in invitees:
             # invitees is a list of emails of those invited
@@ -108,10 +112,19 @@ class MeetingViewSet(viewsets.ModelViewSet):
             try:
                 user = User.objects.get(email=email)
                 meeting.invitees.add(user)
+
+                invitee_emails.append(user.email)
             except User.DoesNotExist:
                 pass
 
         meeting.save()
+
+        # Send invite email
+        if len(invitee_emails) > 0:
+            send_meeting_invite_notifications.delay(
+                meeting=MeetingEmailSerializer(meeting).data,
+                user_emails=invitee_emails
+            )
 
         """
         We do not add the host as a participant here

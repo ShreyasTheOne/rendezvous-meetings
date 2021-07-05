@@ -1,3 +1,4 @@
+import os
 from django.db import models
 from django.conf import settings
 from rendezvous.models.base import Base
@@ -81,6 +82,24 @@ class Meeting(Base):
         If meeting is going on, only start time exists, not end time
         """
         return self.start_time is not None and self.end_time is None
+
+    def get_host_name(self):
+        """
+        Return full name of meeting host
+        """
+        return self.host.full_name
+
+    def get_joining_link(self):
+        """
+        Returns the link URI at which the user can attend the meeting
+        """
+        return f"{os.environ.get('FRONTEND_MEETING_URI_BASE')}{self.code}"
+
+    def get_scheduled_time_formatted(self):
+        """
+        Return readable scheduled start time
+        """
+        return self.scheduled_start_time.strftime("%m/%d/%Y, %H:%M:%S")
 
     def get_scheduled_time_str(self):
         """
