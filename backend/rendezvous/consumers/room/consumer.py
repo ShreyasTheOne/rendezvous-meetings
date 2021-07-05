@@ -1,6 +1,6 @@
 import json
 
-
+from datetime import datetime
 from django.db.models import Q
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
@@ -126,6 +126,15 @@ class RoomConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
             )
             participant.status = participant_status.LEFT
             participant.save()
+
+            participant_count = Participant.objects.filter(
+                meeting=self.meeting,
+                status=participant_status.ATTENDING
+            ).count()
+            if participant_count == 0:
+                # Everyone has left the meeting
+                self.meeting.end_time = datetime.now()
+
         except Participant.DoesNotExist:
             pass
 
@@ -145,10 +154,6 @@ class RoomConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
             return
 
         print("type", type)
-
-        if type in websocket_message_types.generic_message_types:
-            # self.blast_generic_video_call_message(payload)
-            return
 
         if type == websocket_message_types.ADMIT_USER:
             if self.user != self.meeting.host:

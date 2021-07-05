@@ -91,6 +91,39 @@ services:
     networks:
       - rendezvous_network
 
+  celery: # Tasks
+
+    # Location of dockerfile to build image from
+    build: ./backend/
+
+    # No matter what, if the container stops, start it again
+    restart: always
+
+    # Command to run when container starts
+    command: celery -A rendezvous_backend worker -l INFO
+
+    # Mount the volumes on the django container
+    volumes:
+      - type: bind
+        source: ./backend
+        target: /rendezvous_backend
+        read_only: false
+
+    container_name: rendezvous_celery
+
+    # Set the environment variables
+    env_file:
+      - backend/configuration/config.env
+
+    # Depends on the postgres container
+    depends_on:
+      - backend
+      - redis
+
+    # Connect to the custom network
+    networks:
+      - rendezvous_network
+
   frontend: # React
     # Location of dockerfile to build image from
     build: ./frontend/

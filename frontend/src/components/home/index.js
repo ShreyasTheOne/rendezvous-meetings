@@ -9,10 +9,11 @@ import CreateCustomMeeting from "../meeting/create/custom"
 import CreateInstantMeeting from "../meeting/create/instant"
 
 import './css/index.css'
+import JoinMeeting from "../meeting/join";
 
 const INSTANT = 'instant'
 const CUSTOM = 'custom'
-
+const JOIN = 'join'
 
 class Home extends Component {
 
@@ -22,6 +23,7 @@ class Home extends Component {
             dialogBoxOpen: {
                 [INSTANT]: false,
                 [CUSTOM]: false,
+                [JOIN]: false,
             },
         }
     }
@@ -48,6 +50,14 @@ class Home extends Component {
                                 </Header>
                             </div>
                             <div id='home-heading-right'>
+                                <Button
+                                    style={{margin: '0px 40px 12px 0px'}}
+                                    color={'blue'}
+                                    content={'Join'}
+                                    icon={'sign-in'}
+                                    labelPosition={'left'}
+                                    onClick={() => this.setDialogBoxOpenClose(JOIN, true)}
+                                />
                                 <Button.Group
                                     style={{marginBottom: '12px'}}
                                 >
@@ -74,6 +84,13 @@ class Home extends Component {
 
 
                 {/* DIALOG BOXES */}
+
+                {/*JOIN MEETING*/}
+                <JoinMeeting
+                    open={this.state.dialogBoxOpen[JOIN]}
+                    JOIN={JOIN}
+                    setDialogBoxOpenClose={this.setDialogBoxOpenClose.bind(this)}
+                />
 
                 {/* INSTANT MEETING CREATION */}
                 <CreateInstantMeeting

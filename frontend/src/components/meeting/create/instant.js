@@ -68,8 +68,9 @@ class CreateInstantMeeting extends Component {
                     </Button>
                     <Button
                         loading={this.state.loading}
+                        disabled={this.state.loading}
                         onClick={() => this.handleInstantMeetingCreate()}
-                        color="violet"
+                        color="red"
                     >
                         Create
                     </Button>
