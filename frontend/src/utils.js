@@ -1,3 +1,6 @@
+import axios from 'axios'
+import {apiIAmTheMeetingHostUrl} from "./urls"
+
 /**
  * If the length of the string exceeds the limit, it truncates it to the limit and adds three dots at the end
  * @param  {string} text    The string to be fitted
@@ -10,6 +13,23 @@ export const fitText = (text, limit = 40) => {
     } else {
         return text
     }
+}
+
+/**
+ * Makes API call to check if user is the host
+ * of the meeting with the given code
+ * @param code          Meeting code
+ * @returns {boolean}   True if user if the meeting host
+ */
+export const iAmTheMeetingHost = code => {
+    console.log(code)
+    return axios({
+        url: apiIAmTheMeetingHostUrl(),
+        method: 'post',
+        data: {code}
+    }).then(res => {
+        return res.data['status']
+    })
 }
 
 /**

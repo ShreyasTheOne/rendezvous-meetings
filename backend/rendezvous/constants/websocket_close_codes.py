@@ -5,12 +5,17 @@ MEETING_CODE_INVALID = {
     'reason': 'Meeting code is invalid.'
 }
 
-USER_BANNED = {
+YOU_ARE_BANNED = {
     'code': BASE_CODE + 1,
-    'reason': 'You are not allowed in this meeting.'
+    'reason': 'You have been banned from this meeting.'
 }
 
-USER_ALREADY_ATTENDING = {
+YOU_ARE_ALREADY_ATTENDING = {
     'code': BASE_CODE + 2,
-    'reason': 'Meeting code is invalid.'
+    'reason': 'You are already attending the meeting.'
+}
+
+YOU_ARE_REMOVED = {
+    'code': BASE_CODE + 3,
+    'reason': 'You have been removed from this meeting.'
 }

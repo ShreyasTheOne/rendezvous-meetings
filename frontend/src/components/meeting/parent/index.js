@@ -1,17 +1,14 @@
 import {connect} from "react-redux"
 import React, { Component } from 'react'
-import {
-    Loader,
-    Button,
-    Container
-} from "semantic-ui-react"
+import { Loader } from "semantic-ui-react"
 
 import Lobby from "../lobby"
 import {
+    BAN_USER,
     MEETING_INFORMATION,
     PENDING_HOST_JOIN,
-    PENDING_HOST_PERMISSION,
-    USER_JOINED,
+    PENDING_HOST_PERMISSION, REMOVE_USER,
+    USER_JOINED, USER_LEFT,
 } from "../../../constants/websocketMessageTypes"
 import {
     changeMeetingLoaded,
@@ -24,6 +21,7 @@ import './index.css'
 import VideoCall from "../video_call";
 import JoinRequestPortal from "./joinRequestPortal";
 import MeetingSidePanel from "../sidePanel";
+import MeetingInfoScreen from "../infoScreen"
 
 class Meeting extends Component {
 
@@ -34,11 +32,14 @@ class Meeting extends Component {
             lobbyStatus: 'loading',
             assertedInteraction: false,
             join_requests: [],
+            errorCode: null
         }
     }
 
     componentDidMount () {
         const { code } = this.props.match.params
+        const me = this.props.UserInformation.user
+
         this.roomWebSocket = new WebSocket(apiWSRoom(code))
 
         this.roomWebSocket.addEventListener('message', this.handleSocketMessage.bind(this))
@@ -48,7 +49,9 @@ class Meeting extends Component {
         }
 
         this.roomWebSocket.onclose = event => {
-            window.location = route404()
+            this.setState({
+                errorCode: event.code
+            })
         }
     }
 
@@ -126,11 +129,40 @@ class Meeting extends Component {
         })
     }
 
+    toggleBanUser = userID => {
+        this.emitThroughSocket({
+            type: BAN_USER,
+            message: userID
+        })
+    }
+
+    toggleRemoveUser = userID => {
+        this.emitThroughSocket({
+            type: REMOVE_USER,
+            message: userID
+        })
+    }
+
+    toggleMuteUser = userID => {
+
+    }
+
+    toggleCameraUser = userID => {
+
+    }
+
     render () {
         const { MeetingInformation } = this.props
         const { loaded } = MeetingInformation
+        const { errorCode } = this.state
 
-        if (!loaded)  {
+        if (errorCode) {
+            return (
+                <MeetingInfoScreen code={errorCode}/>
+            )
+        }
+
+        if (!loaded) {
             return (
                 <div id='meeting-container'>
                     <Loader active/>
@@ -159,11 +191,21 @@ class Meeting extends Component {
             )
         }
 
+        const participantControlFunctions = {
+            'ban': this.toggleBanUser.bind(this),
+            'remove': this.toggleRemoveUser.bind(this)
+        }
+
         return (
             <div id='meeting-container'>
                 <div id='meeting-content'>
-                    <VideoCall code={this.props.match.params.code}/>
-                    <MeetingSidePanel code={this.props.match.params.code}/>
+                    <VideoCall
+                        code={this.props.match.params.code}
+                    />
+                    <MeetingSidePanel
+                        code={this.props.match.params.code}
+                        participantControlFunctions={participantControlFunctions}
+                    />
                 </div>
 
                 <JoinRequestPortal

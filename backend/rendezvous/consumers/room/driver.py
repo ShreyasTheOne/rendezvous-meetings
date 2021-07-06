@@ -94,6 +94,26 @@ class DriverMixin():
             }
         )
 
+    def send_banned_message_driver(self, target=None):
+        if not target:
+            return
+        else:
+            message = {
+                'type': websocket_message_types.USER_LEFT,
+                'message': UserVolumeSerializer(User.objects.get(uuid=target)).data,
+                'uuid': target
+            }
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_name,
+                {
+                    'type': "send_banned_message",
+                    'message': {
+                        "uuid": target,
+                        "message": message
+                    }
+                }
+            )
+
     def send_rejected_message_driver(self, target=None):
         if not target:
             return
@@ -104,6 +124,26 @@ class DriverMixin():
                     'type': "send_rejected_message",
                     'message': {
                         "uuid": target
+                    }
+                }
+            )
+
+    def send_removed_message_driver(self, target=None):
+        if not target:
+            return
+        else:
+            message = {
+                'type': websocket_message_types.USER_LEFT,
+                'message': UserVolumeSerializer(User.objects.get(uuid=target)).data,
+                'uuid': target
+            }
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_name,
+                {
+                    'type': "send_removed_message",
+                    'message': {
+                        "uuid": target,
+                        "message": message
                     }
                 }
             )

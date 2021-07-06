@@ -13,8 +13,9 @@
 
     width: 88px !important;
     max-width: 88px !important;
-    height: 100vh;
+    height: calc(100vh - 48px);
     justify-content: center;
+    border-right: 1px solid #37352f;
 }
 
 #user-avatar {

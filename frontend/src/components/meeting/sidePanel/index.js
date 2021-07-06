@@ -64,7 +64,10 @@ class MeetingSidePanel extends Component {
                 </div>
                 <div>
                     {activeTab === 'participants' &&
-                        <ParticipantControls code={this.props.code}/>
+                        <ParticipantControls
+                            code={this.props.code}
+                            participantControlFunctions={this.props.participantControlFunctions}
+                        />
                     }
                     {activeTab === 'meeting_chat' &&
                         <MeetingChat code={this.props.code}/>

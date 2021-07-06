@@ -61,12 +61,20 @@ export const apiCreateCustomMeetingUrl = () => {
     return `${apiBase()}meeting/custom/`
 }
 
+export const apiGetUpcomingMeetingsUrl = () => {
+    return `${apiBase()}meeting/upcoming/`
+}
+
 export const apiUserSearchUrl = (query, dropdown=false, get_all=false) => {
     let url = `${apiBase()}search_users/?search=${query}`
     if (dropdown) url += `&for=dropdown`
     if (get_all) url += `&get_all=true`
 
     return url
+}
+
+export const apiIAmTheMeetingHostUrl = () => {
+    return `${apiBase()}meeting/check_host_status/`
 }
 
 
