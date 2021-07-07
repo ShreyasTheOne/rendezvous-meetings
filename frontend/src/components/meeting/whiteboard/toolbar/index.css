@@ -1,0 +1,8 @@
+.toolbar-icon {
+    margin-left: 1.5rem !important;
+    margin-right: 1.5rem !important;
+}
+
+.selected-tool {
+    color: aqua;
+}

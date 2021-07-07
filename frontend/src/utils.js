@@ -7,7 +7,7 @@ import {apiIAmTheMeetingHostUrl} from "./urls"
  * @param  {number} limit   The maximum length allowed
  * @return {string}         The fitted string
  */
-export const fitText = (text, limit = 40) => {
+export const fitText = (text, limit = 35) => {
     if (text.length > limit) {
         return `${text.slice(0, limit)}...`
     } else {
@@ -41,22 +41,22 @@ export const iAmTheMeetingHost = code => {
 export const getVideoGridDimensions = n => {
     if (n === 1) return [1, 2]
 
-    let rows=1, columns=1
+    let rows = 1, columns = 1
     while (true) {
-        let low = rows*columns, high
+        let low = rows * columns, high
         if (rows === columns) {
-            high = rows*(columns+1)
+            high = rows * (columns + 1)
             if (low === n) return [rows, columns]
 
             if (low < n && n <= high) {
-                return [rows, columns+1]
+                return [rows, columns + 1]
             }
             columns++
         } else {
             high = (rows + 1) * columns
             if (low === n) return [rows, columns]
             if (low < n && n <= high) {
-                return [rows+1, columns]
+                return [rows + 1, columns]
             }
             rows++
         }
@@ -71,11 +71,11 @@ export const getVideoGridDimensions = n => {
  */
 
 // CURRENTLY NOT BEING USED
-export const get_new_results = (all_matching, already_selected=[]) => {
+export const get_new_results = (all_matching, already_selected = []) => {
     already_selected.sort()
 
-    let all_i=0, curr_i=0
-    const n=all_matching.length, m=already_selected.length
+    let all_i = 0, curr_i = 0
+    const n = all_matching.length, m = already_selected.length
 
     let new_results = []
     while (all_i < n) {

@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import {
     Icon,
     Button,
@@ -6,11 +6,12 @@ import {
     Image
 } from "semantic-ui-react"
 import {
+    routeConversations,
     routeHome,
-    routeOrganisations,
+    routeMeetings
 } from "../../urls"
 import './css/index.css'
-import { connect } from 'react-redux'
+import {connect} from 'react-redux'
 
 const menu_items = [
     {
@@ -20,10 +21,16 @@ const menu_items = [
         'popup': 'Home'
     },
     {
-        'icon': 'building',
-        'route': `${routeOrganisations()}`,
-        'value': 'organisations',
-        'popup': 'Organisations'
+        'icon': 'talk',
+        'route': `${routeConversations()}`,
+        'value': 'conversations',
+        'popup': 'Conversations'
+    },
+    {
+        'icon': 'clock outline',
+        'route': `${routeMeetings()}`,
+        'value': 'meetings',
+        'popup': 'Meetings'
     },
 ]
 
@@ -33,19 +40,23 @@ class NavBar extends Component {
         window.location = route
     }
 
-    render () {
+    render() {
         // Props from parent component
-        const { menu_item, showBackButton } = this.props
+        const {menu_item, showBackButton, backButtonLink} = this.props
 
         // Props from redux
-        const { UserInformation } = this.props
-        const { user } = UserInformation
+        const {UserInformation} = this.props
+        const {user} = UserInformation
 
         return (
             <div id='nav-container'>
                 {
                     showBackButton &&
                     <Icon
+                        link
+                        onClick={() => {
+                            window.location = backButtonLink
+                        }}
                         id={'back-button'}
                         name={'arrow left'}
                         size={'big'}
@@ -54,7 +65,7 @@ class NavBar extends Component {
                 }
                 <div id='menu-items'>
                     {
-                        menu_items.map( item => {
+                        menu_items.map(item => {
                             return (
                                 <Popup
                                     content={item['popup']}
@@ -63,9 +74,9 @@ class NavBar extends Component {
                                     position={'right center'}
                                     trigger={
                                         <Button
-                                            style={{marginTop: '1rem'}}
                                             size={'large'}
                                             icon={item['icon']}
+                                            style={{marginTop: '1rem'}}
                                             inverted={item['value'] !== menu_item}
                                             color={item['value'] === menu_item ? 'red' : 'white'}
                                             onClick={() => this.handleMenuItemChange(item['route'])}
@@ -82,7 +93,7 @@ class NavBar extends Component {
                     <Image
                         avatar
                         size={'mini'}
-                        style={{ cursor: 'pointer' }}
+                        style={{cursor: 'pointer'}}
                         src={user['profile_picture']}
                     />
                 </div>

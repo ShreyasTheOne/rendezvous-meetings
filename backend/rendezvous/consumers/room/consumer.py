@@ -174,12 +174,15 @@ class RoomConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
         return
 
     def close(self, code=None):
+        """
+        Ensure the connection is accepted before it is closed
+        to prevent any issues that arise
+        """
         try:
             self.accept()
         except Exception:
             pass
         WebsocketConsumer.close(self, code=code)
-
 
     """
     Channels event handlers
@@ -252,10 +255,6 @@ class RoomConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
             self.close(
                 code=websocket_close_codes.YOU_ARE_BANNED.get('code'),
             )
-        # else:
-        #     self.send(
-        #         text_data=json.dumps(event['message']['message'])
-        #     )
 
     def send_removed_message(self, event):
         """
@@ -266,7 +265,3 @@ class RoomConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
             self.close(
                 code=websocket_close_codes.YOU_ARE_REMOVED.get('code'),
             )
-        # else:
-        #     self.send(
-        #         text_data=json.dumps(event['message']['message'])
-        #     )

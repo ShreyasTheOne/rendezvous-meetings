@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 
 const containerStyle = {
     height: '48px',
@@ -14,11 +14,12 @@ const containerStyle = {
 
 const appHeaderStyle = {
     color: 'white',
-    fontSize: '1.5rem'
+    fontSize: '1.5rem',
+    fontFamily: 'Open Sans'
 }
 
 class AppBar extends Component {
-    render () {
+    render() {
         return (
             <div style={containerStyle}>
                 <span style={appHeaderStyle}>

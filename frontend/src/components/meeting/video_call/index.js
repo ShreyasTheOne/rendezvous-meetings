@@ -35,6 +35,7 @@ import VideoGrid from "./video_grid"
 import MediaControls from "./media_controls"
 
 import './index.css'
+import Whiteboard from "../whiteboard";
 
 class VideoCall extends Component {
 
@@ -66,7 +67,8 @@ class VideoCall extends Component {
                 'audio': false,
                 'video': false,
                 'screen': false
-            }
+            },
+            showWhiteboard: false,
         }
 
         this.IceCandidates = {}
@@ -90,7 +92,6 @@ class VideoCall extends Component {
         const type = message.type
         message = message.message
 
-        console.log("type", type)
         switch (type) {
             case PARTICIPANT_LIST:
                 this.handleParticipantsList(message)
@@ -188,8 +189,14 @@ class VideoCall extends Component {
         this.props.SetParticipantsList(participants_dict)
     }
 
+    toggleWhiteboard = () => {
+        this.setState({
+            showWhiteboard: !this.state.showWhiteboard
+        })
+    }
+
     render () {
-        const { loaded } = this.state
+        const { loaded, showWhiteboard } = this.state
 
         if (!loaded) {
             return (
@@ -205,9 +212,15 @@ class VideoCall extends Component {
                     <VideoGrid
                         streams={this.state.streams}
                     />
+                    <Whiteboard
+                        code={this.props.code}
+                        open={showWhiteboard}
+                        toggleWhiteboard={this.toggleWhiteboard.bind(this)}
+                    />
                 </div>
                 <div id='video-call-controls'>
                     <MediaControls
+                        toggleWhiteboard={this.toggleWhiteboard.bind(this)}
                         leaveMeeting={this.leaveMeeting.bind(this)}
                         toggleMedia={this.toggleMedia.bind(this)}
                         inputs={this.state.inputs}

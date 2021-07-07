@@ -1,4 +1,5 @@
 import config from './config.json'
+
 const isDev = config.isDev
 
 // Frontend Routes
@@ -11,12 +12,12 @@ export const routeHome = () => {
     return `${routeBase()}`
 }
 
-export const routeOrganisations = () => {
-    return `${routeBase()}organisations/`
+export const routeConversations = () => {
+    return `${routeBase()}conversations/`
 }
 
-export const routeCollaborations = () => {
-    return `${routeBase()}collaborations/`
+export const routeMeetings = () => {
+    return `${routeBase()}meetings/`
 }
 
 export const routeMeeting = code => {
@@ -65,7 +66,7 @@ export const apiGetUpcomingMeetingsUrl = () => {
     return `${apiBase()}meeting/upcoming/`
 }
 
-export const apiUserSearchUrl = (query, dropdown=false, get_all=false) => {
+export const apiUserSearchUrl = (query, dropdown = false, get_all = false) => {
     let url = `${apiBase()}search_users/?search=${query}`
     if (dropdown) url += `&for=dropdown`
     if (get_all) url += `&get_all=true`
@@ -95,13 +96,17 @@ export const apiWSChat = code => {
     return `${apiWSBase()}meeting/${code}/chat/`
 }
 
+export const apiWSWhiteboard = code => {
+    return `${apiWSBase()}meeting/${code}/whiteboard/`
+}
+
 
 // OAuth Redirection URLs
 export const googleOAuthRedirect = (state = 'google') => {
     return (`https://accounts.google.com/o/oauth2/v2/auth?` +
-    `response_type=code&` +
-    `client_id=681935745791-igm17k4a160g25usvnsoqvepnv71fvok.apps.googleusercontent.com&` +
-    `scope=openid%20profile%20email&` +
-    `redirect_uri=http%3A//localhost:51000/redirect&` +
-    `state=${state}`)
+        `response_type=code&` +
+        `client_id=681935745791-igm17k4a160g25usvnsoqvepnv71fvok.apps.googleusercontent.com&` +
+        `scope=openid%20profile%20email&` +
+        `redirect_uri=http%3A//localhost:51000/redirect&` +
+        `state=${state}`)
 }
