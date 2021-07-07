@@ -10,6 +10,7 @@ const containerStyle = {
 
 class _404 extends Component {
     render () {
+
         return (
             <div style={containerStyle}>
                 <Header
@@ -21,7 +22,7 @@ class _404 extends Component {
                         marginBottom: '0'
                     }}
                 >
-                    Error: 404
+                    You seem to be lost...
                 </Header>
                 <Header
                     as={'h1'}
@@ -32,7 +33,7 @@ class _404 extends Component {
                         marginBottom: '3rem'
                     }}
                 >
-                    Page not found!
+                    Error 404: Page not found!
                 </Header>
 
                 <Button

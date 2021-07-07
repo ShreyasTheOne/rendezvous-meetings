@@ -29,7 +29,6 @@ const containerStyle = {
 const messageStyle = {
     borderRadius: '10px',
     backgroundColor: '#37352f',
-
 }
 const inputBoxStyle = {
     padding: '1rem',

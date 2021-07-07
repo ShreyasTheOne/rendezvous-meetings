@@ -94,7 +94,41 @@ class DriverMixin():
             }
         )
 
+    def send_banned_message_driver(self, target=None):
+        """
+        The channel event handler closes the session with the code
+        to inform the user that he has been banned
+        """
+
+        if not target:
+            return
+        else:
+            message = {
+                'type': websocket_message_types.USER_LEFT,
+                'message': UserVolumeSerializer(User.objects.get(uuid=target)).data,
+                'uuid': target
+            }
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_name,
+                {
+                    'type': "send_banned_message",
+                    'message': {
+                        "uuid": target,
+                        "message": message
+                    }
+                }
+            )
+
     def send_rejected_message_driver(self, target=None):
+        """
+        The channel event handler closes the session with the code
+        to inform the user that he has been rejected from joining the
+        meeting.
+
+        In this case, to maintain the privacy of the meeting participants,
+        if the user is not accepted into the meeting, they are informed
+        the meeting does not exist.
+        """
         if not target:
             return
         else:
@@ -104,6 +138,32 @@ class DriverMixin():
                     'type': "send_rejected_message",
                     'message': {
                         "uuid": target
+                    }
+                }
+            )
+
+    def send_removed_message_driver(self, target=None):
+        """
+        The channel event handler closes the session with the code
+        to inform the user that he has been removed.
+
+        They are free to join again
+        """
+        if not target:
+            return
+        else:
+            message = {
+                'type': websocket_message_types.USER_LEFT,
+                'message': UserVolumeSerializer(User.objects.get(uuid=target)).data,
+                'uuid': target
+            }
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_name,
+                {
+                    'type': "send_removed_message",
+                    'message': {
+                        "uuid": target,
+                        "message": message
                     }
                 }
             )

@@ -57,6 +57,20 @@ class HelperMixin():
         self.__update_participant_status(user_uuid, participant_status.BANNED)
         self.send_rejected_message_driver(user_uuid)
 
+    def ban_user(self, user_uuid):
+        """
+        Host bans the user from the meeting, and the user will not be able to join again
+        """
+
+        self.__update_participant_status(user_uuid, participant_status.BANNED)
+        self.send_banned_message_driver(user_uuid)
+
+    def remove_user(self, user_uuid):
+        """
+        Host removes user from the meeting, but does not ban
+        """
+        self.send_removed_message_driver(user_uuid)
+
     def handle_join(self):
         """
         The connect() method of the RoomConsumer checks verifies the user.

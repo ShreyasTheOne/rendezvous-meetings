@@ -135,7 +135,7 @@ class RoomConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
                 # Everyone has left the meeting
                 self.meeting.end_time = datetime.now()
 
-        except Participant.DoesNotExist:
+        except Exception:
             pass
 
         async_to_sync(self.channel_layer.group_discard)(
@@ -143,7 +143,7 @@ class RoomConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
             self.channel_name
         )
 
-        self.close()
+        self.close(close_code)
 
     def receive(self, text_data=None, bytes_data=None):
         payload = json.loads(text_data)
@@ -162,8 +162,24 @@ class RoomConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
         elif type == websocket_message_types.REJECT_USER:
             if self.user != self.meeting.host:
                 return
-            self.reject_user(message)
+            self.ban_user(message)
+        elif type == websocket_message_types.BAN_USER:
+            if self.user != self.meeting.host:
+                return
+            self.ban_user(message) # Performs same functionality as user ban
+        elif type == websocket_message_types.REMOVE_USER:
+            if self.user != self.meeting.host:
+                return
+            self.remove_user(message) # Performs same functionality as user ban
         return
+
+    def close(self, code=None):
+        try:
+            self.accept()
+        except Exception:
+            pass
+        WebsocketConsumer.close(self, code=code)
+
 
     """
     Channels event handlers
@@ -209,7 +225,6 @@ class RoomConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
         """
         Sends a message to a everyone but a specific user, whose ID is specified in the message
         """
-        print("send_info_to_all_but_user", self.user.get_uuid_str(), event['message']['uuid'], event['message']['uuid'] == self.user.get_uuid_str())
         if self.user.get_uuid_str() != event['message']['uuid']:
             print("sending to", event['message']['uuid'] )
             self.send(
@@ -221,8 +236,37 @@ class RoomConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
     def send_rejected_message(self, event):
         """
         Rejects the specified user by closing the websocket connection
+        with the appropriate code
         """
         if str(self.user.uuid) == str(event['message']['uuid']):
             self.close(
                 code=websocket_close_codes.MEETING_CODE_INVALID.get('code'),
             )
+
+    def send_banned_message(self, event):
+        """
+        Rejects the specified user by closing the websocket connection
+        with the appropriate code
+        """
+        if str(self.user.uuid) == str(event['message']['uuid']):
+            self.close(
+                code=websocket_close_codes.YOU_ARE_BANNED.get('code'),
+            )
+        # else:
+        #     self.send(
+        #         text_data=json.dumps(event['message']['message'])
+        #     )
+
+    def send_removed_message(self, event):
+        """
+        Remove the specified user by closing the websocket connection
+        with the appropriate code
+        """
+        if str(self.user.uuid) == str(event['message']['uuid']):
+            self.close(
+                code=websocket_close_codes.YOU_ARE_REMOVED.get('code'),
+            )
+        # else:
+        #     self.send(
+        #         text_data=json.dumps(event['message']['message'])
+        #     )

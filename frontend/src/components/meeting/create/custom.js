@@ -319,7 +319,7 @@ class CreateCustomMeeting extends Component {
                             else
                                 this.handleModalClose()
                         }}
-                        color="red"
+                        color="yellow"
                     >
                         { meeting_created ? 'Close' : 'Create' }
                     </Button>

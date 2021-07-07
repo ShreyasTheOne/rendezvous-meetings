@@ -5,12 +5,17 @@ export const MEETING_CODE_INVALID = {
     'reason': 'Meeting code is invalid.'
 }
 
-export const USER_BANNED = {
+export const YOU_ARE_BANNED = {
     'code': BASE_CODE + 1,
-    'reason': 'You are not allowed in this meeting.'
+    'reason': 'You have been banned from this meeting.'
 }
 
-export const USER_ALREADY_ATTENDING = {
+export const YOU_ARE_ALREADY_ATTENDING = {
     'code': BASE_CODE + 2,
-    'reason': 'Meeting code is invalid.'
+    'reason': 'You are already attending the meeting.'
+}
+
+export const YOU_ARE_REMOVED = {
+    'code': BASE_CODE + 3,
+    'reason': 'You have been removed from this meeting.'
 }

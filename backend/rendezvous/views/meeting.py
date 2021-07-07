@@ -1,26 +1,33 @@
-from django.utils import timezone
 from datetime import datetime
+
+from django.utils import timezone
+from django.db.models import Q
 
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-
 from rendezvous.models.meeting import Meeting
-from rendezvous.serializers.meeting import MeetingCreatedSerializer, MeetingEmailSerializer
+from rendezvous.serializers.meeting import MeetingCreatedSerializer, MeetingEmailSerializer, MeetingVerboseSerializer
 from rendezvous.tasks.meeting_invite import send_meeting_invite_notifications
 
 from rendezvous_authentication.models import User
 
 
 class MeetingViewSet(viewsets.ModelViewSet):
+    """
+    Houses all API endpoints related to meeting creation, listing,
+    retrieval and updates.
+    """
+
     queryset = Meeting.objects.all()
     permission_classes = (IsAuthenticated,)
 
     @action(detail=False, methods=['post'])
     def instant(self, request):
-        """API endpoint to handle instant meeting creation
+        """
+        Handles instant meeting creation.
         """
 
         title = request.data.get('title', None)
@@ -51,7 +58,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'])
     def custom(self, request):
         """
-        API endpoint to handle custom meeting creation
+        Handles custom meeting creation.
         """
 
         # Destructure request data
@@ -136,6 +143,50 @@ class MeetingViewSet(viewsets.ModelViewSet):
             'success': 'Meeting created',
             'meeting': MeetingCreatedSerializer(meeting).data
         }
+        return Response(
+            response_data,
+            status=status.HTTP_200_OK
+        )
+
+    @action(detail=False, methods=['post'])
+    def check_host_status(self, request):
+        """
+        Returns True if the user that makes the request
+        is the host of the meeting associated with the host specified.
+        """
+
+        code = request.data.get('code', None)
+        host_status = False
+
+        if code:
+            try:
+                meeting = Meeting.objects.get(code=code)
+                host_status = request.user.uuid == meeting.host.uuid
+            except:
+                pass
+
+        response_data = {
+            'status': host_status
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'])
+    def upcoming(self, request):
+        """
+        Returns a list of all future meetings that the user has hosted, or is invited to,
+        in reverse-chronological order of the scheduled start times.
+        """
+
+        meetings = Meeting.objects.filter(
+            (Q(host=request.user)
+             | Q(invitees__in=[request.user]))
+            & Q(scheduled_start_time__gt=timezone.now())
+        ).order_by('-scheduled_start_time')
+
+        response_data = {
+            'upcoming_meetings': MeetingVerboseSerializer(meetings, many=True).data
+        }
+
         return Response(
             response_data,
             status=status.HTTP_200_OK

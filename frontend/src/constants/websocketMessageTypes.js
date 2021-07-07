@@ -21,6 +21,8 @@ export const MEDIA_TURNED_OFF = {
 
 export const ADMIT_USER = 'ADMIT_USER'
 export const REJECT_USER = 'REJECT_USER'
+export const BAN_USER = 'BAN_USER'
+export const REMOVE_USER = 'REMOVE_USER'
 
 export const MESSAGES_LIST = 'MESSAGES_LIST'
 export const NEW_MESSAGE = 'NEW_MESSAGE'
