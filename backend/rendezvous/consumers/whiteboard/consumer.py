@@ -7,14 +7,14 @@ from channels.generic.websocket import WebsocketConsumer
 from rendezvous.models import *
 from rendezvous.constants import participant_status, websocket_close_codes, websocket_message_types
 
-from rendezvous.consumers.meeting_chat.helper import HelperMixin
-from rendezvous.consumers.meeting_chat.driver import DriverMixin
+from rendezvous.consumers.whiteboard.helper import HelperMixin
+from rendezvous.consumers.whiteboard.driver import DriverMixin
 
 
-class MeetingChatConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
+class WhiteboardConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
     """
     This consumer handles all the websocket connections and requests that are needed to
-    send and receive meeting chat messages in real time
+    maintain synchronisation between the whiteboards of all users in the meeting
 
     If a user forms a connection here, it means that it has already passed authentication
     in RoomConsumer. Hence, there must exist a participant object for this user in this
@@ -37,7 +37,7 @@ class MeetingChatConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
         self.meeting_code = self.scope['url_route']['kwargs'].get('meeting_code', None)
 
         # The meeting_chat group includes only those people who are allowed into the meeting
-        self.chat_group_name = f'chat_group-{self.meeting_code}'
+        self.whiteboard_group_name = f'whiteboard_group-{self.meeting_code}'
 
         meeting_code = self.meeting_code
         try:
@@ -69,12 +69,12 @@ class MeetingChatConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
 
         # If the subsequent code is executed, it means that a participant object has been found
         async_to_sync(self.channel_layer.group_add)(
-            self.chat_group_name,
+            self.whiteboard_group_name,
             self.channel_name
         )
 
         # Send participants information to self
-        self.send_hitherto_messages_driver()
+        self.initialise_whiteboard_driver()
 
         return
 
@@ -82,20 +82,21 @@ class MeetingChatConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
         """
         Last method from this consumer when the user disconnects from the meeting
         """
+
         async_to_sync(self.channel_layer.group_discard)(
-            self.chat_group_name,
+            self.whiteboard_group_name,
             self.channel_name
         )
         self.close()
 
     def receive(self, text_data=None, bytes_data=None):
-        text_data = unquote(text_data)
+        text_data=unquote(text_data)
         payload = json.loads(text_data)
         type = payload.get('type', None)
         message = payload.get('message', None)
 
-        if type == websocket_message_types.SEND_MESSAGE:
-            self.send_message_helper(message)
+        if type == websocket_message_types.WHITEBOARD_DRAW_STROKE:
+            self.draw_stroke_helper(message)
 
         return
 
@@ -128,6 +129,16 @@ class MeetingChatConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
         Sends a message to a specific user, whose ID is specified in the message
         """
         if str(self.user.uuid) == str(event['message']['uuid']):
+            self.send(
+                text_data=quote(json.dumps(event['message']))
+            )
+
+    def send_info_to_all_but_user(self, event):
+        """
+        Sends a message to a everyone but a specific user, whose ID is specified in the message
+        """
+
+        if self.user.get_uuid_str() != event['message']['uuid']:
             self.send(
                 text_data=quote(json.dumps(event['message']))
             )

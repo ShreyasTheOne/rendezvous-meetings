@@ -112,6 +112,17 @@ class VideoCallConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
 
         return
 
+    def close(self, code=None):
+        """
+        Ensure the connection is accepted before it is closed
+        to prevent any issues that arise
+        """
+        try:
+            self.accept()
+        except Exception:
+            pass
+        WebsocketConsumer.close(self, code=code)
+
     """
     Channels event handlers
     These methods are used when messages are blasted
@@ -140,9 +151,6 @@ class VideoCallConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
         """
 
         if self.user.get_uuid_str() != event['message']['uuid']:
-            print("sending to", event['message']['uuid'] )
             self.send(
                 text_data=quote(json.dumps(event['message']))
             )
-        else:
-            print("saved from", event['message']['uuid'] )

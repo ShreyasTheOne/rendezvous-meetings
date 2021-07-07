@@ -1,5 +1,5 @@
-import { connect } from 'react-redux'
-import React, { Component } from 'react'
+import {connect} from 'react-redux'
+import React, {Component} from 'react'
 import {
     Route,
     Switch,
@@ -7,18 +7,19 @@ import {
     Redirect
 } from 'react-router-dom'
 
-import { verifyUser, loginUser } from "../actions/user"
-import { centerFullPage } from "../styles"
+import {verifyUser, loginUser} from "../actions/user"
+import {centerFullPage} from "../styles"
 import Login from "./login"
 import Home from "./home"
 import Meeting from "./meeting/parent"
-import {Loader} from "semantic-ui-react";
-import _404 from "./404";
+import {Loader} from "semantic-ui-react"
+import _404 from "./404"
+import Conversations from "./conversations"
 
 class App extends Component {
 
     componentDidMount() {
-        const { loaded } = this.props.UserInformation
+        const {loaded} = this.props.UserInformation
         if (!loaded) {
             const pathArray = window.location.pathname.split('/')
             if (pathArray[1] === 'redirect') {
@@ -33,9 +34,9 @@ class App extends Component {
         }
     }
 
-    render () {
-        const { match, UserInformation } = this.props
-        const { loginState, loaded } = UserInformation
+    render() {
+        const {match, UserInformation} = this.props
+        const {loginState, loaded} = UserInformation
 
         if (loaded === false) {
             return (
@@ -62,13 +63,23 @@ class App extends Component {
                         />
                         <Route
                             exact
+                            path={`${match.path}conversations/`}
+                            component={Conversations}
+                        />
+                        {/*<Route*/}
+                        {/*    exact*/}
+                        {/*    path={`${match.path}meetings/`}*/}
+                        {/*    component={Meetings}*/}
+                        {/*/>*/}
+                        <Route
+                            exact
                             path={`${match.path}meeting/:code/`}
                             component={Meeting}
                         />
                         <Route
                             path={`${match.path}redirect/`}
                             render={() => {
-                                return (<Redirect to='/' />)
+                                return (<Redirect to='/'/>)
                             }}
                         />
                         <Route

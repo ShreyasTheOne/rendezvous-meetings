@@ -1,0 +1,9 @@
+#conversations-parent {
+    display: flex;
+    flex-direction: row;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100vw;
+    height: calc(100vh - 48px);
+    background-color: #1b1a17;
+}

@@ -1,4 +1,4 @@
-import React, { Component } from "react"
+import React, {Component} from "react"
 import {connect} from "react-redux"
 
 import {
@@ -8,7 +8,7 @@ import {
     Card,
     Header
 } from 'semantic-ui-react'
-import { fitText } from "../../../../utils"
+import {fitText} from "../../../../utils"
 import './index.css'
 
 class MediaControls extends Component {
@@ -20,111 +20,122 @@ class MediaControls extends Component {
         }
     }
 
-
     handleMeetingLeave = () => {
         this.setState({leavingMeeting: true})
-        const { leaveMeeting } = this.props
+        const {leaveMeeting} = this.props
         leaveMeeting()
     }
 
-    render () {
+    render() {
 
-        const { leavingMeeting } = this.state
+        const {leavingMeeting} = this.state
 
-        const{
+        const {
             inputs,
             toggleMedia,
+            toggleWhiteboard,
             MeetingInformation,
         } = this.props
 
-        const { meeting } = MeetingInformation
+        const {meeting} = MeetingInformation
 
         return (
             <>
-            <div id='media-controls'>
-                <Icon.Group>
-                    <Icon
-                        link
-                        color={inputs['audio'] ? 'green' : 'red'}
-                        inverted
-                        size={'big'}
-                        name='microphone'
-                        onClick={() => toggleMedia('audio')}
-                    />
-                </Icon.Group>
+                <div id='media-controls'>
+                    <Icon.Group>
+                        <Icon
+                            link
+                            color={inputs['audio'] ? 'green' : 'red'}
+                            inverted
+                            size={'big'}
+                            name='microphone'
+                            onClick={() => toggleMedia('audio')}
+                        />
+                    </Icon.Group>
 
-                <Icon.Group>
-                    <Icon
-                        link
-                        color={inputs['video'] ? 'green' : 'red'}
-                        inverted
-                        size={'big'}
-                        name='camera'
-                        onClick={() => toggleMedia('video')}
-                    />
-                </Icon.Group>
+                    <Icon.Group>
+                        <Icon
+                            link
+                            color={inputs['video'] ? 'green' : 'red'}
+                            inverted
+                            size={'big'}
+                            name='camera'
+                            onClick={() => toggleMedia('video')}
+                        />
+                    </Icon.Group>
 
-                <Icon.Group>
-                    <Icon
-                        link
-                        color={inputs['screen'] ? 'green' : 'red'}
-                        inverted
-                        size={'big'}
-                        name='desktop'
-                        onClick={toggleMedia('screen')}
-                    />
-                </Icon.Group>
-            </div>
-            <div id='end-meeting'>
-                <Button
-                    size={'big'}
-                    color='google plus'
-                    loading={leavingMeeting}
-                    onClick={this.handleMeetingLeave.bind(this)}
-                >
-                    <Icon name='sign-out' />
-                    Leave Meeting
-                </Button>
-            </div>
-            <div id='meta-buttons'>
-                <Popup
-                    style={{ padding: 0 }}
-                    on='click'
-                    trigger={
+                    <Icon.Group>
                         <Icon
                             link
                             inverted
                             size={'big'}
-                            name='info circle'
+                            name='square'
+                            style={{
+                                color: 'white',
+                                fontSize: '3rem',
+                                '-webkit-text-stroke': '3px black' /* border width and color */
+                            }}
+                            onClick={toggleWhiteboard}
                         />
-                    }
-                >
-                    <Card raised>
-                        <Card.Content>
-                            <Card.Header>
-                                { meeting.title || meeting.code }
-                            </Card.Header>
-                            <Card.Meta>
-                                { meeting.title ? meeting.code : '' }
-                            </Card.Meta>
-                            <Card.Description>
-                                { meeting.description || 'No Description provided' }
-                            </Card.Description>
-                        </Card.Content>
-                    </Card>
-                </Popup>
-                <Header
-                    as={'h2'}
-                    inverted
-                    style={{
-                        marginLeft: '1rem',
-                        marginTop: 0,
-                        alignSelf: 'center'
-                    }}
-                >
-                    { meeting.title ? fitText(meeting.title) : meeting.code }
-                </Header>
-            </div>
+                        <Icon
+                            corner
+                            name='pencil'
+                            style={{fontSize: '1rem'}}
+                            size={'huge'}
+                        />
+                    </Icon.Group>
+
+                </div>
+                <div id='end-meeting'>
+                    <Button
+                        size={'big'}
+                        color='google plus'
+                        loading={leavingMeeting}
+                        onClick={this.handleMeetingLeave.bind(this)}
+                    >
+                        <Icon name='sign-out'/>
+                        Leave Meeting
+                    </Button>
+                </div>
+                <div id='meta-buttons'>
+                    <Popup
+                        style={{padding: 0}}
+                        on='click'
+                        trigger={
+                            <Icon
+                                link
+                                inverted
+                                size={'big'}
+                                name='info circle'
+                            />
+                        }
+                    >
+                        <Card raised>
+                            <Card.Content>
+                                <Card.Header>
+                                    {meeting.title || meeting.code}
+                                </Card.Header>
+                                <Card.Meta>
+                                    {meeting.title ? meeting.code : ''}
+                                </Card.Meta>
+                                <Card.Description>
+                                    {meeting.description || 'No Description provided'}
+                                </Card.Description>
+                            </Card.Content>
+                        </Card>
+                    </Popup>
+                    <Header
+                        as={'h2'}
+                        inverted
+                        style={{
+                            marginLeft: '1rem',
+                            marginTop: 0,
+                            alignSelf: 'center'
+                        }}
+                    >
+                        {meeting.title ? fitText(meeting.title) : meeting.code}
+                    </Header>
+                </div>
             </>
         )
     }
