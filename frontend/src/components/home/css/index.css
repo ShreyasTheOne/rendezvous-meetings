@@ -44,8 +44,7 @@
     height: 100%;
     display: grid;
     align-self: center;
-    grid-template-columns: 3fr 7fr 3fr;
-    /*background-color: #2b542c;*/
+    grid-template-columns: 3fr 5fr 3fr;
 }
 
 #quick-access-container {
@@ -102,7 +101,6 @@
 }
 
 #meetings-list {
-    /*margin-left: 4rem;*/
     margin-top: 3rem;
     width: 100%;
     border-right: 1px solid #37352f;

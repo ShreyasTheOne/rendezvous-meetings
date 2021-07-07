@@ -58,7 +58,6 @@ class Home extends Component {
             },
             upcomingMeetings: null,
             upcomingMeetingsError: false
-
         }
     }
 
@@ -107,9 +106,8 @@ class Home extends Component {
                                 color={'grey'}
                                 as={'h1'}
                                 textAlign={'center'}
-                                style={{
-                                    fontSize: '3rem'
-                                }}>
+                                style={{ fontSize: '2rem' }}
+                            >
                                 Quick Access
                             </Header>
                             <div id={'actions-grid'}>
@@ -128,9 +126,8 @@ class Home extends Component {
                                 inverted
                                 color={'grey'}
                                 as={'h1'}
-                                style={{
-                                    fontSize: '3rem'
-                                }}>
+                                style={{ fontSize: '2rem' }}
+                            >
                                 Upcoming Meetings
                             </Header>
                             {
@@ -142,7 +139,7 @@ class Home extends Component {
                                                 inline={'centered'}
                                                 inverted
                                                 active
-                                                style={{marginTop: '1rem'}}
+                                                style={{ marginTop: '1rem' }}
                                             />
                                         :
                                             <MeetingsList meetings={upcomingMeetings}/>
@@ -162,7 +159,8 @@ class Home extends Component {
                                 style={{
                                     marginBottom: '0',
                                     fontSize: '1.6rem'
-                                }}>
+                                }}
+                            >
                                 {me.full_name}
                             </Header>
                             <Header
@@ -184,7 +182,7 @@ class Home extends Component {
 
                 {/* DIALOG BOXES */}
 
-                {/*JOIN MEETING*/}
+                {/* JOIN MEETING */}
                 <JoinMeeting
                     open={this.state.dialogBoxOpen[JOIN]}
                     JOIN={JOIN}

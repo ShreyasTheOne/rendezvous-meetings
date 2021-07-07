@@ -8,7 +8,7 @@ import {
     MEETING_INFORMATION,
     PENDING_HOST_JOIN,
     PENDING_HOST_PERMISSION, REMOVE_USER,
-    USER_JOINED, USER_LEFT,
+    USER_JOINED,
 } from "../../../constants/websocketMessageTypes"
 import {
     changeMeetingLoaded,
@@ -16,7 +16,7 @@ import {
     setMeetingInformation, addParticipant
 } from "../../../actions/meeting"
 
-import {apiWSRoom, route404} from "../../../urls"
+import {apiWSRoom} from "../../../urls"
 import './index.css'
 import VideoCall from "../video_call";
 import JoinRequestPortal from "./joinRequestPortal";
@@ -38,7 +38,6 @@ class Meeting extends Component {
 
     componentDidMount () {
         const { code } = this.props.match.params
-        const me = this.props.UserInformation.user
 
         this.roomWebSocket = new WebSocket(apiWSRoom(code))
 

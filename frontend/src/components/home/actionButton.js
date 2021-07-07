@@ -31,9 +31,8 @@ class ActionButton extends Component {
                             <Card.Header>
                             <Header
                                 as={'h1'}
-                                style={{
-                                    fontSize: '1.7rem'
-                                }}>
+                                style={{ fontSize: '1.7rem' }}
+                            >
                                 {action['header']}
                             </Header>
                         </Card.Header>

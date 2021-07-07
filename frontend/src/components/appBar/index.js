@@ -3,7 +3,6 @@ import React, { Component } from 'react'
 const containerStyle = {
     height: '48px',
     width: '100%',
-    // backgroundColor: '#161513',
     backgroundColor: '#1b1a17',
     borderBottom: '1px solid #37352f',
 

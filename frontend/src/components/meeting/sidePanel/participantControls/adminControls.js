@@ -1,37 +1,83 @@
 import React, {Component} from 'react'
-import {Button, Icon} from "semantic-ui-react";
+import {Button, Icon, Popup} from "semantic-ui-react"
+
+const actionButtons = [
+    {
+        'key': 'remove',
+        'action': 'remove',
+        'iconName': 'remove',
+        'iconColor': '',
+        'popupContent': 'Remove User',
+    },
+    {
+        'key': 'ban',
+        'action': 'ban',
+        'iconName': 'ban',
+        'iconColor': 'red',
+        'popupContent': 'Ban User'
+    },
+    // {
+    //     'key': 'mute',
+    //     'action': 'mute',
+    //     'iconName': 'microphone',
+    //     'iconColor': '',
+    //     'popupContent': 'Remove User'
+    // },
+    // {
+    //     'key': 'remove',
+    //     'action': 'remove',
+    //     'iconName': 'remove',
+    //     'iconColor': '',
+    //     'popupContent': 'Remove User'
+    // }
+]
 
 class AdminControls extends Component {
 
-    render () {
-        const { participantControlFunctions, user } = this.props
+    constructor (props) {
+        super(props)
+        this.state = {
+            loading: ''
+        }
+    }
 
+    handleActionClick = (action, userID) => {
+        this.setState({
+            loading: action
+        })
+        const { participantControlFunctions } = this.props
+        participantControlFunctions[action](userID)
+    }
+
+    render () {
+        const { user } = this.props
+        const { loading } = this.state
         return (
             <Button.Group icon>
-                <Button
-                    color='black'
-                    onClick={() => participantControlFunctions['remove'](user.uuid)}
-                >
-                    <Icon name='remove'/>
-                </Button>
-                <Button
-                    color='black'
-                    onClick={() => participantControlFunctions['ban'](user.uuid)}
-                >
-                    <Icon color='red' name='ban'/>
-                </Button>
-                <Button
-                    color='black'
-                    onClick={participantControlFunctions['mute']}
-                >
-                    <Icon color='red' name='microphone'/>
-                </Button>
-                <Button
-                    color='black'
-                    onClick={participantControlFunctions['camera']}
-                >
-                    <Icon color='red' name='camera'/>
-                </Button>
+                {actionButtons.map(item => {
+                    return (
+                        <Popup key={item['key']}
+                            trigger={
+                                <Button
+                                    loading={loading === item['action']}
+                                    disabled={loading === item['action']}
+                                    color='black'
+                                    onClick={() => this.handleActionClick(item['action'], user.uuid)}
+                                >
+                                    <Icon
+                                        color={item['iconColor']}
+                                        name={item['iconName']}
+                                    />
+                                </Button>
+                            }
+                            size={'mini'}
+                            content={item['popupContent']}
+                            inverted
+                            style={{ border: '1px solid white' }}
+                            position='top center'
+                        />
+                    )
+                })}
             </Button.Group>
         )
     }

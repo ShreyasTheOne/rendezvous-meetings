@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import Scrollbars from 'react-custom-scrollbars'
 import {Button, Card, Header, Icon, Image, Popup, Segment} from "semantic-ui-react"
-import {routeMeeting} from "../../urls"
 
 const moment = require('moment')
 
@@ -48,9 +47,7 @@ class MeetingsList extends Component {
         if (meetings.length === 0) {
             return (
                 <Header
-                    style={{
-                        fontWeight: 'lighter'
-                    }}
+                    style={{ fontWeight: 'lighter' }}
                     inverted
                     color={'grey'}
                     content={'No upcoming meetings'}
@@ -59,7 +56,7 @@ class MeetingsList extends Component {
         }
 
         return (
-            <Scrollbars style={{ width: '100%' }} >
+            <Scrollbars autoHide style={{ width: '100%' }} >
                 <Segment
                     style={{
                         backgroundColor: '#1b1a17',
@@ -120,9 +117,7 @@ class MeetingsList extends Component {
                     > {/* time horizontal */}
                         <Icon
                             inverted
-                            style={{
-                                color: '#ffffff'
-                            }}
+                            style={{ color: '#ffffff' }}
                             name='clock outline'
                         />
                         <span style={{
@@ -169,7 +164,7 @@ class MeetingsList extends Component {
                                       inverted
                                       labelPosition={'left'}
                                       color={'blue'}
-                                      onClick={() => {this.handleCodeCopy(meeting.code, meeting.id)}}
+                                      onClick={() => {this.handleCodeCopy(meeting.joining_link, meeting.id)}}
                                   >
                                     <Icon link name={'copy'} />
                                     Copy Joining Link
@@ -185,10 +180,6 @@ class MeetingsList extends Component {
                                 on='click'
                                 position='top right'
                             />
-
-                            <Button inverted basic>
-                                Start
-                            </Button>
                         </div>
                     </div>
                 </Card>

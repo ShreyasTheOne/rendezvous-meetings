@@ -58,6 +58,7 @@ class MeetingEmailSerializer(ModelSerializer):
         ]
         read_only_fields = ['id', ]
 
+
 class MeetingCreatedSerializer(ModelSerializer):
     invitees = UserDropdownSerializer(many=True)
     scheduled_start_time = CharField(source='get_scheduled_time_str')

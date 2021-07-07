@@ -95,6 +95,11 @@ class DriverMixin():
         )
 
     def send_banned_message_driver(self, target=None):
+        """
+        The channel event handler closes the session with the code
+        to inform the user that he has been banned
+        """
+
         if not target:
             return
         else:
@@ -115,6 +120,15 @@ class DriverMixin():
             )
 
     def send_rejected_message_driver(self, target=None):
+        """
+        The channel event handler closes the session with the code
+        to inform the user that he has been rejected from joining the
+        meeting.
+
+        In this case, to maintain the privacy of the meeting participants,
+        if the user is not accepted into the meeting, they are informed
+        the meeting does not exist.
+        """
         if not target:
             return
         else:
@@ -129,6 +143,12 @@ class DriverMixin():
             )
 
     def send_removed_message_driver(self, target=None):
+        """
+        The channel event handler closes the session with the code
+        to inform the user that he has been removed.
+
+        They are free to join again
+        """
         if not target:
             return
         else:

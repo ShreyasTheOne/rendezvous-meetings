@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import {Button, Header, Loader} from "semantic-ui-react"
+import { Header, Loader } from "semantic-ui-react"
 import {routeHome} from "../../../urls"
 import {centerFullPage} from "../../../styles"
 
