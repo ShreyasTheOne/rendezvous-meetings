@@ -33,6 +33,7 @@ const initialState = {
             'invitee_options': [],
             'loading': false,
             'meeting_created': false,
+            'error_message': false,
             'meeting_details': {},
             'form_loading': true,
             'copyPopupOpen': false
@@ -51,7 +52,8 @@ class CreateCustomMeeting extends Component {
 
     setInviteeOptions = () => {
         this.setState({
-            inviteeSearching: true
+            inviteeSearching: true,
+            error_message: false
         })
         axios({
             url: apiUserSearchUrl('', true, true)
@@ -77,7 +79,8 @@ class CreateCustomMeeting extends Component {
             'errors': {
                 ...this.state.errors,
                 [name]: false,
-            }
+            },
+            error_message: false
         })
     }
 
@@ -90,7 +93,8 @@ class CreateCustomMeeting extends Component {
             'errors': {
                 ...this.state.inputs,
                 'start_now': false,
-            }
+            },
+            error_message: false
         })
     }
 
@@ -102,7 +106,8 @@ class CreateCustomMeeting extends Component {
                     ...this.state.errors,
                     'start_now': true,
                     'scheduled_start_time': true,
-                }
+                },
+                error_message: false
             })
             return
         }
@@ -118,7 +123,8 @@ class CreateCustomMeeting extends Component {
             this.setState({
                 loading: false,
                 meeting_created: true,
-                meeting_details: res.data.meeting
+                meeting_details: res.data.meeting,
+                error_message: false
             })
         }).catch(e => {
             this.setState({

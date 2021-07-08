@@ -127,7 +127,6 @@ class ParticipantControls extends Component {
                                             {user['full_name']}
                                         </List.Header>
                                     </List.Content>
-                                    {iAmHost &&
                                     <List.Content floated={'right'}>
                                         <div style={horizontalDiv}>
                                             <Popup
@@ -165,6 +164,7 @@ class ParticipantControls extends Component {
                                                     <div style={horizontalDiv}>
                                                         <AdminControls
                                                             user={user}
+                                                            iAmHost={iAmHost}
                                                             participantControlFunctions={participantControlFunctions}
                                                         />
                                                     </div>
@@ -172,7 +172,6 @@ class ParticipantControls extends Component {
                                             </Popup>
                                         </div>
                                     </List.Content>
-                                    }
                                 </List.Item>
                         )
                     })}

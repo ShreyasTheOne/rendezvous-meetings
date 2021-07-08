@@ -142,14 +142,6 @@ class Meeting extends Component {
         })
     }
 
-    toggleMuteUser = userID => {
-
-    }
-
-    toggleCameraUser = userID => {
-
-    }
-
     render () {
         const { MeetingInformation } = this.props
         const { loaded } = MeetingInformation
@@ -238,7 +230,6 @@ const mapDispatchToProps = dispatch => {
         AddParticipant: participant => {
             dispatch(addParticipant(participant))
         },
-
     }
 }
 

@@ -29,8 +29,8 @@ const menu_items = [
     {
         'icon': 'clock outline',
         'route': `${routeMeetings()}`,
-        'value': 'meetings',
-        'popup': 'Meetings'
+        'value': 'myMeetings',
+        'popup': 'My Meetings'
     },
 ]
 

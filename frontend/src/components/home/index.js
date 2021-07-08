@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import axios from 'axios'
 import NavBar from "../nav"
 import {
     Header,
@@ -15,8 +14,12 @@ import './css/index.css'
 import JoinMeeting from "../meeting/join"
 import ActionButton from "./actionButton"
 import MeetingsList from "./meetingsList"
-import {apiGetUpcomingMeetingsUrl} from "../../urls"
-import AppBar from "../appBar";
+import AppBar from "../appBar"
+import {getMyMeetings} from "../../utils"
+import {routeMyMeetingsDetail} from "../../urls"
+
+const UPCOMING = 'UPCOMING'
+const PAST = 'PAST'
 
 const INSTANT = 'instant'
 const CUSTOM = 'custom'
@@ -66,18 +69,18 @@ class Home extends Component {
     }
 
     setUpcomingMeetings = () => {
-        axios({
-            url: apiGetUpcomingMeetingsUrl(),
-            method: 'get',
-        }).then(res => {
-            this.setState({
-                upcomingMeetings: res.data['upcoming_meetings']
+        getMyMeetings(UPCOMING)
+            .then(res => {
+                if (res === 'Error') {
+                    this.setState({
+                        upcomingMeetingsError: true
+                    })
+                } else {
+                    this.setState({
+                        upcomingMeetings: res
+                    })
+                }
             })
-        }).catch(() => {
-            this.setState({
-                upcomingMeetingsError: true
-            })
-        })
     }
 
     setDialogBoxOpenClose = (which_box, new_state) => {
@@ -87,6 +90,10 @@ class Home extends Component {
                 [which_box]: new_state
             }
         })
+    }
+
+    onMeetingItemClick = uuid => {
+        window.location = routeMyMeetingsDetail(uuid)
     }
 
     render () {
@@ -134,7 +141,7 @@ class Home extends Component {
                                 upcomingMeetingsError ?
                                     <Header inverted content={'Unable to fetch meetings'}/>
                                     :
-                                        upcomingMeetings === null ?
+                                        upcomingMeetings == null ?
                                             <Loader
                                                 inline={'centered'}
                                                 inverted
@@ -142,7 +149,10 @@ class Home extends Component {
                                                 style={{ marginTop: '1rem' }}
                                             />
                                         :
-                                            <MeetingsList meetings={upcomingMeetings}/>
+                                            <MeetingsList
+                                                meetings={upcomingMeetings}
+                                                onMeetingItemClick={this.onMeetingItemClick.bind(this)}
+                                            />
                             }
                         </div>
                         <div id={'user-info'}>

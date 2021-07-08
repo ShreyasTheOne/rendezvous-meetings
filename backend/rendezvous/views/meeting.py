@@ -1,6 +1,3 @@
-from datetime import datetime
-
-from django.utils import timezone
 from django.db.models import Q
 
 from rest_framework import viewsets, status
@@ -11,6 +8,7 @@ from rest_framework.response import Response
 from rendezvous.models.meeting import Meeting
 from rendezvous.serializers.meeting import MeetingCreatedSerializer, MeetingEmailSerializer, MeetingVerboseSerializer
 from rendezvous.tasks.meeting_invite import send_meeting_invite_notifications
+from rendezvous.utils import time_utils
 
 from rendezvous_authentication.models import User
 
@@ -36,7 +34,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
         meeting = Meeting(
             title=title,
             host=request.user,
-            start_time=timezone.now()
+            start_time=time_utils.now()
         )
         meeting.save()
 
@@ -69,14 +67,14 @@ class MeetingViewSet(viewsets.ModelViewSet):
         start_now = request.data.get('start_now', None)
 
         # Validate start time
-        now = timezone.now()
+        now = time_utils.now() # In indian standard time
 
         if start_now is True:
             scheduled_datetime_obj = now
         elif scheduled_start_time is not None:
 
             try:
-                scheduled_datetime_obj = datetime.strptime(scheduled_start_time, "%d-%m-%Y %H:%M")
+                scheduled_datetime_obj = time_utils.format_semantic_time_to_datetime(scheduled_start_time)
                 if scheduled_datetime_obj < now:
                     raise
             except Exception:
@@ -162,7 +160,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
             try:
                 meeting = Meeting.objects.get(code=code)
                 host_status = request.user.uuid == meeting.host.uuid
-            except:
+            except Meeting.DoesNotExist:
                 pass
 
         response_data = {
@@ -171,20 +169,42 @@ class MeetingViewSet(viewsets.ModelViewSet):
         return Response(response_data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'])
-    def upcoming(self, request):
+    def my_meetings(self, request):
         """
         Returns a list of all future meetings that the user has hosted, or is invited to,
         in reverse-chronological order of the scheduled start times.
         """
 
-        meetings = Meeting.objects.filter(
-            (Q(host=request.user)
-             | Q(invitees__in=[request.user]))
-            & Q(scheduled_start_time__gt=timezone.now())
-        ).order_by('-scheduled_start_time')
+        time_period = request.query_params.get('time_period', None)
+        now = time_utils.now()
+
+        if time_period == "UPCOMING":
+            meetings = Meeting.objects.filter(
+                (Q(host=request.user)
+                 | Q(invitees__in=[request.user]))
+                & Q(scheduled_start_time__gt=now)
+            ).distinct().order_by('scheduled_start_time')
+        elif time_period == "PAST" :
+            meetings = Meeting.objects.filter(
+                (Q(host=request.user)
+                 | Q(invitees__in=[request.user]))
+                & Q(end_time__lte=now)
+                & (
+                    Q(scheduled_start_time__lt=now)
+                    | Q(scheduled_start_time=None)
+                )
+            ).distinct().order_by('-scheduled_start_time')
+        else:
+            response_data = {
+                'Error': 'Invalid time period'
+            }
+            return Response(
+                response_data,
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         response_data = {
-            'upcoming_meetings': MeetingVerboseSerializer(meetings, many=True).data
+            'my_meetings': MeetingVerboseSerializer(meetings, many=True).data
         }
 
         return Response(

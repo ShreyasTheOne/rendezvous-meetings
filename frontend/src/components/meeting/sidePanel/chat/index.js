@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import Scrollbars from 'react-custom-scrollbars'
 import {
     Card,
@@ -9,7 +9,7 @@ import {
     Input,
 } from "semantic-ui-react"
 
-import { apiWSChat } from "../../../../urls"
+import {apiWSChat} from "../../../../urls"
 import {
     MESSAGES_LIST,
     NEW_MESSAGE,
@@ -39,7 +39,7 @@ class MeetingChat extends Component {
 
     constructor(props) {
         super(props)
-        const { code } = this.props
+        const {code} = this.props
         this.chatWebSocket = new WebSocket(apiWSChat(code))
 
         this.state = {
@@ -51,24 +51,35 @@ class MeetingChat extends Component {
     }
 
     componentDidMount() {
+        this.initialiseChat()
+    }
+
+    initialiseChat() {
         this.chatWebSocket.onmessage = this.handleChatWebSocketMessage.bind(this)
 
         this.scrollToBottom()
 
         const input_field = document.getElementById('message-input-box')
-        input_field.addEventListener("keyup",  (e) => {
-            if(e.key === "Enter"){
+        input_field.addEventListener("keyup", (e) => {
+            if (e.key === "Enter") {
                 this.sendMessage()
             }
         })
     }
 
-    componentDidUpdate() {
-        this.scrollToBottom()
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.props.code !== prevProps.code) {
+            this.chatWebSocket.close()
+            const {code} = this.props
+            this.chatWebSocket = new WebSocket(apiWSChat(code))
+            this.initialiseChat()
+        } else {
+            this.scrollToBottom()
+        }
     }
 
-    scrollToBottom () {
-        this.messagesEnd.scrollIntoView({ behavior: "smooth" })
+    scrollToBottom() {
+        this.messagesEnd.scrollIntoView({behavior: "smooth"})
     }
 
     handleChatWebSocketMessage = event => {
@@ -110,7 +121,7 @@ class MeetingChat extends Component {
         const {inputMessage} = this.state
         if (!inputMessage) return
 
-        document.getElementById('message-input-box').value=''
+        document.getElementById('message-input-box').value = ''
 
         this.setState({
             sendingMessage: true,
@@ -126,12 +137,29 @@ class MeetingChat extends Component {
             sendingMessage: false
         })
     }
-    render () {
-        const { messages, sendingMessage }= this.state
 
+    render() {
+        const {messages, sendingMessage} = this.state
+        const {onlyChat} = this.props
+        const scrollbarHeight = onlyChat ? 'calc(100vh - 108px - 5rem)' : 'calc(100vh - 60px - 5rem)'
         return (
             <div style={containerStyle}>
-                <Scrollbars style={{width: '100%', height: 'calc(100vh - 60px - 5rem)'}}>
+                <Scrollbars
+                    autoHide
+                    renderThumbVertical={(style, ...props) => {
+                        return (
+                            <div
+                                {...props}
+                                style={{
+                                    ...style,
+                                    backgroundColor: 'rgba(244, 242, 243, 0.7)',
+                                    borderRadius: '5px'
+                                }}
+                            />
+                        )
+                    }}
+                    style={{width: '100%', height: scrollbarHeight}}
+                >
                     <Segment style={{backgroundColor: '#1b1a17'}}>
                         <List
                             inverted
@@ -142,7 +170,7 @@ class MeetingChat extends Component {
                                 return (
                                     <List.Item key={index}>
                                         <Image
-                                            style={{marginTop: '0.5rem' }}
+                                            style={{marginTop: '0.5rem'}}
                                             avatar
                                             src={message['sender']['profile_picture']}
                                         />
@@ -165,8 +193,10 @@ class MeetingChat extends Component {
                                 )
                             })}
                         </List>
-                        <div style={{ float:"left", clear: "both", backgroundColor: '#1b1a17' }}
-                            ref={(el) => { this.messagesEnd = el }}>
+                        <div style={{float: "left", clear: "both", backgroundColor: '#1b1a17'}}
+                             ref={(el) => {
+                                 this.messagesEnd = el
+                             }}>
                         </div>
                     </Segment>
                 </Scrollbars>
@@ -185,11 +215,13 @@ class MeetingChat extends Component {
                                 loading={sendingMessage}
                                 disabled={sendingMessage}
                                 onClick={() => {
-                                   this.sendMessage()
+                                    this.sendMessage()
                                 }}
                             />
                         }
-                        onChange={(e,d) => {this.updateMessage(d.value)}}
+                        onChange={(e, d) => {
+                            this.updateMessage(d.value)
+                        }}
                         placeholder='Type your message...'
                     />
                 </div>

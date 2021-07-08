@@ -32,7 +32,7 @@ class VideoGrid extends Component {
         const newStreams = nextProps.streams
         const newParticipants = nextProps.MeetingInformation.participants
 
-        const {streams, MeetingInformation} = this.props
+        const {streams, MeetingInformation, VideoCallInformation} = this.props
         const {participants} = MeetingInformation
 
         Object.keys(newStreams).forEach(uuid => {
@@ -68,6 +68,7 @@ class VideoGrid extends Component {
                 this.new_participants.push(uuid)
             }
         })
+
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -127,7 +128,7 @@ class VideoGrid extends Component {
                             videoElement.srcObject = streams[uuid]
                             videoElement.volume = participants[uuid]['volume']
                         } catch (err) {
-                            console.log("Error in setting video Source", err);
+                            console.log("Error in setting video Source", err)
                         }
                     }
                 }
@@ -226,7 +227,7 @@ class VideoGrid extends Component {
 const mapStateToProps = state => {
     return {
         UserInformation: state.userInformation,
-        MeetingInformation: state.meetingInformation
+        MeetingInformation: state.meetingInformation,
     }
 }
 

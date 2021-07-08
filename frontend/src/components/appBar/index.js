@@ -8,7 +8,8 @@ const containerStyle = {
 
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'center',
+    paddingLeft: 'calc(90px + 2rem)',
+    justifyContent: 'flex-start',
     alignItems: 'center',
 }
 

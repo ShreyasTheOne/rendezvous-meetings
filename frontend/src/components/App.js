@@ -15,6 +15,7 @@ import Meeting from "./meeting/parent"
 import {Loader} from "semantic-ui-react"
 import _404 from "./404"
 import Conversations from "./conversations"
+import MyMeetings from "./myMeetings"
 
 class App extends Component {
 
@@ -66,14 +67,19 @@ class App extends Component {
                             path={`${match.path}conversations/`}
                             component={Conversations}
                         />
-                        {/*<Route*/}
-                        {/*    exact*/}
-                        {/*    path={`${match.path}meetings/`}*/}
-                        {/*    component={Meetings}*/}
-                        {/*/>*/}
                         <Route
                             exact
-                            path={`${match.path}meeting/:code/`}
+                            path={`${match.path}meetings/`}
+                            component={MyMeetings}
+                        />
+                        <Route
+                            exact
+                            path={`${match.path}meetings/:id/`}
+                            component={MyMeetings}
+                        />
+                        <Route
+                            exact
+                            path={`${match.path}meet/:code/`}
                             component={Meeting}
                         />
                         <Route
