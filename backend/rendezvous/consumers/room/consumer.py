@@ -1,12 +1,12 @@
 import json
 
-from datetime import datetime
 from django.db.models import Q
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
 from rendezvous.models import *
 from rendezvous.constants import participant_status, websocket_close_codes, websocket_message_types
+from rendezvous.utils import time_utils
 
 from rendezvous.consumers.room.helper import HelperMixin
 from rendezvous.consumers.room.driver import DriverMixin
@@ -127,16 +127,18 @@ class RoomConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
             participant.status = participant_status.LEFT
             participant.save()
 
-            participant_count = Participant.objects.filter(
-                meeting=self.meeting,
-                status=participant_status.ATTENDING
-            ).count()
-            if participant_count == 0:
-                # Everyone has left the meeting
-                self.meeting.end_time = datetime.now()
-
-        except Exception:
+        except Exception as e:
             pass
+
+        participant_count = Participant.objects.filter(
+            meeting=self.meeting,
+            status=participant_status.ATTENDING
+        ).count()
+
+        if participant_count == 0:
+            # Everyone has left the meeting
+            self.meeting.end_time = time_utils.now()
+            self.meeting.save()
 
         async_to_sync(self.channel_layer.group_discard)(
             self.room_name,
@@ -153,7 +155,6 @@ class RoomConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
         if not type or not message:
             return
 
-        print("type", type)
 
         if type == websocket_message_types.ADMIT_USER:
             if self.user != self.meeting.host:

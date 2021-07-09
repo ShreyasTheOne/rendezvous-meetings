@@ -4,7 +4,7 @@ import meetingInformation from "./meeting"
 
 const reducers = combineReducers({
     userInformation,
-    meetingInformation
+    meetingInformation,
 })
 
 export default reducers

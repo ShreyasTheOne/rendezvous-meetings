@@ -25,7 +25,7 @@ CORS_ORIGIN_ALLOW_ALL = False
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:51000',
-    'http://0.0.0.0:3000'
+    'http://0.0.0.0:3000',
 )
 
 # Application definition

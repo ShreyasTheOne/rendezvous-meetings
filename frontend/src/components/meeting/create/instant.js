@@ -33,9 +33,7 @@ class CreateInstantMeeting extends Component {
                 loading: false,
             })
             window.location = routeMeeting(res['data']['meeting_code'])
-        }).catch(e => {
-
-        })
+        }).catch(e => {})
     }
 
     render () {
@@ -70,7 +68,7 @@ class CreateInstantMeeting extends Component {
                         loading={this.state.loading}
                         disabled={this.state.loading}
                         onClick={() => this.handleInstantMeetingCreate()}
-                        color="red"
+                        primary
                     >
                         Create
                     </Button>

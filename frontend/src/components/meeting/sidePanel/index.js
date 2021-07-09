@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Menu } from 'semantic-ui-react'
+
 import ParticipantControls from "./participantControls"
 import MeetingChat from "./chat"
 
@@ -24,9 +25,9 @@ class MeetingSidePanel extends Component {
 
     constructor(props) {
         super(props)
-
+        const { onlyChat } = this.props
         this.state = {
-            activeTab: 'participants'
+            activeTab: onlyChat ? 'meeting_chat' : 'participants'
         }
     }
 
@@ -38,6 +39,7 @@ class MeetingSidePanel extends Component {
 
     render () {
         const { activeTab } = this.state
+        const { onlyChat } = this.props
 
         return (
             <div style={containerStyle}>
@@ -46,13 +48,14 @@ class MeetingSidePanel extends Component {
                         inverted
                         secondary
                     >
+                        {!onlyChat &&
                         <Menu.Item
                             name={'participants'}
                             active={activeTab==='participants'}
                             onClick={this.handleMenuItemClick.bind(this)}
                         >
                             Participants
-                        </Menu.Item>
+                        </Menu.Item>}
                         <Menu.Item
                             name={'meeting_chat'}
                             active={activeTab==='meeting_chat'}
@@ -63,14 +66,14 @@ class MeetingSidePanel extends Component {
                     </Menu>
                 </div>
                 <div>
-                    {activeTab === 'participants' &&
+                    {!onlyChat && activeTab === 'participants' &&
                         <ParticipantControls
                             code={this.props.code}
                             participantControlFunctions={this.props.participantControlFunctions}
                         />
                     }
                     {activeTab === 'meeting_chat' &&
-                        <MeetingChat code={this.props.code}/>
+                        <MeetingChat onlyChat={onlyChat} code={this.props.code}/>
                     }
                 </div>
             </div>

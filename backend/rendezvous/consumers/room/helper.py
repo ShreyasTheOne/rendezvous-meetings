@@ -1,6 +1,3 @@
-# from datetime import datetime
-from django.utils import timezone
-
 from asgiref.sync import async_to_sync
 
 from rendezvous.constants import participant_status
@@ -8,6 +5,7 @@ from rendezvous.models import Participant
 
 from rendezvous_authentication.models import User
 
+from rendezvous.utils import time_utils
 
 class HelperMixin():
     """
@@ -98,7 +96,7 @@ class HelperMixin():
 
         # Set meeting start time
         if self.meeting.start_time is None:
-            self.meeting.start_time = timezone.now()
+            self.meeting.start_time = time_utils.now()
             self.meeting.save()
 
         # Tell everyone else that a new user joined

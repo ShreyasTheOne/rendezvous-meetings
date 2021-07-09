@@ -33,6 +33,7 @@ const initialState = {
             'invitee_options': [],
             'loading': false,
             'meeting_created': false,
+            'error_message': false,
             'meeting_details': {},
             'form_loading': true,
             'copyPopupOpen': false
@@ -51,7 +52,8 @@ class CreateCustomMeeting extends Component {
 
     setInviteeOptions = () => {
         this.setState({
-            inviteeSearching: true
+            inviteeSearching: true,
+            error_message: false
         })
         axios({
             url: apiUserSearchUrl('', true, true)
@@ -77,7 +79,8 @@ class CreateCustomMeeting extends Component {
             'errors': {
                 ...this.state.errors,
                 [name]: false,
-            }
+            },
+            error_message: false
         })
     }
 
@@ -90,7 +93,8 @@ class CreateCustomMeeting extends Component {
             'errors': {
                 ...this.state.inputs,
                 'start_now': false,
-            }
+            },
+            error_message: false
         })
     }
 
@@ -102,10 +106,14 @@ class CreateCustomMeeting extends Component {
                     ...this.state.errors,
                     'start_now': true,
                     'scheduled_start_time': true,
-                }
+                },
+                error_message: false
             })
             return
         }
+
+        inputs['title'] = inputs['title'].trim()
+        inputs['description'] = inputs['description'].trim()
 
         this.setState({
             loading: true,
@@ -118,7 +126,8 @@ class CreateCustomMeeting extends Component {
             this.setState({
                 loading: false,
                 meeting_created: true,
-                meeting_details: res.data.meeting
+                meeting_details: res.data.meeting,
+                error_message: false
             })
         }).catch(e => {
             this.setState({
@@ -191,13 +200,14 @@ class CreateCustomMeeting extends Component {
                             onChange={this.handleCustomMeetingInputChange.bind(this)}
                         />
                         <Form.TextArea
+                            fluid
                             name={'description'}
                             label={'Description'}
-                            value = {meeting_created ? (meeting_details.description || 'Not provided') : inputs.description}
+                            value = {meeting_created ?
+                                (meeting_details.description || 'Not provided') : inputs.description}
                             readOnly={meeting_created}
                             transparent={meeting_created}
                             placeholder="Optional meeting description."
-                            fluid
                             onChange={this.handleCustomMeetingInputChange.bind(this)}
                         />
                         <Form.Dropdown
@@ -245,8 +255,8 @@ class CreateCustomMeeting extends Component {
                             <Checkbox
                                 name='start_now'
                                 label={'Start now'}
-                                error={this.state.errors.start_now.toString()}
                                 checked={this.state.inputs.start_now}
+                                error={this.state.errors.start_now.toString()}
                                 onChange={this.handleStartNowCheckboxChange.bind(this)}
                             />
                         }
@@ -319,7 +329,7 @@ class CreateCustomMeeting extends Component {
                             else
                                 this.handleModalClose()
                         }}
-                        color="yellow"
+                        primary
                     >
                         { meeting_created ? 'Close' : 'Create' }
                     </Button>

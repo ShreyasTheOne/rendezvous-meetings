@@ -109,5 +109,21 @@ class Meeting(Base):
             return ''
         return str(self.scheduled_start_time)
 
+    def get_start_time_str(self):
+        """
+        Convert scheduled start datetime object to string
+        """
+        if not self.start_time:
+            return ''
+        return str(self.start_time)
+
+    def get_end_time_str(self):
+        """
+        Convert scheduled start datetime object to string
+        """
+        if not self.end_time:
+            return ''
+        return str(self.end_time)
+
     def __str__(self):
         return f'{self.title} : {self.code}'

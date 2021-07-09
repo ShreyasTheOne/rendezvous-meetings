@@ -20,8 +20,13 @@ export const routeMeetings = () => {
     return `${routeBase()}meetings/`
 }
 
+export const routeMyMeetingsDetail = uuid => {
+    if (!uuid) return routeMeetings()
+    return `${routeMeetings()}${uuid}/`
+}
+
 export const routeMeeting = code => {
-    return `${routeBase()}meeting/${code}`
+    return `${routeBase()}meet/${code}`
 }
 
 export const route404 = () => {
@@ -62,8 +67,8 @@ export const apiCreateCustomMeetingUrl = () => {
     return `${apiBase()}meeting/custom/`
 }
 
-export const apiGetUpcomingMeetingsUrl = () => {
-    return `${apiBase()}meeting/upcoming/`
+export const apiMyMeetingsUrl = () => {
+    return `${apiBase()}meeting/my_meetings/`
 }
 
 export const apiUserSearchUrl = (query, dropdown = false, get_all = false) => {

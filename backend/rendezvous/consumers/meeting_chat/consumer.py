@@ -1,6 +1,8 @@
 import json
 from urllib.parse import quote, unquote
 
+from django.db.models import Q
+
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
@@ -55,17 +57,25 @@ class MeetingChatConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
             # Check if the user has a participant object created for this meeting,
             # that is not waiting in the lobby
             _ = Participant.objects.get(
-                meeting=self.meeting,
-                user=self.user,
-                status=participant_status.ATTENDING
+                Q(meeting=self.meeting)
+                & Q(user=self.user)
+                & (
+                    Q(status=participant_status.ATTENDING)
+                    | Q(status=participant_status.LEFT)
+                )
             )
             self.accept()
 
         except Participant.DoesNotExist:
-            # User does not exist in this meeting
-            self.close(
-                code=websocket_close_codes.MEETING_CODE_INVALID.get('code')
-            )
+            # User is not in this meeting, but he may be an invitee or host
+            if self.user == self.meeting.host:
+                self.accept()
+            elif self.user in self.meeting.invitees.all():
+                self.accept()
+            else:
+                self.close(
+                    code=websocket_close_codes.MEETING_CODE_INVALID.get('code')
+                )
 
         # If the subsequent code is executed, it means that a participant object has been found
         async_to_sync(self.channel_layer.group_add)(

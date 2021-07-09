@@ -16,20 +16,6 @@ const actionButtons = [
         'iconColor': 'red',
         'popupContent': 'Ban User'
     },
-    // {
-    //     'key': 'mute',
-    //     'action': 'mute',
-    //     'iconName': 'microphone',
-    //     'iconColor': '',
-    //     'popupContent': 'Remove User'
-    // },
-    // {
-    //     'key': 'remove',
-    //     'action': 'remove',
-    //     'iconName': 'remove',
-    //     'iconColor': '',
-    //     'popupContent': 'Remove User'
-    // }
 ]
 
 class AdminControls extends Component {
@@ -42,19 +28,25 @@ class AdminControls extends Component {
     }
 
     handleActionClick = (action, userID) => {
-        this.setState({
-            loading: action
-        })
+        if (this.needAdminRights(action))
+            this.setState({
+                loading: action
+            })
         const { participantControlFunctions } = this.props
         participantControlFunctions[action](userID)
     }
 
+    needAdminRights (action) {
+        return action === 'ban' || action === 'remove'
+    }
+
     render () {
-        const { user } = this.props
+        const { user, iAmHost } = this.props
         const { loading } = this.state
         return (
             <Button.Group icon>
                 {actionButtons.map(item => {
+                    if (this.needAdminRights(item['key']) && !iAmHost) return(<></>)
                     return (
                         <Popup key={item['key']}
                             trigger={

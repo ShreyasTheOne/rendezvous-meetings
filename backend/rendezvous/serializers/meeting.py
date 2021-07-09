@@ -24,6 +24,8 @@ class MeetingVerboseSerializer(ModelSerializer):
     invitees = UserSerializer(many=True)
     joining_link = CharField(source='get_joining_link')
     scheduled_start_time = CharField(source='get_scheduled_time_str')
+    start_time = CharField(source='get_start_time_str')
+    end_time = CharField(source='get_end_time_str')
 
     class Meta:
         model = Meeting
@@ -36,6 +38,8 @@ class MeetingVerboseSerializer(ModelSerializer):
             'joining_link',
             'description',
             'scheduled_start_time',
+            'start_time',
+            'end_time'
         ]
         read_only_fields = ['id', ]
 

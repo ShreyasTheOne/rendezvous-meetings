@@ -1,5 +1,6 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import {connect} from "react-redux"
+
 import {
     List,
     Image,
@@ -7,15 +8,17 @@ import {
     Icon,
     Popup, Loader,
 } from 'semantic-ui-react'
-import { Slider } from 'react-semantic-ui-range'
+import {Slider} from 'react-semantic-ui-range'
+
 import {changeUserVolume} from "../../../../actions/meeting"
-import AdminControls from "./adminControls"
 import {iAmTheMeetingHost} from "../../../../utils"
 import {centerFullParent} from "../../../../styles"
 
+import AdminControls from "./adminControls"
+
 const horizontalDiv = {
     display: 'flex',
-    flexDirection:  'row',
+    flexDirection: 'row',
     alignItems: 'center',
     height: '100%',
     padding: '0.5rem'
@@ -42,27 +45,26 @@ class ParticipantControls extends Component {
         }
     }
 
-    componentDidMount () {
-        const { MeetingInformation } = this.props
-        const { code } = MeetingInformation.meeting
+    componentDidMount() {
+        const {MeetingInformation} = this.props
+        const {code} = MeetingInformation.meeting
         iAmTheMeetingHost(code).then(iAmHost => {
             this.setState({iAmHost})
         })
     }
 
     changeUserVolume = (value, uuid) => {
-        console.log(value)
         const volume = value / volume_scale
         this.props.ChangeUserVolume(volume, uuid)
     }
 
-    render () {
-        const { iAmHost } = this.state
+    render() {
+        const {iAmHost} = this.state
 
         if (iAmHost === null) {
             return (
                 <div style={centerFullParent}>
-                    <Loader active />
+                    <Loader active/>
                 </div>
             )
         }
@@ -72,12 +74,15 @@ class ParticipantControls extends Component {
             UserInformation,
             participantControlFunctions
         } = this.props
-        const { participants } = MeetingInformation
+
+        const {participants} = MeetingInformation
         const me = UserInformation.user
 
 
         return (
-            <Segment inverted style={{backgroundColor: '#1b1a17'}}>
+            <Segment
+                inverted
+                style={{backgroundColor: 'transparent'}}>
                 <List
                     divided
                     inverted
@@ -120,60 +125,59 @@ class ParticipantControls extends Component {
                         }
 
                         return (
-                                <List.Item>
-                                    <Image avatar src={user['profile_picture']}/>
-                                    <List.Content>
-                                        <List.Header>
-                                            {user['full_name']}
-                                        </List.Header>
-                                    </List.Content>
-                                    {iAmHost &&
-                                    <List.Content floated={'right'}>
-                                        <div style={horizontalDiv}>
-                                            <Popup
-                                                wide
-                                                basic
-                                                on='click'
-                                                position='left center'
-                                                style={popupStyle}
-                                                trigger={
-                                                    <Icon
-                                                        name='setting'
+                            <List.Item>
+                                <Image avatar src={user['profile_picture']}/>
+                                <List.Content>
+                                    <List.Header>
+                                        {user['full_name']}
+                                    </List.Header>
+                                </List.Content>
+                                <List.Content floated={'right'}>
+                                    <div style={horizontalDiv}>
+                                        <Popup
+                                            wide
+                                            basic
+                                            on='click'
+                                            position='left center'
+                                            style={popupStyle}
+                                            trigger={
+                                                <Icon
+                                                    name='setting'
+                                                    style={{
+                                                        marginRight: '0.5rem',
+                                                        alignSelf: 'center',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                />
+                                            }
+                                        >
+                                            <Popup.Content style={{backgroundColor: '#37352f'}}>
+                                                <div style={horizontalDiv}>
+                                                    <Icon name={volumeLevelIcon} inverted/>
+                                                    <Slider
+                                                        discrete
+                                                        value={user['volume'] * volume_scale}
                                                         style={{
-                                                            marginRight: '0.5rem',
+                                                            width: '120px',
                                                             alignSelf: 'center',
-                                                            cursor: 'pointer'
+                                                            marginTop: '0.5rem'
                                                         }}
+                                                        color='blue'
+                                                        settings={sliderSettings}
                                                     />
-                                                }
-                                            >
-                                                <Popup.Content style={{backgroundColor: '#37352f'}}>
-                                                    <div style={horizontalDiv}>
-                                                        <Icon name={volumeLevelIcon} inverted/>
-                                                        <Slider
-                                                            discrete
-                                                            value={user['volume'] * volume_scale}
-                                                            style={{
-                                                                width: '120px',
-                                                                alignSelf: 'center',
-                                                                marginTop: '0.5rem'
-                                                            }}
-                                                            color='blue'
-                                                            settings={sliderSettings}
-                                                        />
-                                                    </div>
-                                                    <div style={horizontalDiv}>
-                                                        <AdminControls
-                                                            user={user}
-                                                            participantControlFunctions={participantControlFunctions}
-                                                        />
-                                                    </div>
-                                                </Popup.Content>
-                                            </Popup>
-                                        </div>
-                                    </List.Content>
-                                    }
-                                </List.Item>
+                                                </div>
+                                                <div style={horizontalDiv}>
+                                                    <AdminControls
+                                                        user={user}
+                                                        iAmHost={iAmHost}
+                                                        participantControlFunctions={participantControlFunctions}
+                                                    />
+                                                </div>
+                                            </Popup.Content>
+                                        </Popup>
+                                    </div>
+                                </List.Content>
+                            </List.Item>
                         )
                     })}
                 </List>

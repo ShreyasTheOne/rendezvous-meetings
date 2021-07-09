@@ -6,12 +6,14 @@ import {
     Image
 } from "semantic-ui-react"
 import {
+    authLogoutUrl,
     routeConversations,
     routeHome,
     routeMeetings
 } from "../../urls"
 import './css/index.css'
 import {connect} from 'react-redux'
+import axios from "axios"
 
 const menu_items = [
     {
@@ -29,8 +31,8 @@ const menu_items = [
     {
         'icon': 'clock outline',
         'route': `${routeMeetings()}`,
-        'value': 'meetings',
-        'popup': 'Meetings'
+        'value': 'myMeetings',
+        'popup': 'My Meetings'
     },
 ]
 
@@ -38,6 +40,17 @@ class NavBar extends Component {
 
     handleMenuItemChange = route => {
         window.location = route
+    }
+
+    logout = () => {
+        axios({
+            url: authLogoutUrl(),
+            method: 'post',
+        }).then(res => {
+            window.location = routeHome()
+        }).catch(e => {
+            window.location = routeHome()
+        })
     }
 
     render() {
@@ -78,7 +91,7 @@ class NavBar extends Component {
                                             icon={item['icon']}
                                             style={{marginTop: '1rem'}}
                                             inverted={item['value'] !== menu_item}
-                                            color={item['value'] === menu_item ? 'red' : 'white'}
+                                            color={item['value'] === menu_item ? 'blue' : 'white'}
                                             onClick={() => this.handleMenuItemChange(item['route'])}
                                         />
                                     }
@@ -90,12 +103,34 @@ class NavBar extends Component {
                 <div
                     id='nav-footer'
                 >
-                    <Image
-                        avatar
-                        size={'mini'}
-                        style={{cursor: 'pointer'}}
-                        src={user['profile_picture']}
-                    />
+                    <Popup
+                        hideOnScroll
+                        position='right center'
+                        on="click"
+                        basic
+                        inverted
+                        style={{
+                            padding: "0px",
+                        }}
+                        trigger={
+                            <Image
+                                avatar
+                                size={'mini'}
+                                style={{cursor: 'pointer'}}
+                                src={user['profile_picture']}
+                            />
+                        }
+                    >
+                        <Button
+                            color='red'
+                            size='large'
+                            fluid
+                            onClick={this.logout}
+                        >
+                            <Icon name='log out'/>
+                            Logout
+                        </Button>
+                    </Popup>
                 </div>
             </div>
         )

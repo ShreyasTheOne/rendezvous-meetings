@@ -1,5 +1,5 @@
 import axios from 'axios'
-import {apiIAmTheMeetingHostUrl} from "./urls"
+import {apiIAmTheMeetingHostUrl, apiMyMeetingsUrl} from "./urls"
 
 /**
  * If the length of the string exceeds the limit, it truncates it to the limit and adds three dots at the end
@@ -29,6 +29,24 @@ export const iAmTheMeetingHost = code => {
         data: {code}
     }).then(res => {
         return res.data['status']
+    })
+}
+
+/**
+ * Retrieves meetings that the user has hosted or has been invited to
+ * in the past, or in the future.
+ * @param time_period   UPCOMING for future meetings and PAST for past meetings
+ */
+export const getMyMeetings = (time_period='UPCOMING') => {
+    return axios({
+        url: apiMyMeetingsUrl(),
+        method: 'get',
+        params: {time_period}
+    }).then(res => {
+        console.log(res.data)
+        return res.data['my_meetings']
+    }).catch(() => {
+        return 'ERROR'
     })
 }
 
