@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rendezvous.models.meeting import Meeting
 from rendezvous.serializers.meeting import MeetingCreatedSerializer, MeetingEmailSerializer, MeetingVerboseSerializer
 from rendezvous.tasks.meeting_invite import send_meeting_invite_notifications
+from rendezvous.utils.get_all_users_from_meeting import get_all_users_from_meeting
 from rendezvous.utils import time_utils
 
 from rendezvous_authentication.models import User
@@ -67,7 +68,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
         start_now = request.data.get('start_now', None)
 
         # Validate start time
-        now = time_utils.now() # In indian standard time
+        now = time_utils.now() # In Indian Standard Time
 
         if start_now is True:
             scheduled_datetime_obj = now
@@ -193,7 +194,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
                     Q(scheduled_start_time__lt=now)
                     | Q(scheduled_start_time=None)
                 )
-            ).distinct().order_by('-scheduled_start_time')
+            ).distinct().order_by('-end_time')
         else:
             response_data = {
                 'Error': 'Invalid time period'
@@ -203,8 +204,12 @@ class MeetingViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        meetings_data = MeetingVerboseSerializer(meetings, many=True).data
+        for index, m in enumerate(meetings_data):
+            meetings_data[index]['participants'] = get_all_users_from_meeting(m['id'], time_period)
+
         response_data = {
-            'my_meetings': MeetingVerboseSerializer(meetings, many=True).data
+            'my_meetings': meetings_data
         }
 
         return Response(

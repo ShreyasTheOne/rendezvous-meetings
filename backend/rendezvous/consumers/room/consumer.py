@@ -155,7 +155,6 @@ class RoomConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
         if not type or not message:
             return
 
-        print("type", type)
 
         if type == websocket_message_types.ADMIT_USER:
             if self.user != self.meeting.host:

@@ -1,21 +1,20 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
-import axios from 'axios'
-import NavBar from "../nav"
+
 import {
     Header,
-    Loader,
-    Dropdown,
-    Image,
+    Dropdown
 } from 'semantic-ui-react'
 
-import './index.css'
-
+import NavBar from "../nav"
 import AppBar from "../appBar"
-import {getMyMeetings} from "../../utils";
-import MeetingsList from "../home/meetingsList";
-import {routeMyMeetingsDetail} from "../../urls";
-import MeetingDetail from "./meetingDetail";
+import MeetingDetail from "./meetingDetail"
+import MeetingsList from "../home/meetingsList"
+
+import {getMyMeetings} from "../../utils"
+import {routeMyMeetingsDetail} from "../../urls"
+
+import './index.css'
 
 const PAST = 'PAST'
 const UPCOMING = 'UPCOMING'
@@ -63,13 +62,29 @@ class MyMeetings extends Component {
                         error: true
                     })
                 } else {
-                    console.log(type, res, this.state.loaded)
+                    let {
+                        selectedMeetingInstance,
+                        selectedMeetingID,
+                        selectedMeetingType
+                    } = this.state
+
+                    res.forEach(m => {
+                        if (m.id === selectedMeetingID) {
+                            selectedMeetingID = m.id
+                            selectedMeetingInstance = m
+                            selectedMeetingType = type
+                        }
+                    })
+
                     this.setState({
                         meetings: {
                             ...this.state.meetings,
                             [type]: res
                         },
-                        loaded: this.state.loaded + 1
+                        loaded: this.state.loaded + 1,
+                        selectedMeetingID,
+                        selectedMeetingInstance,
+                        selectedMeetingType
                     })
                 }
             })
@@ -150,7 +165,10 @@ class MyMeetings extends Component {
                                     />
                                 </div>
                                 <div id='my-meetings-detail'>
-                                    <MeetingDetail meeting={selectedMeetingInstance}/>
+                                    <MeetingDetail
+                                        meeting={selectedMeetingInstance}
+                                        meetingTimeType={selectedMeetingType}
+                                    />
                                 </div>
                             </>
                         )}

@@ -1,6 +1,15 @@
 import React, {Component} from 'react'
 import Scrollbars from 'react-custom-scrollbars'
-import {Button, Card, Header, Icon, Image, Popup, Segment} from "semantic-ui-react"
+import {
+    Button,
+    Card,
+    Header,
+    Icon,
+    Image,
+    Popup,
+    Segment,
+    Label
+} from "semantic-ui-react"
 
 const moment = require('moment')
 
@@ -24,6 +33,27 @@ class MeetingsList extends Component {
         super(props)
         this.state = {
             copyPopupOpen: {}
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        const {selectedMeetingID} = this.props
+        if (selectedMeetingID) {
+            this.scrollSelectedMeetingIntoView(selectedMeetingID)
+        }
+    }
+
+    componentDidMount() {
+        const {selectedMeetingID} = this.props
+        if (selectedMeetingID) {
+            this.scrollSelectedMeetingIntoView(selectedMeetingID)
+        }
+    }
+
+    scrollSelectedMeetingIntoView = id => {
+        let card = document.getElementById(`my-meeting-${id}`)
+        if (card) {
+            card.scrollIntoView({behavior: 'smooth'})
         }
     }
 
@@ -53,6 +83,19 @@ class MeetingsList extends Component {
         })
     }
 
+    scrollBarThumb = (style, ...props) => {
+        return (
+            <div
+                {...props}
+                style={{
+                    ...style,
+                    backgroundColor: 'rgba(244, 242, 243, 0.7)',
+                    borderRadius: '5px'
+                }}
+            />
+        )
+    }
+
     render() {
 
         const {
@@ -77,23 +120,12 @@ class MeetingsList extends Component {
         return (
             <Scrollbars
                 autoHide
-                renderThumbVertical={(style, ...props) => {
-                    return (
-                        <div
-                            {...props}
-                            style={{
-                                ...style,
-                                backgroundColor: 'rgba(244, 242, 243, 0.7)',
-                                borderRadius: '5px'
-                            }}
-                        />
-                    )
-                }}
+                renderThumbVertical={this.scrollBarThumb}
                 style={{width: '100%'}}
             >
                 <Segment
                     style={{
-                        backgroundColor: '#1b1a17',
+                        backgroundColor: 'transparent',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -107,8 +139,7 @@ class MeetingsList extends Component {
                         if (selected) {
                             cardStyle = {
                                 ...baseCardStyle,
-                                // backgroundColor: '#5171A5',
-                                backgroundColor: '#228CDB',
+                                backgroundColor: '#1678C2',
                             }
                             cardTextColor = 'white'
                         }
@@ -130,19 +161,28 @@ class MeetingsList extends Component {
                                         alignItems: 'flex-end'
                                     }}
                                 > {/* first horizontal */}
-                                    <Header
-                                        inverted
-                                        color={cardTextColor}
-                                        as={'h1'}
-                                        textAlign={'left'}
-                                        style={{
-                                            fontSize: '1.6rem',
-                                            marginBottom: '0px',
-                                            textAlign: 'bottom'
-                                        }}
-                                    >
-                                        {meeting['title']}
-                                    </Header>
+                                    {meeting['title'] ?
+                                        <Header
+                                            inverted
+                                            color={cardTextColor}
+                                            as={'h1'}
+                                            textAlign={'left'}
+                                            style={{
+                                                fontSize: '1.6rem',
+                                                marginBottom: '0px',
+                                                textAlign: 'bottom'
+                                            }}
+                                        >
+                                            {meeting['title'] || '.....'}
+                                        </Header>
+                                        :
+                                        <Label style={{
+                                            backgroundColor: '#232528',
+                                            color: '#DCDDDE'
+                                        }}>
+                                            No Title provided
+                                        </Label>
+                                    }
                                 </div>
                                 <div
                                     style={{
@@ -162,15 +202,15 @@ class MeetingsList extends Component {
                                         color: '#DCDDDE',
                                         marginLeft: '0.5rem'
                                     }}>
-                                    {
-                                        meetingTimeType === UPCOMING ?
-                                            moment(meeting['scheduled_start_time']).format('LLL')
-                                            :
-                                            (moment(meeting['start_time']).format('LLL') + ' - ' +
-                                                moment(meeting['end_time']).format('LLL')
-                                            )
-                                    }
-                            </span>
+                                            {
+                                                meetingTimeType === UPCOMING ?
+                                                    moment(meeting['scheduled_start_time']).format('LLL')
+                                                    :
+                                                    (moment(meeting['start_time']).format('LLL') + ' - ' +
+                                                        moment(meeting['end_time']).format('LLL')
+                                                    )
+                                            }
+                                    </span>
                                 </div>
                                 <div
                                     style={{
@@ -187,17 +227,21 @@ class MeetingsList extends Component {
                                             flexDirection: 'row',
                                         }}
                                     >
-                                        <Image
-                                            avatar
-                                            size={'big'}
-                                            src={meeting['host']['profile_picture']}
-                                        />
-                                        {meeting['invitees'].map(user =>
-                                            <Image
-                                                key={user['uuid']}
-                                                avatar
-                                                size={'big'}
-                                                src={user['profile_picture']}
+                                        {meeting['participants'].map(user =>
+                                            <Popup key={user['uuid']}
+                                                   trigger={
+                                                       <Image
+                                                           key={user['uuid']}
+                                                           avatar
+                                                           size={'big'}
+                                                           src={user['profile_picture']}
+                                                       />
+                                                   }
+                                                   size={'mini'}
+                                                   content={user['full_name']}
+                                                   inverted basic
+                                                   style={{border: '1px solid white'}}
+                                                   position='top center'
                                             />
                                         )}
                                     </div>

@@ -79,7 +79,9 @@ class MeetingChat extends Component {
     }
 
     scrollToBottom() {
-        this.messagesEnd.scrollIntoView({behavior: "smooth"})
+        let invisibleDiv = document.getElementById('invisible-div')
+        if (invisibleDiv)
+            invisibleDiv.scrollIntoView({behavior: 'smooth'})
     }
 
     handleChatWebSocketMessage = event => {
@@ -139,9 +141,10 @@ class MeetingChat extends Component {
     }
 
     render() {
-        const {messages, sendingMessage} = this.state
         const {onlyChat} = this.props
+        const {messages, sendingMessage} = this.state
         const scrollbarHeight = onlyChat ? 'calc(100vh - 108px - 5rem)' : 'calc(100vh - 60px - 5rem)'
+
         return (
             <div style={containerStyle}>
                 <Scrollbars
@@ -160,7 +163,7 @@ class MeetingChat extends Component {
                     }}
                     style={{width: '100%', height: scrollbarHeight}}
                 >
-                    <Segment style={{backgroundColor: '#1b1a17'}}>
+                    <Segment style={{backgroundColor: 'transparent'}}>
                         <List
                             inverted
                             size={'large'}
@@ -193,11 +196,17 @@ class MeetingChat extends Component {
                                 )
                             })}
                         </List>
-                        <div style={{float: "left", clear: "both", backgroundColor: '#1b1a17'}}
-                             ref={(el) => {
-                                 this.messagesEnd = el
-                             }}>
-                        </div>
+
+                        {/* INVISIBLE DIV TO SCROLL TO BOTTOM TO */}
+                        <div
+                            id={'invisible-div'}
+                            style={{
+                                float: "left",
+                                clear: "both",
+                                backgroundColor: 'transparent'
+                            }}
+                        />
+
                     </Segment>
                 </Scrollbars>
                 <div style={inputBoxStyle}>
@@ -214,9 +223,7 @@ class MeetingChat extends Component {
                                 content='Send'
                                 loading={sendingMessage}
                                 disabled={sendingMessage}
-                                onClick={() => {
-                                    this.sendMessage()
-                                }}
+                                onClick={() => {this.sendMessage()}}
                             />
                         }
                         onChange={(e, d) => {

@@ -112,6 +112,9 @@ class CreateCustomMeeting extends Component {
             return
         }
 
+        inputs['title'] = inputs['title'].trim()
+        inputs['description'] = inputs['description'].trim()
+
         this.setState({
             loading: true,
         })
@@ -197,13 +200,14 @@ class CreateCustomMeeting extends Component {
                             onChange={this.handleCustomMeetingInputChange.bind(this)}
                         />
                         <Form.TextArea
+                            fluid
                             name={'description'}
                             label={'Description'}
-                            value = {meeting_created ? (meeting_details.description || 'Not provided') : inputs.description}
+                            value = {meeting_created ?
+                                (meeting_details.description || 'Not provided') : inputs.description}
                             readOnly={meeting_created}
                             transparent={meeting_created}
                             placeholder="Optional meeting description."
-                            fluid
                             onChange={this.handleCustomMeetingInputChange.bind(this)}
                         />
                         <Form.Dropdown
@@ -251,8 +255,8 @@ class CreateCustomMeeting extends Component {
                             <Checkbox
                                 name='start_now'
                                 label={'Start now'}
-                                error={this.state.errors.start_now.toString()}
                                 checked={this.state.inputs.start_now}
+                                error={this.state.errors.start_now.toString()}
                                 onChange={this.handleStartNowCheckboxChange.bind(this)}
                             />
                         }
@@ -325,7 +329,7 @@ class CreateCustomMeeting extends Component {
                             else
                                 this.handleModalClose()
                         }}
-                        color="yellow"
+                        primary
                     >
                         { meeting_created ? 'Close' : 'Create' }
                     </Button>

@@ -11,6 +11,7 @@ const containerStyle = {
     paddingLeft: 'calc(90px + 2rem)',
     justifyContent: 'flex-start',
     alignItems: 'center',
+    boxShadow: '0 10px 6px -100px #777'
 }
 
 const appHeaderStyle = {

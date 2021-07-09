@@ -47,7 +47,6 @@ class MeetingChatConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
             self.meeting = Meeting.objects.get(code=meeting_code)
         except Meeting.DoesNotExist:
             # Meeting with given code does not exist
-            print("1")
             self.close(
                 code=websocket_close_codes.MEETING_CODE_INVALID.get('code'),
             )

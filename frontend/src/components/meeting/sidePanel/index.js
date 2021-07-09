@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Menu } from 'semantic-ui-react'
+
 import ParticipantControls from "./participantControls"
 import MeetingChat from "./chat"
 
@@ -70,9 +71,6 @@ class MeetingSidePanel extends Component {
                             code={this.props.code}
                             participantControlFunctions={this.props.participantControlFunctions}
                         />
-                    }
-                    {
-                        console.log("In meeting side panel", this.props.code)
                     }
                     {activeTab === 'meeting_chat' &&
                         <MeetingChat onlyChat={onlyChat} code={this.props.code}/>

@@ -1,6 +1,13 @@
 import React, {Component} from "react"
 import {centerFullParent} from "../../styles"
-import {Header, Icon, List, Button} from "semantic-ui-react"
+import {
+    Header,
+    Icon,
+    List,
+    Button,
+    Image,
+    Card, Label
+} from "semantic-ui-react"
 import Scrollbars from 'react-custom-scrollbars'
 import MeetingSidePanel from "../meeting/sidePanel"
 
@@ -13,6 +20,7 @@ const containerStyle = {
 
     display: 'grid',
     gridTemplateColumns: '4fr 2fr',
+    backgroundImage: "url(/doda_blue.jpg)"
 }
 
 const horizontalDiv = {
@@ -20,10 +28,16 @@ const horizontalDiv = {
     flexDirection: 'row'
 }
 
+const UPCOMING = 'UPCOMING'
 
 class MeetingDetail extends Component {
+
+    startMeeting = link => {
+        window.location = link
+    }
+
     render() {
-        const {meeting} = this.props
+        const {meeting, meetingTimeType} = this.props
         if (!meeting) {
             return (
                 <div style={centerFullParent}>
@@ -33,6 +47,7 @@ class MeetingDetail extends Component {
                 </div>
             )
         }
+
         return (
             <div style={containerStyle}>
                 <div
@@ -71,18 +86,28 @@ class MeetingDetail extends Component {
                                     ...horizontalDiv,
                                     marginBottom: '1rem'
                                 }}> {/* first horizontal */}
-                                    <Header
-                                        inverted
-                                        color={'grey'}
-                                        as={'h1'}
-                                        textAlign={'left'}
-                                        style={{
-                                            fontSize: '4rem',
-                                            textAlign: 'bottom'
-                                        }}
-                                    >
-                                        {meeting['title']}
-                                    </Header>
+                                    {meeting['title'] ?
+                                        <Header
+                                            inverted
+                                            color={'grey'}
+                                            as={'h1'}
+                                            textAlign={'left'}
+                                            style={{
+                                                fontSize: '1.6rem',
+                                                marginBottom: '0px',
+                                                textAlign: 'bottom'
+                                            }}
+                                        >
+                                            {meeting['title']}
+                                        </Header>
+                                        :
+                                        <Label style={{
+                                            backgroundColor: '#232528',
+                                            color: '#DCDDDE'
+                                        }}>
+                                            No Title provided
+                                        </Label>
+                                    }
                                 </div>
                                 <div
                                     style={{
@@ -100,14 +125,22 @@ class MeetingDetail extends Component {
                                         color: '#DCDDDE',
                                         marginLeft: '0.5rem'
                                     }}>
-                                {moment(meeting['scheduled_start_time']).format('LLL')}
-                            </span>
+                                        {
+                                            meetingTimeType === UPCOMING ?
+                                                moment(meeting['scheduled_start_time']).format('LLL')
+                                                :
+                                                (moment(meeting['start_time']).format('LLL') + ' - ' +
+                                                    moment(meeting['end_time']).format('LLL')
+                                                )
+                                        }
+                                    </span>
                                 </div>
                             </List.Item>
                             <List.Item>
                                 <div style={{...horizontalDiv, padding: '1rem 0'}}>
                                     <Button
                                         primary
+                                        onClick={() => this.startMeeting(meeting['joining_link'])}
                                     >
                                         Start
                                     </Button>
@@ -162,6 +195,37 @@ class MeetingDetail extends Component {
                                         <Icon name={'users'}/>
                                         Participants
                                     </Header>
+                                </div>
+                                <div style={{width: 'calc(100% - 4rem)', padding: '5px'}}>
+                                    <Card.Group itemsPerRow={2}>
+                                        {
+                                            meeting['participants'].map(user => {
+                                                return (
+                                                    <Card
+                                                        style={{
+                                                            border: '1px solid black',
+                                                            backgroundColor: '#232528'
+                                                        }}
+                                                    >
+                                                        <Card.Content>
+                                                            <Header
+                                                                textAlign={'left'}
+                                                                as='h4'
+                                                                inverted
+                                                                color={'grey'}
+                                                            >
+                                                                <Image
+                                                                    circular
+                                                                    src={user['profile_picture']}
+                                                                />
+                                                                {user['full_name']}
+                                                            </Header>
+                                                                </Card.Content>
+                                                    </Card>
+                                                )
+                                            })
+                                        }
+                                    </Card.Group>
                                 </div>
                             </List.Item>
                         </List>
