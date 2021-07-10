@@ -1,6 +1,8 @@
 import os
 from django.db import models
 from django.conf import settings
+
+from rendezvous.models.conversation import Conversation
 from rendezvous.models.base import Base
 from rendezvous.utils.generate_random_code import generate_random_code
 
@@ -65,23 +67,47 @@ class Meeting(Base):
         blank=True,
     )
 
-    def __has_started(self):
+    # Conversation to which the meeting is associated (if any)
+    conversation = models.ForeignKey(
+        Conversation,
+        related_name='meeting',
+        on_delete=models.SET_NULL, # If the conversation is deleted, maintain the meeting information
+        null=True, # Allow this field to be set to null
+        default=None
+    )
+
+    def has_started(self):
         """
         If meeting has started, start time exists
         """
-        return self.start_time is not None
 
-    def __has_ended(self):
+        if self.start_time is None:
+            # Meeting hasn't started even once
+            return False
+        if self.end_time is None:
+            # Meeting has start once and not ended
+            return True
+        # Meeting had ended and was started again
+        return self.start_time > self.end_time
+
+    def has_ended(self):
         """
         If meeting has ended, end time exists
         """
-        return self.end_time is not None
+        if self.end_time is None:
+            # Meeting hasn't ended even once
+            return False
+        if self.start_time is None:
+            # Meeting hasn't even started yet
+            return False
+        # Meeting had ended and started again
+        return self.end_time > self.start_time
 
-    def __is_going_on(self):
+    def is_going_on(self):
         """
-        If meeting is going on, only start time exists, not end time
+        If meeting is going on, it has started and not ended
         """
-        return self.start_time is not None and self.end_time is None
+        return self.has_started() and not self.has_ended()
 
     def get_host_name(self):
         """

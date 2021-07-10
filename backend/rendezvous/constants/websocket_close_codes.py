@@ -19,3 +19,8 @@ YOU_ARE_REMOVED = {
     'code': BASE_CODE + 3,
     'reason': 'You have been removed from this meeting.'
 }
+
+CONVERSATION_ID_INVALID = {
+    'code': BASE_CODE + 4,
+    'reason': 'Conversation id is invalid.'
+}

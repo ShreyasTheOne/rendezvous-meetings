@@ -1,5 +1,9 @@
 import axios from 'axios'
-import {apiIAmTheMeetingHostUrl, apiMyMeetingsUrl} from "./urls"
+import {
+    apiIAmTheMeetingHostUrl,
+    apiMyMeetingsUrl,
+    apiUserSearchUrl
+} from "./urls"
 
 /**
  * If the length of the string exceeds the limit, it truncates it to the limit and adds three dots at the end
@@ -19,7 +23,7 @@ export const fitText = (text, limit = 35) => {
  * Makes API call to check if user is the host
  * of the meeting with the given code
  * @param code          Meeting code
- * @returns {boolean}   True if user if the meeting host
+ * @returns {Promise<AxiosResponse<any> | *[]>}   Axios promise with the host status
  */
 export const iAmTheMeetingHost = code => {
     console.log(code)
@@ -29,6 +33,20 @@ export const iAmTheMeetingHost = code => {
         data: {code}
     }).then(res => {
         return res.data['status']
+    })
+}
+
+/**
+ * Gets all users in the app
+ * @returns {Promise<AxiosResponse<any> | *[]>}     Axios promise with the list of users
+ */
+export const getAllUsers = () => {
+    return axios({
+        url: apiUserSearchUrl('', true, true)
+    }).then(res => {
+        return res.data
+    }).catch(e => {
+        return []
     })
 }
 

@@ -79,6 +79,18 @@ export const apiUserSearchUrl = (query, dropdown = false, get_all = false) => {
     return url
 }
 
+export const apiCreateConversationUrl = () => {
+    return `${apiBase()}conversation/start/`
+}
+
+export const apiConversationEditUrl = () => {
+    return `${apiBase()}conversation/edit/`
+}
+
+export const apiConversationLeaveUrl = () => {
+    return `${apiBase()}conversation/leave/`
+}
+
 export const apiIAmTheMeetingHostUrl = () => {
     return `${apiBase()}meeting/check_host_status/`
 }
@@ -103,6 +115,14 @@ export const apiWSChat = code => {
 
 export const apiWSWhiteboard = code => {
     return `${apiWSBase()}meeting/${code}/whiteboard/`
+}
+
+export const apiWSGlobalConversations = () => {
+    return `${apiWSBase()}conversations/`
+}
+
+export const apiWSConversation = id => {
+    return `${apiWSBase()}conversations/${id}/`
 }
 
 

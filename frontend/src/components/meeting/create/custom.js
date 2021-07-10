@@ -1,8 +1,8 @@
 import axios from "axios"
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import {apiCreateCustomMeetingUrl, apiUserSearchUrl, routeMeeting} from "../../../urls"
 
-import { DateTimeInput } from "semantic-ui-calendar-react"
+import {DateTimeInput} from "semantic-ui-calendar-react"
 import {
     Form,
     Button,
@@ -12,32 +12,33 @@ import {
     Message,
     Icon
 } from "semantic-ui-react"
+import {getAllUsers} from "../../../utils";
 
 const moment = require('moment')
 
 const initialState = {
-            'inputs': {
-                'title': '',
-                'description': '',
-                'invitees_selected': [],
-                'scheduled_start_time': '',
-                'start_now': false,
-            },
-            'errors': {
-                'title': false,
-                'description': false,
-                'invitees_selected': false,
-                'scheduled_start_time': false,
-                'start_now': false,
-            },
-            'invitee_options': [],
-            'loading': false,
-            'meeting_created': false,
-            'error_message': false,
-            'meeting_details': {},
-            'form_loading': true,
-            'copyPopupOpen': false
-        }
+    'inputs': {
+        'title': '',
+        'description': '',
+        'invitees_selected': [],
+        'scheduled_start_time': '',
+        'start_now': false,
+    },
+    'errors': {
+        'title': false,
+        'description': false,
+        'invitees_selected': false,
+        'scheduled_start_time': false,
+        'start_now': false,
+    },
+    'invitee_options': [],
+    'loading': false,
+    'meeting_created': false,
+    'error_message': false,
+    'meeting_details': {},
+    'form_loading': true,
+    'copyPopupOpen': false
+}
 
 class CreateCustomMeeting extends Component {
 
@@ -55,19 +56,13 @@ class CreateCustomMeeting extends Component {
             inviteeSearching: true,
             error_message: false
         })
-        axios({
-            url: apiUserSearchUrl('', true, true)
-        }).then(res => {
-            this.setState({
-                'invitee_options': res.data,
-                inviteeSearching: false
+        getAllUsers()
+            .then(res => {
+                this.setState({
+                    invitee_options: res,
+                    inviteeSearching: false,
+                })
             })
-        }).catch(e => {
-            this.setState({
-                'invitee_options': [],
-                inviteeSearching: false,
-            })
-        })
     }
 
     handleCustomMeetingInputChange = (event, {name, value}) => {
@@ -141,13 +136,18 @@ class CreateCustomMeeting extends Component {
     handleModalClose = () => {
         this.setState(initialState)
         this.setInviteeOptions()
-        const { setDialogBoxOpenClose, CUSTOM } = this.props
+        const {setDialogBoxOpenClose, CUSTOM} = this.props
         setDialogBoxOpenClose(CUSTOM, false)
     }
 
-    render () {
-        const { open } = this.props
-        const { meeting_created, meeting_error, meeting_details, inputs } = this.state
+    render() {
+        const {open} = this.props
+        const {
+            meeting_created,
+            meeting_error,
+            meeting_details,
+            inputs
+        } = this.state
 
         return (
             <Modal
@@ -166,33 +166,33 @@ class CreateCustomMeeting extends Component {
                             meeting_created &&
                             (
                                 <>
-                                <Message
-                                    success
-                                    header='Meeting Created!'
-                                    content="Here are the meeting details"
-                                />
-                                <Form.Input
-                                    name={'code'}
-                                    label={'Meeting Code'}
-                                    value={meeting_details.code}
-                                    transparent
-                                    readOnly
-                                    fluid={false}
-                                />
-                                <Form.Input
-                                    name={'start_time'}
-                                    label={'Scheduled start time'}
-                                    value={moment(meeting_details.scheduled_start_time).calendar()}
-                                    transparent
-                                    readOnly
-                                />
+                                    <Message
+                                        success
+                                        header='Meeting Created!'
+                                        content="Here are the meeting details"
+                                    />
+                                    <Form.Input
+                                        name={'code'}
+                                        label={'Meeting Code'}
+                                        value={meeting_details.code}
+                                        transparent
+                                        readOnly
+                                        fluid={false}
+                                    />
+                                    <Form.Input
+                                        name={'start_time'}
+                                        label={'Scheduled start time'}
+                                        value={moment(meeting_details.scheduled_start_time).calendar()}
+                                        transparent
+                                        readOnly
+                                    />
                                 </>
                             )
                         }
                         <Form.Input
                             name={'title'}
                             label={'Title'}
-                            value = {meeting_created ? (meeting_details.title || 'Not provided') : inputs.title}
+                            value={meeting_created ? (meeting_details.title || 'Not provided') : inputs.title}
                             readOnly={meeting_created}
                             transparent={meeting_created}
                             fluid
@@ -203,7 +203,7 @@ class CreateCustomMeeting extends Component {
                             fluid
                             name={'description'}
                             label={'Description'}
-                            value = {meeting_created ?
+                            value={meeting_created ?
                                 (meeting_details.description || 'Not provided') : inputs.description}
                             readOnly={meeting_created}
                             transparent={meeting_created}
@@ -240,7 +240,7 @@ class CreateCustomMeeting extends Component {
                                 <DateTimeInput
                                     name="scheduled_start_time"
                                     placeholder="Scheduled start time"
-                                    minDate = {moment().format('DD-MM-YYYY HH:MM')}
+                                    minDate={moment().format('DD-MM-YYYY HH:MM')}
                                     value={inputs.scheduled_start_time}
                                     onChange={this.handleCustomMeetingInputChange.bind(this)}
 
@@ -251,22 +251,22 @@ class CreateCustomMeeting extends Component {
                                 />
                             </>
                         }
-                        {   !meeting_created &&
-                            <Checkbox
-                                name='start_now'
-                                label={'Start now'}
-                                checked={this.state.inputs.start_now}
-                                error={this.state.errors.start_now.toString()}
-                                onChange={this.handleStartNowCheckboxChange.bind(this)}
-                            />
+                        {!meeting_created &&
+                        <Checkbox
+                            name='start_now'
+                            label={'Start now'}
+                            checked={this.state.inputs.start_now}
+                            error={this.state.errors.start_now.toString()}
+                            onChange={this.handleStartNowCheckboxChange.bind(this)}
+                        />
                         }
                         {
                             meeting_error &&
-                                <Message
-                                    error
-                                    header='Error'
-                                    content={this.state.error_message}
-                                />
+                            <Message
+                                error
+                                header='Error'
+                                content={this.state.error_message}
+                            />
                         }
                     </Form>
                 </Modal.Content>
@@ -281,45 +281,44 @@ class CreateCustomMeeting extends Component {
                         Cancel
                     </Button>}
                     {meeting_created &&
-                        <Popup
-                            trigger={
-                              <Button
-                                  icon
-                                  primary
-                                  labelPosition={'right'}
-                                  onClick={
-                                      () => {
-                                          navigator.clipboard.writeText(
-                                              routeMeeting(meeting_details.code)
-                                          )
-                                          this.setState({
-                                              copyPopupOpen: true
-                                          })
-                                      }
-                                  }
-                              >
-                                <Icon link name={'copy'} />
+                    <Popup
+                        trigger={
+                            <Button
+                                icon
+                                primary
+                                labelPosition={'right'}
+                                onClick={
+                                    () => {
+                                        navigator.clipboard.writeText(
+                                            routeMeeting(meeting_details.code)
+                                        )
+                                        this.setState({
+                                            copyPopupOpen: true
+                                        })
+                                    }
+                                }
+                            >
+                                <Icon link name={'copy'}/>
                                 Copy Joining Link
                             </Button>
-                            }
-                            onOpen = {() => {
-                                this.timeout = setTimeout(() => {
-                                this.setState({ copyPopupOpen: false })
-                                }, 1000)
-                            }}
-                            onClose={() => {
-                                this.setState({ copyPopupOpen: false })
-                                clearTimeout(this.timeout)
-                            }}
-                            open={this.state.copyPopupOpen}
-
-                            size={'small'}
-                            content='Copied!'
-                            on='click'
-                            basic
-                            inverted
-                            position='top right'
-                        />
+                        }
+                        onOpen={() => {
+                            this.timeout = setTimeout(() => {
+                                this.setState({copyPopupOpen: false})
+                            }, 1000)
+                        }}
+                        onClose={() => {
+                            this.setState({copyPopupOpen: false})
+                            clearTimeout(this.timeout)
+                        }}
+                        open={this.state.copyPopupOpen}
+                        size={'small'}
+                        content='Copied!'
+                        on='click'
+                        basic
+                        inverted
+                        position='top right'
+                    />
                     }
                     <Button
                         loading={this.state.loading}
@@ -331,7 +330,7 @@ class CreateCustomMeeting extends Component {
                         }}
                         primary
                     >
-                        { meeting_created ? 'Close' : 'Create' }
+                        {meeting_created ? 'Close' : 'Create'}
                     </Button>
                 </Modal.Actions>
             </Modal>

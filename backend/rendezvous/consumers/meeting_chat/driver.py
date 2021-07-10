@@ -19,16 +19,16 @@ class DriverMixin():
     There are two types of methods:
     - send methods
       - These methods send a message to self
-      - For example: send_participants_list()
+      - For example: send_hitherto_messages_driver()
     - blast methods
       - These methods send a message to everyone in the room
-      - For example: blast_user_joined()
+      - For example: blast_new_message_driver()
     """
 
     def send_hitherto_messages_driver(self):
         """
-        Sends the list of all messages that have been sent by users in the meeting
-        till now
+        Sends the list of all messages that have been
+        sent by users in the meeting till now
         """
 
         messages = MeetingMessage.objects.filter(receiver=self.meeting).order_by('send_time')
