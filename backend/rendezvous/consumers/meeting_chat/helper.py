@@ -12,7 +12,8 @@ class HelperMixin():
 
     def send_message_helper(self, message_content):
         """
-        When a user sends a new message in the meeting, a new message instance must be created
+        When a user sends a new message in the meeting,
+        a new message instance must be created
         """
 
         message = MeetingMessage(

@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from rendezvous.models.meeting import Meeting
+from rendezvous.models import Meeting, Conversation
 from rendezvous.serializers.meeting import MeetingCreatedSerializer, MeetingEmailSerializer, MeetingVerboseSerializer
 from rendezvous.tasks.meeting_invite import send_meeting_invite_notifications
 from rendezvous.utils.get_all_users_from_meeting import get_all_users_from_meeting
@@ -66,9 +66,10 @@ class MeetingViewSet(viewsets.ModelViewSet):
         invitees = request.data.get('invitees_selected', None)
         scheduled_start_time = request.data.get('scheduled_start_time', None)
         start_now = request.data.get('start_now', None)
+        conversationID = request.data.get('conversation', None)
 
         # Validate start time
-        now = time_utils.now() # In Indian Standard Time
+        now = time_utils.now()  # In Indian Standard Time
 
         if start_now is True:
             scheduled_datetime_obj = now
@@ -121,6 +122,13 @@ class MeetingViewSet(viewsets.ModelViewSet):
 
                 invitee_emails.append(user.email)
             except User.DoesNotExist:
+                pass
+
+        if conversationID:
+            try:
+                c = Conversation.objects.get(id=conversationID)
+                meeting.conversation = c
+            except Conversation.DoesNotExist:
                 pass
 
         meeting.save()
@@ -176,23 +184,38 @@ class MeetingViewSet(viewsets.ModelViewSet):
         in reverse-chronological order of the scheduled start times.
         """
 
+        # Does the user want PAST or UPCOMING meetings?
         time_period = request.query_params.get('time_period', None)
         now = time_utils.now()
 
         if time_period == "UPCOMING":
+            # Upcoming meetings have a scheduled start time after the current time
+            # User must be invited to it or be the host
             meetings = Meeting.objects.filter(
-                (Q(host=request.user)
-                 | Q(invitees__in=[request.user]))
+                (
+                        Q(host=request.user)
+                        |
+                        Q(invitees__in=[request.user])
+                )
                 & Q(scheduled_start_time__gt=now)
             ).distinct().order_by('scheduled_start_time')
-        elif time_period == "PAST" :
+
+        elif time_period == "PAST":
+            # Past meetings have end time before now and
+            # have end times before now
+            # User must be invited to it or be the host
             meetings = Meeting.objects.filter(
-                (Q(host=request.user)
-                 | Q(invitees__in=[request.user]))
+                (
+                        Q(host=request.user)
+                        |
+                        Q(invitees__in=[request.user])
+                )
                 & Q(end_time__lte=now)
-                & (
-                    Q(scheduled_start_time__lt=now)
-                    | Q(scheduled_start_time=None)
+                &
+                (
+                        Q(scheduled_start_time__lt=now)
+                        |
+                        Q(scheduled_start_time=None)
                 )
             ).distinct().order_by('-end_time')
         else:

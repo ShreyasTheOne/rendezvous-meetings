@@ -44,6 +44,11 @@ class UserDropdownSerializer(serializers.ModelSerializer):
             'text',
             'value',
             'image',
+
+            'uuid',
+            'full_name',
+            'email',
+            'profile_picture'
         ]
         read_only_fields = [
             'key',

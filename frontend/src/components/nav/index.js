@@ -1,4 +1,7 @@
 import React, {Component} from 'react'
+import {connect} from 'react-redux'
+import axios from "axios"
+
 import {
     Icon,
     Button,
@@ -12,8 +15,6 @@ import {
     routeMeetings
 } from "../../urls"
 import './css/index.css'
-import {connect} from 'react-redux'
-import axios from "axios"
 
 const menu_items = [
     {
@@ -81,6 +82,7 @@ class NavBar extends Component {
                         menu_items.map(item => {
                             return (
                                 <Popup
+                                    key={item['value']}
                                     content={item['popup']}
                                     inverted
                                     basic
@@ -91,7 +93,7 @@ class NavBar extends Component {
                                             icon={item['icon']}
                                             style={{marginTop: '1rem'}}
                                             inverted={item['value'] !== menu_item}
-                                            color={item['value'] === menu_item ? 'blue' : 'white'}
+                                            color={item['value'] === menu_item ? 'blue' : ''}
                                             onClick={() => this.handleMenuItemChange(item['route'])}
                                         />
                                     }
@@ -100,18 +102,14 @@ class NavBar extends Component {
                         })
                     }
                 </div>
-                <div
-                    id='nav-footer'
-                >
+                <div id='nav-footer'>
                     <Popup
-                        hideOnScroll
-                        position='right center'
-                        on="click"
                         basic
                         inverted
-                        style={{
-                            padding: "0px",
-                        }}
+                        on="click"
+                        hideOnScroll
+                        position='right center'
+                        style={{padding: "0px"}}
                         trigger={
                             <Image
                                 avatar
