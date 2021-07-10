@@ -10,13 +10,15 @@ import {
 import CreateCustomMeeting from "../meeting/create/custom"
 import CreateInstantMeeting from "../meeting/create/instant"
 
-import './css/index.css'
 import JoinMeeting from "../meeting/join"
 import ActionButton from "./actionButton"
-import MeetingsList from "./meetingsList"
+import MeetingsList from "../myMeetings/meetingsList"
 import AppBar from "../appBar"
+
 import {getMyMeetings} from "../../utils"
 import {routeMyMeetingsDetail} from "../../urls"
+
+import './css/index.css'
 
 const UPCOMING = 'UPCOMING'
 const PAST = 'PAST'

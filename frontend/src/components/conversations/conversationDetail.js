@@ -5,12 +5,12 @@ import Scrollbars from "react-custom-scrollbars"
 import {Header, Image, Label} from "semantic-ui-react"
 
 import {
-    CONVERSATION_INFO,
-    CONVERSATION_MEETING_LIVE,
-    NEW_MESSAGE,
-    SEND_MESSAGE
+    websocketMessageTypes
 } from "../../constants/websocketMessageTypes"
-import {CONVERSATION_ID_INVALID} from "../../constants/websocketCloseCodes"
+
+import {
+    CONVERSATION_ID_INVALID
+} from "../../constants/websocketCloseCodes"
 
 import ConversationSettings from "./conversationSettings"
 import MessagesList from "./messagesList"
@@ -115,13 +115,13 @@ class ConversationDetail extends Component {
         message = message.message
 
         switch (type) {
-            case CONVERSATION_INFO:
+            case websocketMessageTypes.CONVERSATION_INFO:
                 this.handleConversationInfo(message)
                 break
-            case CONVERSATION_MEETING_LIVE:
+            case websocketMessageTypes.CONVERSATION_MEETING_LIVE:
                 this.handleLiveMeetingStart(message)
                 break
-            case NEW_MESSAGE:
+            case websocketMessageTypes.NEW_MESSAGE:
                 this.handleNewMessage(message)
                 break
             default:
@@ -135,7 +135,7 @@ class ConversationDetail extends Component {
 
     informLiveMeetingStart = () => {
         this.emitThroughSocket({
-            type: CONVERSATION_MEETING_LIVE,
+            type: websocketMessageTypes.CONVERSATION_MEETING_LIVE,
             message: ''
         })
     }
@@ -172,7 +172,7 @@ class ConversationDetail extends Component {
         })
 
         this.emitThroughSocket({
-            type: SEND_MESSAGE,
+            type: websocketMessageTypes.SEND_MESSAGE,
             message
         })
 

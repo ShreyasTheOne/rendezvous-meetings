@@ -3,8 +3,7 @@ import rough from 'roughjs/bundled/rough.esm'
 import {TOOLS} from '../toolbar/tools'
 
 import {
-    INITIALISE_WHITEBOARD,
-    WHITEBOARD_DRAW_STROKE
+    websocketMessageTypes
 } from "../../../../constants/websocketMessageTypes"
 
 import {apiWSWhiteboard} from "../../../../urls"
@@ -55,10 +54,10 @@ class WhiteboardCanvas extends Component {
         message = message.message
 
         switch (type) {
-            case WHITEBOARD_DRAW_STROKE:
+            case websocketMessageTypes.WHITEBOARD_DRAW_STROKE:
                 this.handleNewStroke(message)
                 break
-            case INITIALISE_WHITEBOARD:
+            case websocketMessageTypes.INITIALISE_WHITEBOARD:
                 this.initialiseWhiteboard(message)
                 break
             default:
@@ -176,9 +175,8 @@ class WhiteboardCanvas extends Component {
 
     handleMouseUp = event => {
         if (this.state.mostRecentlyCreatedElement) {
-            console.log(JSON.parse(this.state.mostRecentlyCreatedElement))
             this.emitThroughSocket({
-                type: WHITEBOARD_DRAW_STROKE,
+                type: websocketMessageTypes.WHITEBOARD_DRAW_STROKE,
                 message: this.state.mostRecentlyCreatedElement
             })
         }

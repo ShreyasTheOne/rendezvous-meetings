@@ -3,9 +3,7 @@ import { connect } from "react-redux"
 import {Loader} from "semantic-ui-react"
 
 import {
-    PARTICIPANT_LIST,
-    PEER_CONNECTION_OFFER,
-    ICE_CANDIDATE, PEER_CONNECTION_ANSWER, USER_LEFT, VIDEO_TURNED_OFF, AUDIO_TURNED_OFF
+    websocketMessageTypes
 } from "../../../constants/websocketMessageTypes"
 
 import {apiWSVideoCall, routeHome} from "../../../urls"
@@ -93,27 +91,27 @@ class VideoCall extends Component {
         message = message.message
 
         switch (type) {
-            case PARTICIPANT_LIST:
+            case websocketMessageTypes.PARTICIPANT_LIST:
                 this.handleParticipantsList(message)
                 this.callUsers(message)
                 this.setState({loaded: true})
                 break
-            case ICE_CANDIDATE:
+            case websocketMessageTypes.ICE_CANDIDATE:
                 this.handleIceCandidateMessage(message)
                 break
-            case PEER_CONNECTION_OFFER:
+            case websocketMessageTypes.PEER_CONNECTION_OFFER:
                 this.handleOffer(message)
                 break
-            case PEER_CONNECTION_ANSWER:
+            case websocketMessageTypes.PEER_CONNECTION_ANSWER:
                 this.handleAnswer(message)
                 break
-            case USER_LEFT:
+            case websocketMessageTypes.USER_LEFT:
                 this.handleUserLeft(message)
                 break
-            case VIDEO_TURNED_OFF:
+            case websocketMessageTypes.VIDEO_TURNED_OFF:
                 this.handleUserVideoOff(message)
                 break
-            case AUDIO_TURNED_OFF:
+            case websocketMessageTypes.AUDIO_TURNED_OFF:
                 this.handleUserAudioOff(message)
                 break
             default:

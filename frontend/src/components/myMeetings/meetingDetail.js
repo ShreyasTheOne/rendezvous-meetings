@@ -20,7 +20,7 @@ const containerStyle = {
 
     display: 'grid',
     gridTemplateColumns: '4fr 2fr',
-    backgroundImage: "url(/doda_blue.jpg)"
+    backgroundImage: "url(/doda_dark_blue.jpg)"
 }
 
 const horizontalDiv = {

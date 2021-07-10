@@ -7,9 +7,7 @@ import {
     Button
 } from 'semantic-ui-react'
 import {
-    CONVERSATIONS_LIST,
-    NEW_MESSAGE,
-    SEND_MESSAGE
+    websocketMessageTypes
 } from "../../constants/websocketMessageTypes"
 
 import {apiWSGlobalConversations} from "../../urls"
@@ -45,10 +43,10 @@ class Conversations extends Component {
 
             console.log("type", type)
             switch (type) {
-                case CONVERSATIONS_LIST:
+                case websocketMessageTypes.CONVERSATIONS_LIST:
                     this.setConversationsList(message)
                     break
-                case NEW_MESSAGE:
+                case websocketMessageTypes.NEW_MESSAGE:
                     this.handleNewMessage(message)
                     break
                 default:
@@ -63,7 +61,7 @@ class Conversations extends Component {
 
     sendGlobalMessage = (message, conversationID) => {
         this.emitThroughSocket({
-            type: SEND_MESSAGE,
+            type: websocketMessageTypes.SEND_MESSAGE,
             message: {
                 message,
                 conversationID
