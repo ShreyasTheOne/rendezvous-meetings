@@ -1,7 +1,7 @@
 import React, {Component} from "react"
 import {connect} from "react-redux"
 import Scrollbars from 'react-custom-scrollbars'
-import {centerFullParent} from "../../styles";
+import {centerFullParent} from "../../styles"
 import {
     Image,
     Header,
@@ -9,7 +9,7 @@ import {
     List,
     Label
 } from "semantic-ui-react"
-import {fitText} from "../../utils";
+import {fitText} from "../../utils"
 
 const moment = require('moment')
 
@@ -26,11 +26,6 @@ const labelAvatarStyle = {
 }
 
 class ConversationsList extends Component {
-
-    constructor(props) {
-        super(props)
-        const me = this.props.UserInformation.user
-    }
 
     scrollBarThumb = (style, ...props) => {
         return (

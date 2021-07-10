@@ -11,9 +11,7 @@ import {
 
 import {apiWSChat} from "../../../../urls"
 import {
-    MESSAGES_LIST,
-    NEW_MESSAGE,
-    SEND_MESSAGE
+    websocketMessageTypes
 } from "../../../../constants/websocketMessageTypes"
 import './index.css'
 
@@ -90,10 +88,10 @@ class MeetingChat extends Component {
         message = message.message
 
         switch (type) {
-            case MESSAGES_LIST:
+            case websocketMessageTypes.MESSAGES_LIST:
                 this.handleMessagesList(message)
                 break
-            case NEW_MESSAGE:
+            case websocketMessageTypes.NEW_MESSAGE:
                 this.handleNewMessage(message)
                 break
             default:
@@ -131,13 +129,26 @@ class MeetingChat extends Component {
         })
 
         this.emitThroughSocket({
-            type: SEND_MESSAGE,
+            type: websocketMessageTypes.SEND_MESSAGE,
             message: inputMessage
         })
 
         this.setState({
             sendingMessage: false
         })
+    }
+
+    scrollBarThumb = (style, ...props) => {
+        return (
+            <div
+                {...props}
+                style={{
+                    ...style,
+                    backgroundColor: 'rgba(244, 242, 243, 0.7)',
+                    borderRadius: '5px'
+                }}
+            />
+        )
     }
 
     render() {
@@ -149,18 +160,7 @@ class MeetingChat extends Component {
             <div style={containerStyle}>
                 <Scrollbars
                     autoHide
-                    renderThumbVertical={(style, ...props) => {
-                        return (
-                            <div
-                                {...props}
-                                style={{
-                                    ...style,
-                                    backgroundColor: 'rgba(244, 242, 243, 0.7)',
-                                    borderRadius: '5px'
-                                }}
-                            />
-                        )
-                    }}
+                    renderThumbVertical={this.scrollBarThumb}
                     style={{width: '100%', height: scrollbarHeight}}
                 >
                     <Segment style={{backgroundColor: 'transparent'}}>

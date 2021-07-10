@@ -9,7 +9,7 @@ import {
 import NavBar from "../nav"
 import AppBar from "../appBar"
 import MeetingDetail from "./meetingDetail"
-import MeetingsList from "../home/meetingsList"
+import MeetingsList from "./meetingsList"
 
 import {getMyMeetings} from "../../utils"
 import {routeMyMeetingsDetail} from "../../urls"
