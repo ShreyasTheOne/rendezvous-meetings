@@ -1,8 +1,16 @@
+import AppBar from "../appBar"
 import React, {Component} from 'react'
-import {Button} from "semantic-ui-react"
-import {centerFullPage} from "../../styles"
 import {googleOAuthRedirect} from '../../urls'
+import {centerFullParent} from "../../styles"
+import {Button, Icon} from "semantic-ui-react"
 
+const containerStyle = {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: '#1b1a17'
+}
 
 class Login extends Component {
 
@@ -12,13 +20,23 @@ class Login extends Component {
 
     render () {
         return (
-            <div style={centerFullPage}>
-                <Button
-                    color={'blue'}
-                    onClick={this.login}
-                >
-                    Login with Google
-                </Button>
+            <div style={containerStyle}>
+                <AppBar/>
+                <div style={{
+                    ...centerFullParent,
+                    height: 'calc(100vh - 48px)'
+                }}>
+                    <Button
+                        size={'huge'}
+                        onClick={this.login}
+                        inverted
+                        icon
+                        labelPosition={'left'}
+                    >
+                        <Icon name={'google'}/>
+                        Login with Google
+                    </Button>
+                </div>
             </div>
         )
     }
