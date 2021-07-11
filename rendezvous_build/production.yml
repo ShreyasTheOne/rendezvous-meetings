@@ -1,0 +1,245 @@
+version: '3.8'
+
+services:
+  database: # PostgreSQL
+
+    image: postgres
+
+    # No matter what, if the container stops, start it again
+    restart: always
+
+    container_name: rendezvous_postgres
+
+    # Set the environment variables
+    env_file:
+      - ../postgres/database.env
+
+    # Expose the port 5432 used by PostgreSQL to other containers (only inside our network)
+    expose:
+      - 5432
+
+    # Connect to the custom network
+    networks:
+      - rendezvous_network
+
+    # Mount the volumes on the database container
+    volumes:
+      - type: volume
+        source: database
+        target: /var/lib/postgresql/data
+        read_only: false
+
+  redis: # Messaging
+    image: redis
+
+    # No matter what, if the container stops, start it again
+    restart: always
+
+    container_name: rendezvous_redis
+
+    # Expose the port 8000 used by Django to other containers (only inside our network)
+    expose:
+      - 6379
+
+    # Connect to the custom network
+    networks:
+      - rendezvous_network
+
+  backend: # Django
+
+    # Location of dockerfile to build image from
+    build: ../backend/
+
+    # No matter what, if the container stops, start it again
+    restart: always
+
+    # Command to run when container starts
+    command: >-
+      sh -c
+      "python3 manage.py collectstatic --no-input &&
+      python3 manage.py migrate &&
+      python3 manage.py runserver 0.0.0.0:8000"
+
+    # Mount the volumes on the django container
+    volumes:
+      - type: bind
+        source: ../backend
+        target: /rendezvous_backend
+        read_only: false
+
+      - type: volume
+        source: static
+        target: /static_content/
+        read_only: false
+        
+      - type: volume
+        source: media
+        target: /media_content/
+        read_only: false
+
+    # Expose the port 8000 used by Django to other containers (only inside our network)
+    expose:
+      - 8000
+
+    container_name: rendezvous_backend
+
+    # Set the environment variables
+    env_file:
+      - ../backend/configuration/config.env
+
+    # Depends on the postgres container
+    depends_on:
+      - redis
+      - database
+
+    # Connect to the custom network
+    networks:
+      - rendezvous_network
+
+  celery: # Tasks
+
+    # Location of dockerfile to build image from
+    build: ../backend/
+
+    # No matter what, if the container stops, start it again
+    restart: always
+
+    # Command to run when container starts
+    command: celery -A rendezvous_backend worker -l INFO
+
+    # Mount the volumes on the django container
+    volumes:
+      - type: bind
+        source: ../backend
+        target: /rendezvous_backend
+        read_only: false
+
+      - type: volume
+        source: static
+        target: /static_content/
+        read_only: false
+
+      - type: volume
+        source: media
+        target: /media_content/
+        read_only: false
+
+    container_name: rendezvous_celery
+
+    # Set the environment variables
+    env_file:
+      - ../backend/configuration/config.env
+
+    # Depends on the postgres container
+    depends_on:
+      - backend
+      - redis
+
+    # Connect to the custom network
+    networks:
+      - rendezvous_network
+
+  frontend: # React
+    # Location of dockerfile to build image from
+    build: ../frontend/
+
+    # Command to run when container starts
+    command: "npm run build"
+
+    # Mount the volumes on the django container
+    volumes:
+      - type: bind
+        source: ../frontend
+        target: /rendezvous_frontend
+        read_only: false
+
+      - type: bind
+        source: ../frontend/node_modules
+        target: /rendezvous_frontend/node_modules
+        read_only: false
+
+      - type: volume
+        source: frontend_build
+        target: /rendezvous_frontend/build
+        read_only: false
+
+    # Expose the port 3000 used by React to other containers (only inside our network)
+    expose:
+      - 3000
+
+    container_name: rendezvous_frontend
+
+    # Depends on the backend container
+    depends_on:
+      - backend
+
+    # Connect to the custom network
+    networks:
+      - rendezvous_network
+
+  reverse_proxy:
+
+    build: ../nginx/
+
+    # No matter what, if the container stops, start it again
+    restart: always
+
+    container_name: rendezvous_reverse_proxy
+
+    expose:
+      - 80
+      - 443
+
+    ports:
+      - "80:80"
+      - "443:443"
+
+    volumes:
+      - type: bind
+        source: ../nginx/conf.d/
+        target: /etc/nginx/conf.d/
+        read_only: true
+
+      - type: bind
+        source: ../nginx/ssl/
+        target: /etc/nginx/ssl/
+        read_only: true
+
+      - type: volume
+        source: static
+        target: /static_content/
+        read_only: true
+
+      - type: volume
+        source: media
+        target: /media_content/
+        read_only: true
+
+      - type: volume
+        source: frontend_build
+        target: /rendezvous_frontend/
+        read_only: true
+
+    depends_on:
+      - backend
+      - frontend
+
+    networks:
+      - rendezvous_network
+
+volumes:
+  # This volume contains the database and PostgreSQL configuration files
+  database:
+
+  # This volume contains the static files loaded by django
+  static:
+
+  # This volume contains tha media files stored in our backend
+  media:
+
+  # This volume contains the frontend files built during production
+  frontend_build:
+
+
+networks:
+  rendezvous_network:

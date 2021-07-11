@@ -12,7 +12,7 @@ services:
 
     # Set the environment variables
     env_file:
-      - postgres/database.env
+      - ../postgres/database.env
 
     # Expose the port 5432 used by PostgreSQL to other containers (only inside our network)
     expose:
@@ -31,25 +31,25 @@ services:
 
   redis: # Messaging
 
-      image: redis
+    image: redis
 
-      # No matter what, if the container stops, start it again
-      restart: always
+    # No matter what, if the container stops, start it again
+    restart: always
 
-      container_name: rendezvous_redis
+    container_name: rendezvous_redis
 
-      # Expose the port 8000 used by Django to other containers (only inside our network)
-      expose:
-        - 6379
+    # Expose the port 8000 used by Django to other containers (only inside our network)
+    expose:
+      - 6379
 
-      # Connect to the custom network
-      networks:
-        - rendezvous_network
+    # Connect to the custom network
+    networks:
+      - rendezvous_network
 
   backend: # Django
 
     # Location of dockerfile to build image from
-    build: ./backend/
+    build: ../backend/
 
     # No matter what, if the container stops, start it again
     restart: always
@@ -64,7 +64,7 @@ services:
     # Mount the volumes on the django container
     volumes:
       - type: bind
-        source: ./backend
+        source: ../backend
         target: /rendezvous_backend
         read_only: false
 
@@ -80,7 +80,7 @@ services:
 
     # Set the environment variables
     env_file:
-      - backend/configuration/config.env
+      - ../backend/configuration/config.env
 
     # Depends on the postgres container
     depends_on:
@@ -94,7 +94,7 @@ services:
   celery: # Tasks
 
     # Location of dockerfile to build image from
-    build: ./backend/
+    build: ../backend/
 
     # No matter what, if the container stops, start it again
     restart: always
@@ -105,7 +105,7 @@ services:
     # Mount the volumes on the django container
     volumes:
       - type: bind
-        source: ./backend
+        source: ../backend
         target: /rendezvous_backend
         read_only: false
 
@@ -113,7 +113,7 @@ services:
 
     # Set the environment variables
     env_file:
-      - backend/configuration/config.env
+      - ../backend/configuration/config.env
 
     # Depends on the postgres container
     depends_on:
@@ -126,7 +126,7 @@ services:
 
   frontend: # React
     # Location of dockerfile to build image from
-    build: ./frontend/
+    build: ../frontend/
 
     # No matter what, if the container stops, start it again
     restart: always
@@ -137,15 +137,16 @@ services:
     # Mount the volumes on the django container
     volumes:
       - type: bind
-        source: ./frontend
+        source: ../frontend
         target: /rendezvous_frontend
         read_only: true
+
       - type: bind
-        source: ./frontend/node_modules
+        source: ../frontend/node_modules
         target: /rendezvous_frontend/node_modules
         read_only: false
 
-    # Expose the port 8000 used by Django to other containers (only inside our network)
+    # Expose the port 3000 used by React to other containers (only inside our network)
     expose:
       - 3000
 
