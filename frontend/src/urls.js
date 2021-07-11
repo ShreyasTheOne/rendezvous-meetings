@@ -104,7 +104,7 @@ export const apiIAmTheMeetingHostUrl = () => {
 
 // Backend WS URLs
 export const apiWSBase = () => {
-    return backendBaseWS
+    return `${backendBaseWS}ws/`
 }
 
 export const apiWSRoom = code => {
