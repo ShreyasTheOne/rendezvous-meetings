@@ -85,6 +85,7 @@ class MeetingInfoScreen extends Component {
                     as={'h1'}
                     color={'grey'}
                     inverted
+                    textAlign={'center'}
                     style={{
                         fontSize: '5rem',
                         marginBottom: '0'
@@ -96,6 +97,7 @@ class MeetingInfoScreen extends Component {
                     as={'h1'}
                     color={'grey'}
                     size={'huge'}
+                    textAlign={'center'}
                     style={{
                         marginTop: '0',
                         marginBottom: '3rem'
