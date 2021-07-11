@@ -71,7 +71,7 @@ services:
         source: static
         target: /static_content/
         read_only: false
-        
+
       - type: volume
         source: media
         target: /media_content/
