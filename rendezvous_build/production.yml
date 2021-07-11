@@ -62,11 +62,6 @@ services:
 
     # Mount the volumes on the django container
     volumes:
-      - type: bind
-        source: ../backend
-        target: /rendezvous_backend
-        read_only: false
-
       - type: volume
         source: static
         target: /static_content/
@@ -146,18 +141,8 @@ services:
     # Command to run when container starts
     command: "npm run build"
 
-    # Mount the volumes on the django container
+    # Mount the volumes on the frontend container
     volumes:
-      - type: bind
-        source: ../frontend
-        target: /rendezvous_frontend
-        read_only: false
-
-      - type: bind
-        source: ../frontend/node_modules
-        target: /rendezvous_frontend/node_modules
-        read_only: false
-
       - type: volume
         source: frontend_build
         target: /rendezvous_frontend/build
