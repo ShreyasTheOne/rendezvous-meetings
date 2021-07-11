@@ -160,7 +160,6 @@ class ConversationDetail extends Component {
 
         const me = this.props.UserInformation.user
 
-        console.log(message)
         if (message.sender.uuid === me.uuid) {
             this.props.sendGlobalMessage(message, this.props.selectedConversationID)
         }
