@@ -128,6 +128,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
             try:
                 c = Conversation.objects.get(id=conversationID)
                 meeting.conversation = c
+                meeting.start_time = time_utils.now()
             except Conversation.DoesNotExist:
                 pass
 
