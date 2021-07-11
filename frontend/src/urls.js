@@ -1,15 +1,21 @@
-import config from './config.json'
+import config from './configuration/config.json'
 
-const isDev = config.isDev
+const frontendBaseUrl = config.frontendBaseUrl
+const backendBaseHTTP = config.backendBaseHTTP
+const backendBaseWS = config.backendBaseWS
 
 // Frontend Routes
 
 export const routeBase = () => {
-    return isDev ? `http://localhost:51000/` : ''
+    return frontendBaseUrl
 }
 
 export const routeHome = () => {
     return `${routeBase()}`
+}
+
+export const routeRedirect = () => {
+    return `${routeBase()}redirect/`
 }
 
 export const routeConversations = () => {
@@ -36,7 +42,7 @@ export const route404 = () => {
 // Backend HTTP URLs
 
 const backendUrl = () => {
-    return isDev ? `http://localhost:50000/` : ''
+    return backendBaseHTTP
 }
 
 const authBase = () => {
@@ -98,7 +104,7 @@ export const apiIAmTheMeetingHostUrl = () => {
 
 // Backend WS URLs
 export const apiWSBase = () => {
-    return `ws://localhost:50000/ws/`
+    return backendBaseWS
 }
 
 export const apiWSRoom = code => {
@@ -128,10 +134,11 @@ export const apiWSConversation = id => {
 
 // OAuth Redirection URLs
 export const googleOAuthRedirect = (state = 'google') => {
+    const redirect_uri = encodeURIComponent(routeRedirect())
     return (`https://accounts.google.com/o/oauth2/v2/auth?` +
         `response_type=code&` +
         `client_id=681935745791-igm17k4a160g25usvnsoqvepnv71fvok.apps.googleusercontent.com&` +
         `scope=openid%20profile%20email&` +
-        `redirect_uri=http%3A//localhost:51000/redirect&` +
+        `redirect_uri=${redirect_uri}&` +
         `state=${state}`)
 }
