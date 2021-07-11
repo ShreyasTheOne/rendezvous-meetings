@@ -8,7 +8,6 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
@@ -42,7 +41,6 @@ INSTALLED_APPS = [
     'rendezvous',
     'rendezvous_authentication',
 ]
-
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -96,7 +94,6 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Kolkata'
 
-
 # Email
 
 EMAIL_HOST = os.environ.get('EMAIL_HOST')
@@ -104,7 +101,6 @@ EMAIL_PORT = os.environ.get('EMAIL_PORT')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-
 
 # Database
 
@@ -118,7 +114,6 @@ DATABASES = {
         'PORT': os.environ.get('DATABASE_PORT'),
     }
 }
-
 
 # Password validation
 
@@ -149,15 +144,12 @@ USE_I18N = True
 
 USE_L10N = True
 
-
-
-
 # Static files
 
-STATIC_ROOT = '../static/'
-STATIC_URL = '/static/'
+STATIC_ROOT = '../static_content/'
+STATIC_URL = '/api_static/'
 
 # Media files
 
-MEDIA_ROOT = '../media/'
-MEDIA_URL = '/media/'
+MEDIA_ROOT = '../media_content/'
+MEDIA_URL = '/api_media/'
