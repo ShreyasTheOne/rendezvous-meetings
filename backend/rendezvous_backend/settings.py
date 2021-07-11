@@ -14,7 +14,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if os.environ.get('DJANGO_DEBUG') == "TRUE" else False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(',')
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 CSRF_COOKIE_NAME = 'rendezvous_csrftoken'
