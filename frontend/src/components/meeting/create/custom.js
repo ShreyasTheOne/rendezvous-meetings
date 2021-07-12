@@ -1,18 +1,22 @@
 import axios from "axios"
 import React, {Component} from 'react'
+import {Scrollbars} from 'react-custom-scrollbars'
 import {apiCreateCustomMeetingUrl, apiUserSearchUrl, routeMeeting} from "../../../urls"
 
 import {DateTimeInput} from "semantic-ui-calendar-react"
 import {
+    Header,
     Form,
+    List,
     Button,
     Checkbox,
     Modal,
     Popup,
     Message,
-    Icon
+    Icon, Image
 } from "semantic-ui-react"
 import {getAllUsers} from "../../../utils";
+import {ADMIT_USER, REJECT_USER} from "../../../constants/websocketMessageTypes";
 
 const moment = require('moment')
 
@@ -210,29 +214,57 @@ class CreateCustomMeeting extends Component {
                             placeholder="Optional meeting description."
                             onChange={this.handleCustomMeetingInputChange.bind(this)}
                         />
-                        <Form.Dropdown
-                            fluid selection multiple search
-                            name={'invitees_selected'}
-                            label={'Invited Users'}
-                            value={inputs.invitees_selected}
-                            loading={this.state.inviteeSearching}
-                            options={this.state.invitee_options}
-                            placeholder='Invite users to your meeting'
-                            onChange={this.handleCustomMeetingInputChange.bind(this)}
-                            renderLabel={label =>
-                                ({
-                                    basic: true,
-                                    color: "black",
-                                    content: `${label.text} - ${label.value}`,
-                                    image: {
-                                        src: label.image.src,
-                                        size: 'tiny',
-                                        avatar: true,
-                                        spaced: 'right'
+                        {meeting_created ?
+                            <>
+                            <Header>
+                                Users Invited
+                            </Header>
+                            <Scrollbars style={{width: '100%', height: '100px'}}>
+                                <List
+                                    divided
+                                    verticalAlign='middle'
+                                >
+                                    {
+                                        inputs.invitees_selected.map(email => {
+                                            const user = this.state.invitee_options.filter(user => {
+                                                return user['email'] === email
+                                            })[0]
+                                            return (
+                                                <List.Item key={user.uuid}>
+                                                    <Image avatar src={user['profile_picture']}/>
+                                                    <List.Content>{user['full_name']} - {user['email']}</List.Content>
+                                                </List.Item>
+                                            )
+                                        })
                                     }
-                                })
-                            }
-                        />
+                                </List>
+                            </Scrollbars>
+                            </>
+                            :
+                            <Form.Dropdown
+                                fluid selection multiple search
+                                name={'invitees_selected'}
+                                label={'Invited Users'}
+                                value={inputs.invitees_selected}
+                                loading={this.state.inviteeSearching}
+                                options={this.state.invitee_options}
+                                placeholder='Invite users to your meeting'
+                                onChange={this.handleCustomMeetingInputChange.bind(this)}
+                                renderLabel={label =>
+                                    ({
+                                        basic: true,
+                                        color: "black",
+                                        content: `${label.text}`,
+                                        image: {
+                                            src: label.image.src,
+                                            size: 'tiny',
+                                            avatar: true,
+                                            spaced: 'right'
+                                        }
+                                    })
+                                }
+                            />
+                        }
                         {
                             (!inputs.start_now && !meeting_created) &&
                             <>

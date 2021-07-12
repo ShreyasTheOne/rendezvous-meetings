@@ -4,10 +4,14 @@ import axios from 'axios'
 import {
     Modal,
     Form,
-    Button
+    Button,
+    Header,
+    List,
+    Image
 } from 'semantic-ui-react'
 import {getAllUsers} from "../../utils"
-import {apiCreateConversationUrl} from "../../urls";
+import {apiCreateConversationUrl} from "../../urls"
+import {Scrollbars} from "react-custom-scrollbars"
 
 const initialState = {
     participant_options: null,
@@ -144,29 +148,57 @@ class CreateConversation extends Component {
                         success={created}
                         error={error}
                     >
-                        <Form.Dropdown
-                            fluid selection multiple search
-                            name={'participants_selected'}
-                            label={'Add users to your conversation'}
-                            value={inputs.participants_selected}
-                            loading={this.state.participant_searching}
-                            options={this.state.participant_options}
-                            placeholder='Select at least one'
-                            onChange={this.handleCustomMeetingInputChange.bind(this)}
-                            renderLabel={label =>
-                                ({
-                                    basic: true,
-                                    color: "black",
-                                    content: `${label.text} - ${label.value}`,
-                                    image: {
-                                        src: label.image.src,
-                                        size: 'tiny',
-                                        avatar: true,
-                                        spaced: 'right'
+                        {created ?
+                            <>
+                            <Header>
+                                Participants
+                            </Header>
+                            <Scrollbars style={{width: '100%', height: '100px'}}>
+                                <List
+                                    divided
+                                    verticalAlign='middle'
+                                >
+                                    {
+                                        inputs.participants_selected.map(email => {
+                                            const user = this.state.participant_options.filter(user => {
+                                                return user['email'] === email
+                                            })[0]
+                                            return (
+                                                <List.Item key={user.uuid}>
+                                                    <Image avatar src={user['profile_picture']}/>
+                                                    <List.Content>{user['full_name']} - {user['email']}</List.Content>
+                                                </List.Item>
+                                            )
+                                        })
                                     }
-                                })
-                            }
-                        />
+                                </List>
+                            </Scrollbars>
+                            </>
+                            :
+                            <Form.Dropdown
+                                fluid selection multiple search
+                                name={'participants_selected'}
+                                label={'Add users to your conversation'}
+                                value={inputs.participants_selected}
+                                loading={this.state.participant_searching}
+                                options={this.state.participant_options}
+                                placeholder='Select at least one'
+                                onChange={this.handleCustomMeetingInputChange.bind(this)}
+                                renderLabel={label =>
+                                    ({
+                                        basic: true,
+                                        color: "black",
+                                        content: `${label.text}`,
+                                        image: {
+                                            src: label.image.src,
+                                            size: 'tiny',
+                                            avatar: true,
+                                            spaced: 'right'
+                                        }
+                                    })
+                                }
+                            />
+                        }
                         {inputs.participants_selected.length > 1 && <Form.Input
                             fluid
                             name={'title'}

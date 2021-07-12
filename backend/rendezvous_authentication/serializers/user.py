@@ -30,7 +30,7 @@ class UserImageSerializer(serializers.ModelSerializer):
 
 class UserDropdownSerializer(serializers.ModelSerializer):
     key = serializers.CharField(source='email')
-    text = serializers.CharField(source='get_dropdown_text')
+    text = serializers.CharField(source='full_name')
     value = serializers.CharField(source='email')
     image = serializers.SerializerMethodField()
 
