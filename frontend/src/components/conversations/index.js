@@ -10,7 +10,7 @@ import {
     websocketMessageTypes
 } from "../../constants/websocketMessageTypes"
 
-import {apiWSGlobalConversations} from "../../urls"
+import {apiCreateConversationUrl, apiWSGlobalConversations} from "../../urls"
 
 import AppBar from "../appBar"
 import ConversationsList from "./conversationList"
@@ -18,6 +18,7 @@ import CreateConversation from "./createConversation"
 import ConversationDetail from "./conversationDetail"
 
 import './index.css'
+import axios from "axios";
 
 class Conversations extends Component {
 
@@ -49,6 +50,9 @@ class Conversations extends Component {
                 case websocketMessageTypes.NEW_MESSAGE:
                     this.handleNewMessage(message)
                     break
+                case websocketMessageTypes.CONVERSATION_CREATE:
+                    this.handleNewConversation(message)
+                    break
                 default:
                     break
             }
@@ -67,6 +71,26 @@ class Conversations extends Component {
                 conversationID
             }
         })
+    }
+
+    /**
+     * When the user is added to a new conversation, it
+     * immediately shows up on the top of all conversations
+     * @param message
+     */
+    handleNewConversation = message => {
+        const newConversation = message.conversation
+        let found = false
+        let {fullConversationsList} = this.state
+        for (let i=0; i<fullConversationsList.length; i++) {
+            if (fullConversationsList[i].id === newConversation.id)
+                found = true
+        }
+
+        if (!found) {
+            fullConversationsList.unshift(newConversation)
+            this.setState({fullConversationsList})
+        }
     }
 
     /**
@@ -200,6 +224,14 @@ class Conversations extends Component {
         })
     }
 
+    handleConversationCreateSuper = inputs => {
+        this.emitThroughSocket({
+            type: websocketMessageTypes.CONVERSATION_CREATE,
+            message: inputs
+        })
+        window.location.reload()
+    }
+
     render() {
 
         const {
@@ -268,6 +300,7 @@ class Conversations extends Component {
                                 />}
                             </div>
                             <CreateConversation
+                                handleConversationCreateSuper={this.handleConversationCreateSuper.bind(this)}
                                 open={openCreateConversationModal}
                                 openCloseCreateConversationModal={this.openCloseCreateConversationModal.bind(this)}
                             />

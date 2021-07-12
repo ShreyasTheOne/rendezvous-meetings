@@ -101,31 +101,14 @@ class CreateConversation extends Component {
             loading: true
         })
 
-        axios({
-            url: apiCreateConversationUrl(),
-            method: 'post',
-            data: this.state.inputs
-        }).then(res => {
-            this.setState({
-                loading: false,
-                created: true,
-                error_message: false
-            })
-            window.location.reload()
-        }).catch(e => {
-            this.setState({
-                loading: false,
-                created: false,
-                meeting_error: true,
-                error_message: e.response.data.error
-            })
-        })
+        this.props.handleConversationCreateSuper(this.state.inputs)
     }
 
     render () {
         const {
             open,
-            openCloseCreateConversationModal
+            openCloseCreateConversationModal,
+
         } = this.props
 
         const {

@@ -59,6 +59,8 @@ class WorldConversationConsumer(WebsocketConsumer, HelperMixin, DriverMixin):
 
         if type == websocket_message_types.SEND_MESSAGE:
             self.send_new_message_driver(message)
+        if type == websocket_message_types.CONVERSATION_CREATE:
+            self.create_conversation_helper(message)
 
         return
 
