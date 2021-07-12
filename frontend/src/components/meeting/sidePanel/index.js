@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
-import { Menu } from 'semantic-ui-react'
+import { Menu, Label } from 'semantic-ui-react'
 
 import ParticipantControls from "./participantControls"
 import MeetingChat from "./chat"
+import {apiWSChat} from "../../../urls";
+import {websocketMessageTypes} from "../../../constants/websocketMessageTypes";
 
 const containerStyle = {
     width: '100%',
@@ -25,20 +27,126 @@ class MeetingSidePanel extends Component {
 
     constructor(props) {
         super(props)
-        const { onlyChat } = this.props
+        const { onlyChat, code} = this.props
+        this.chatWebSocket = new WebSocket(apiWSChat(code))
         this.state = {
-            activeTab: onlyChat ? 'meeting_chat' : 'participants'
+            chatLoaded: false,
+            messages: [],
+            sendingMessage: false,
+            inputMessage: '',
+            activeTab: onlyChat ? 'meeting_chat' : 'participants',
+            newChatMessageNotification: false
+        }
+    }
+
+    componentDidMount() {
+        this.initialiseChat()
+    }
+
+    initialiseChat() {
+        this.chatWebSocket.onmessage = this.handleChatWebSocketMessage.bind(this)
+        this.scrollToBottomOfChat()
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.props.code !== prevProps.code) {
+            this.chatWebSocket.close()
+            const {code} = this.props
+            this.chatWebSocket = new WebSocket(apiWSChat(code))
+            this.initialiseChat()
+        } else {
+            this.scrollToBottomOfChat()
         }
     }
 
     handleMenuItemClick = (e, {name}) => {
         this.setState({
-            activeTab: name
+            activeTab: name,
+            newChatMessageNotification: false
+        })
+    }
+
+    notifyNewChatMessage = () => {
+        this.setState({
+            newChatMessageNotification: true
+        })
+    }
+
+    scrollToBottomOfChat() {
+        let invisibleDiv = document.getElementById('invisible-div')
+        if (invisibleDiv)
+            invisibleDiv.scrollIntoView({behavior: 'smooth'})
+    }
+
+    handleChatWebSocketMessage = event => {
+        let message = JSON.parse(decodeURIComponent(event.data))
+        const type = message.type
+        message = message.message
+
+        switch (type) {
+            case websocketMessageTypes.MESSAGES_LIST:
+                this.handleMessagesList(message)
+                break
+            case websocketMessageTypes.NEW_MESSAGE:
+                this.handleNewMessage(message)
+                break
+            default:
+                break
+        }
+    }
+
+    emitThroughChatSocket = message => {
+        this.chatWebSocket.send(JSON.stringify(message))
+    }
+
+    handleMessagesList = messages => {
+        const showNotification = (this.state.activeTab === 'participants' && messages.length > 0)
+        this.setState({
+            messages,
+            newChatMessageNotification: showNotification
+        })
+    }
+
+    handleNewMessage = message => {
+        this.setState({
+            messages: [...this.state.messages, message],
+            newChatMessageNotification: this.state.activeTab === 'participants'
+        })
+
+        this.notifyNewChatMessage()
+    }
+
+    updateMessage = inputMessage => {
+        this.setState({
+            inputMessage,
+            newChatMessageNotification: false,
+        })
+    }
+
+    sendMessage = () => {
+        const {inputMessage} = this.state
+        if (!inputMessage) return
+
+        document.getElementById('message-input-box').value = ''
+
+        this.setState({
+            sendingMessage: true,
+            inputMessage: '',
+            newChatMessageNotification: false,
+        })
+
+        this.emitThroughChatSocket({
+            type: websocketMessageTypes.SEND_MESSAGE,
+            message: inputMessage
+        })
+
+        this.setState({
+            sendingMessage: false
         })
     }
 
     render () {
-        const { activeTab } = this.state
+        const { activeTab, newChatMessageNotification } = this.state
         const { onlyChat } = this.props
 
         return (
@@ -62,6 +170,13 @@ class MeetingSidePanel extends Component {
                             onClick={this.handleMenuItemClick.bind(this)}
                         >
                             Chat
+                            {newChatMessageNotification &&
+                            <Label
+                                color='teal'
+                                floating
+                                size={'mini'}
+                                circular
+                            />}
                         </Menu.Item>
                     </Menu>
                 </div>
@@ -73,7 +188,15 @@ class MeetingSidePanel extends Component {
                         />
                     }
                     {activeTab === 'meeting_chat' &&
-                        <MeetingChat onlyChat={onlyChat} code={this.props.code}/>
+                        <MeetingChat
+                            onlyChat={onlyChat}
+
+                            sendingMessage={this.state.sendingMessage}
+                            messages={this.state.messages}
+
+                            updateMessage={this.updateMessage.bind(this)}
+                            sendMessage={this.sendMessage.bind(this)}
+                        />
                     }
                 </div>
             </div>

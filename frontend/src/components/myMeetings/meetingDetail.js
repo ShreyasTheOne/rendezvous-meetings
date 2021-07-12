@@ -142,7 +142,7 @@ class MeetingDetail extends Component {
                                         primary
                                         onClick={() => this.startMeeting(meeting['joining_link'])}
                                     >
-                                        Start
+                                        {meetingTimeType === UPCOMING ? "Start" : "Restart"}
                                     </Button>
                                 </div>
                             </List.Item>

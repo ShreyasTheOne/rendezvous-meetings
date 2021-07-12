@@ -75,7 +75,6 @@ class WhiteboardCanvas extends Component {
         if (elements) {
             elements.forEach(e => {
                 elements_json.push(JSON.parse(e))
-                console.log(JSON.parse(e))
             })
         }
 
@@ -86,7 +85,6 @@ class WhiteboardCanvas extends Component {
     }
 
     handleNewStroke(stroke) {
-        console.log("stroke", stroke)
         this.setState({
             elements: [
                 ...this.state.elements,

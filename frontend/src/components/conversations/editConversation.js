@@ -174,7 +174,7 @@ class EditConversation extends Component {
                                 ({
                                     basic: true,
                                     color: "black",
-                                    content: `${label.text} - ${label.value}`,
+                                    content: `${label.text}`,
                                     image: {
                                         src: label.image.src,
                                         size: 'tiny',

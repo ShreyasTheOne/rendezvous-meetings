@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import {connect} from "react-redux"
 
 import Scrollbars from "react-custom-scrollbars"
-import {Header, Image, Label} from "semantic-ui-react"
+import {Header, Image, Label, Loader} from "semantic-ui-react"
 
 import {
     websocketMessageTypes
@@ -15,7 +15,7 @@ import {
 import ConversationSettings from "./conversationSettings"
 import MessagesList from "./messagesList"
 
-import {centerFullParent} from "../../styles"
+import {centerFullPage, centerFullParent} from "../../styles"
 import {apiWSConversation, route404} from "../../urls"
 
 const containerStyle = {
@@ -69,6 +69,7 @@ class ConversationDetail extends Component {
         const {
             selectedConversationID
         } = this.props
+
         this.conversationWebsocket = new WebSocket(apiWSConversation(selectedConversationID))
         this.conversationWebsocket.onclose = event => {
             if (event.code === CONVERSATION_ID_INVALID.code) {
@@ -80,7 +81,8 @@ class ConversationDetail extends Component {
             sendingMessages: null,
             messages: [],
             showSettings: true,
-            live_meeting_code: ''
+            live_meeting_code: '',
+            loading: true
         }
     }
 
@@ -105,6 +107,7 @@ class ConversationDetail extends Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.props.selectedConversationID !== prevProps.selectedConversationID) {
             this.conversationWebsocket.close()
+            this.setState({loading: true})
             this.conversationWebsocket = this.createWebsocketConnection()
         }
     }
@@ -117,6 +120,7 @@ class ConversationDetail extends Component {
         switch (type) {
             case websocketMessageTypes.CONVERSATION_INFO:
                 this.handleConversationInfo(message)
+                this.setState({loading: false})
                 break
             case websocketMessageTypes.CONVERSATION_MEETING_LIVE:
                 this.handleLiveMeetingStart(message)
@@ -200,7 +204,16 @@ class ConversationDetail extends Component {
             UserInformation
         } = this.props
 
-        const {showSettings, live_meeting_code} = this.state
+        const {showSettings, live_meeting_code, loading} = this.state
+
+        if (loading) {
+            return (
+                <div style={containerStyle}>
+                    <Loader active inline={'centered'}/>
+                </div>
+            )
+        }
+
         const me = UserInformation.user
         const {participants} = selectedConversation
 

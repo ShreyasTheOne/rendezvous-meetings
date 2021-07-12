@@ -9,10 +9,6 @@ import {
     Input,
 } from "semantic-ui-react"
 
-import {apiWSChat} from "../../../../urls"
-import {
-    websocketMessageTypes
-} from "../../../../constants/websocketMessageTypes"
 import './index.css'
 
 const moment = require('moment')
@@ -35,109 +31,6 @@ const inputBoxStyle = {
 
 class MeetingChat extends Component {
 
-    constructor(props) {
-        super(props)
-        const {code} = this.props
-        this.chatWebSocket = new WebSocket(apiWSChat(code))
-
-        this.state = {
-            componentLoaded: false,
-            messages: [],
-            sendingMessage: false,
-            inputMessage: '',
-        }
-    }
-
-    componentDidMount() {
-        this.initialiseChat()
-    }
-
-    initialiseChat() {
-        this.chatWebSocket.onmessage = this.handleChatWebSocketMessage.bind(this)
-
-        this.scrollToBottom()
-
-        const input_field = document.getElementById('message-input-box')
-        input_field.addEventListener("keyup", (e) => {
-            if (e.key === "Enter") {
-                this.sendMessage()
-            }
-        })
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (this.props.code !== prevProps.code) {
-            this.chatWebSocket.close()
-            const {code} = this.props
-            this.chatWebSocket = new WebSocket(apiWSChat(code))
-            this.initialiseChat()
-        } else {
-            this.scrollToBottom()
-        }
-    }
-
-    scrollToBottom() {
-        let invisibleDiv = document.getElementById('invisible-div')
-        if (invisibleDiv)
-            invisibleDiv.scrollIntoView({behavior: 'smooth'})
-    }
-
-    handleChatWebSocketMessage = event => {
-        let message = JSON.parse(decodeURIComponent(event.data))
-        const type = message.type
-        message = message.message
-
-        switch (type) {
-            case websocketMessageTypes.MESSAGES_LIST:
-                this.handleMessagesList(message)
-                break
-            case websocketMessageTypes.NEW_MESSAGE:
-                this.handleNewMessage(message)
-                break
-            default:
-                break
-        }
-    }
-
-    emitThroughSocket = message => {
-        this.chatWebSocket.send(JSON.stringify(message))
-    }
-
-    handleMessagesList = messages => {
-        this.setState({messages})
-    }
-
-    handleNewMessage = message => {
-        this.setState({
-            messages: [...this.state.messages, message]
-        })
-    }
-
-    updateMessage = inputMessage => {
-        this.setState({inputMessage})
-    }
-
-    sendMessage = () => {
-        const {inputMessage} = this.state
-        if (!inputMessage) return
-
-        document.getElementById('message-input-box').value = ''
-
-        this.setState({
-            sendingMessage: true,
-            inputMessage: ''
-        })
-
-        this.emitThroughSocket({
-            type: websocketMessageTypes.SEND_MESSAGE,
-            message: inputMessage
-        })
-
-        this.setState({
-            sendingMessage: false
-        })
-    }
-
     scrollBarThumb = (style, ...props) => {
         return (
             <div
@@ -151,9 +44,35 @@ class MeetingChat extends Component {
         )
     }
 
+    senseEnterKeyPress = () => {
+        const input_field = document.getElementById('message-input-box')
+
+        if (input_field) {
+            input_field.addEventListener("keyup", (e) => {
+                if (e.key === "Enter") {
+                    this.props.sendMessage()
+                }
+            })
+        }
+    }
+
+    componentDidMount() {
+        this.senseEnterKeyPress()
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        this.senseEnterKeyPress()
+    }
+
     render() {
-        const {onlyChat} = this.props
-        const {messages, sendingMessage} = this.state
+        const {
+            onlyChat,
+            sendingMessage,
+            messages,
+            sendMessage,
+            updateMessage
+        } = this.props
+
         const scrollbarHeight = onlyChat ? 'calc(100vh - 108px - 5rem)' : 'calc(100vh - 60px - 5rem)'
 
         return (
@@ -223,11 +142,11 @@ class MeetingChat extends Component {
                                 content='Send'
                                 loading={sendingMessage}
                                 disabled={sendingMessage}
-                                onClick={() => {this.sendMessage()}}
+                                onClick={() => {sendMessage()}}
                             />
                         }
                         onChange={(e, d) => {
-                            this.updateMessage(d.value)
+                            updateMessage(d.value)
                         }}
                         placeholder='Type your message...'
                     />
