@@ -23,7 +23,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        I search the user database for users whose email or name match the search query.
+        Searches the user database for users whose email or name match the search query.
 
         Returns
         -------

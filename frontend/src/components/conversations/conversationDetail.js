@@ -15,7 +15,7 @@ import {
 import ConversationSettings from "./conversationSettings"
 import MessagesList from "./messagesList"
 
-import {centerFullPage, centerFullParent} from "../../styles"
+import {centerFullParent} from "../../styles"
 import {apiWSConversation, route404} from "../../urls"
 
 const containerStyle = {

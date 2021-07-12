@@ -49,9 +49,11 @@ export const changeMeetingLoaded = newState => {
     }
 }
 
-/*
-    Action to create peer connections with all other participants
-*/
+/**
+ * Stores the object of participants received in the state
+ * @param participants  JSON object of meeting participants
+ * @returns {function(...[*]=)} REDUX DISPATCH
+ */
 export const setParticipantsList = participants => {
     return dispatch => {
         dispatch({

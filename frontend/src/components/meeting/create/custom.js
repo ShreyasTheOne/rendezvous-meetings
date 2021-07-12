@@ -1,7 +1,7 @@
 import axios from "axios"
 import React, {Component} from 'react'
 import {Scrollbars} from 'react-custom-scrollbars'
-import {apiCreateCustomMeetingUrl, apiUserSearchUrl, routeMeeting} from "../../../urls"
+import {apiCreateCustomMeetingUrl, routeMeeting} from "../../../urls"
 
 import {DateTimeInput} from "semantic-ui-calendar-react"
 import {
@@ -15,8 +15,7 @@ import {
     Message,
     Icon, Image
 } from "semantic-ui-react"
-import {getAllUsers} from "../../../utils";
-import {ADMIT_USER, REJECT_USER} from "../../../constants/websocketMessageTypes";
+import {getAllUsers} from "../../../utils"
 
 const moment = require('moment')
 

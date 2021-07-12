@@ -9,11 +9,15 @@ from .get_users_from_participants import get_users_from_participants
 
 
 def get_all_users_from_meeting(meeting_id, time_period):
-    """
-    Returns a serialised list of all the users that had:
-    - Hosted the meeting
-    - Attended the meeting
-    - Had been invited to the meeting
+    """ Extracts User objects from the list of Participant objects of a Meeting
+
+    Returns
+    -------
+    Response : list
+        A serialised list of all the users that had:
+        - Hosted the meeting
+        - Attended the meeting
+        - Had been invited to the meeting
     """
 
     if time_period == 'PAST':
