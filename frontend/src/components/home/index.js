@@ -104,7 +104,7 @@ class Home extends Component {
         const me = UserInformation.user
         return (
             <>
-                <AppBar/>
+                <AppBar showMyName/>
                 <div id='home-parent'
                      style={{backgroundImage: "url(/doda_black.jpg)"}}>
                     <NavBar menu_item={'home'}/>

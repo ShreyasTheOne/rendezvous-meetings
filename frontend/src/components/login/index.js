@@ -21,7 +21,7 @@ class Login extends Component {
     render () {
         return (
             <div style={containerStyle}>
-                <AppBar/>
+                <AppBar showMyName/>
                 <div style={{
                     ...centerFullParent,
                     height: 'calc(100vh - 48px)'
