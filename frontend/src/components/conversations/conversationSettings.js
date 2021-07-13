@@ -142,7 +142,7 @@ class ConversationSettings extends Component {
                             <Button
                                 fluid
                                 size={'large'}
-                                color={'yellow'}
+                                color={'blue'}
                                 disabled={this.state.loading}
                                 onClick={() => this.editMeeting()}
                             >
