@@ -2,10 +2,12 @@ import string
 import random
 
 def generate_random_code():
-    """
-    Generates random unique code for a new meeting
-    @rtype:    string
-    @returns:  randomly generate string of the form 'xxx-xxx-xxx'
+    """ Generates random unique code for a new meeting
+
+    Returns
+    -------
+    Response: basestring
+        A randomly generate string of the form 'xxx-xxx-xxx'
     """
 
     # Code contains 3 parts

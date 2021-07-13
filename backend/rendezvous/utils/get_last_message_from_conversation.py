@@ -3,8 +3,12 @@ from rendezvous.serializers.message import PersonalMessageSerializer
 
 
 def get_last_message_from_conversation(conversation):
-    """
-    Returns the serialized last message that was sent in the conversation
+    """ Extracts the last message that was sent in the conversation
+
+    Returns
+    -------
+    Response: object
+        Yhe serialized last PersonalMessage that was sent in the conversation
     """
 
     all_messages = PersonalMessage.objects.filter(receiver=conversation)

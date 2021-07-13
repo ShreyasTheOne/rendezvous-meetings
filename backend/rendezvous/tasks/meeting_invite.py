@@ -5,8 +5,23 @@ from rendezvous.tasks.email import send_email
 
 @shared_task(name='send_meeting_invite_notifications')
 def send_meeting_invite_notifications(meeting, user_emails):
-    """
-    Craft and send email to notify user about new meeting invitation
+    """ Craft and send email to notify user about new meeting invitation
+
+    Parameters
+    ----------
+    meeting: Meeting object
+        A meeting object containing:
+            - title
+            - code
+            - description
+            - joining_link
+            - scheduled_start_time
+            - host_name
+        of the meeting which the email is notifying about
+    user_emails: list
+        A list of email addresses of all the users invited to the meeting,
+        to whom the invitations will be sent
+
     """
 
     title = meeting.get('title')

@@ -141,3 +141,11 @@ export function handleUserAudioOff (userID) {
         }
     })
 }
+
+export function getScreen () {
+
+}
+
+export function startRecording () {
+    
+}

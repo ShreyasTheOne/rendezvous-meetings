@@ -32,7 +32,7 @@ class VideoGrid extends Component {
         const newStreams = nextProps.streams
         const newParticipants = nextProps.MeetingInformation.participants
 
-        const {streams, MeetingInformation, VideoCallInformation} = this.props
+        const {streams, MeetingInformation} = this.props
         const {participants} = MeetingInformation
 
         Object.keys(newStreams).forEach(uuid => {

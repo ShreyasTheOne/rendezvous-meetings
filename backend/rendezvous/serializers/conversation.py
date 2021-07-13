@@ -1,12 +1,13 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
-from rendezvous.models import Meeting
+from rendezvous.models import Conversation
 from rendezvous.utils.get_last_message_from_conversation import get_last_message_from_conversation
 
 from rendezvous_authentication.serializers.user import UserDropdownSerializer
 
 
 class ConversationSerializer(ModelSerializer):
+
     participants = UserDropdownSerializer(many=True)
     last_message = SerializerMethodField()
 
@@ -14,7 +15,7 @@ class ConversationSerializer(ModelSerializer):
         return get_last_message_from_conversation(obj)
 
     class Meta:
-        model = Meeting
+        model = Conversation
         fields = [
             'id',
             'title',
